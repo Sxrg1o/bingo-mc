@@ -7,7 +7,7 @@ Connect using SSH: Open a terminal and use the following command structure:
 ```
 ssh -i /path/to/my-key.pem ubuntu@<your_ec2_public_ip>
 ```
-The ec2 public ipv4 is 54.188.11.65.
+The ec2 public ipv4 should be on .env
 
 ## Start the minecraft server inside the EC2
 Start a new screen session named "minecraft":

@@ -20,3 +20,7 @@ run/
 debug/
 
 .gradletasknamecache
+
+# keys
+*.pem
+.env
