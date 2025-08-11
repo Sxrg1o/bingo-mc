@@ -19,3 +19,7 @@ commands:
     description: Bingo Card command
     usage: /bingocard
     aliases: [bc]
+  bingoconfig:
+    description: Bingo Configuration command
+    usage: /bingoconfig
+    aliases: [bg]

@@ -358,4 +358,13 @@ public class GameManager {
     public BingoCard getSharedBingoCard() {
         return sharedBingoCard;
     }
+
+    /**
+     * Gets the current match settings.
+     *
+     * @return The current match settings
+     */
+    public MatchSettings getCurrentMatchSettings() {
+        return currentMatchSettings;
+    }
 }

@@ -14,7 +14,7 @@ public class MatchSettings {
     /** The game mode that determines win conditions */
     private GameMode gameMode = GameMode.STANDARD;
     /** The team assignment mode that determines how players are grouped */
-    private TeamMode teamMode = TeamMode.RANDOM;
+    private TeamMode teamMode = TeamMode.MANUAL;
     /** The difficulty level that affects item selection */
     private DifficultyLevel difficultyLevel = DifficultyLevel.MEDIUM;
     /** The duration of timed matches in minutes */
@@ -22,7 +22,7 @@ public class MatchSettings {
 
     /**
      * Creates a new MatchSettings instance with default values.
-     * Defaults to STANDARD game mode, RANDOM team mode, MEDIUM difficulty, and 25-minute duration.
+     * Defaults to STANDARD game mode, MANUAL team mode, MEDIUM difficulty, and 25-minute duration.
      */
     public MatchSettings() {}
 
@@ -80,5 +80,41 @@ public class MatchSettings {
      */
     public DifficultyLevel getDifficultyLevel() {
         return difficultyLevel;
+    }
+
+    /**
+     * Sets the game mode setting.
+     *
+     * @param gameMode The game mode that determines win conditions
+     */
+    public void setGameMode(GameMode gameMode) {
+        this.gameMode = gameMode;
+    }
+
+    /**
+     * Sets the team mode setting.
+     *
+     * @param teamMode The team assignment mode for player grouping
+     */
+    public void setTeamMode(TeamMode teamMode) {
+        this.teamMode = teamMode;
+    }
+
+    /**
+     * Sets the difficulty level setting.
+     *
+     * @param difficultyLevel The difficulty level for item selection
+     */
+    public void setDifficultyLevel(DifficultyLevel difficultyLevel) {
+        this.difficultyLevel = difficultyLevel;
+    }
+
+    /**
+     * Sets the game duration setting.
+     *
+     * @param gameDuration The duration of timed matches in minutes
+     */
+    public void setGameDuration(int gameDuration) {
+        this.gameDuration = gameDuration;
     }
 }
