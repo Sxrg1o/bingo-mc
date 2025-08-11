@@ -8,6 +8,7 @@ import com.bingaso.bingo.model.BingoTeam;
 import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
 import com.bingaso.bingo.model.TeamMode;
+import com.bingaso.bingo.utils.ItemRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,13 +20,16 @@ public class GameManager {
     private GameState currentState = GameState.LOBBY;
     private MatchSettings currentMatchSettings;
     private BingoCard sharedBingoCard;
-    private long matchStartTime;
+    private final CardGenerator cardGenerator;
+    private ItemRepository itemRepository;
     private final List<BingoTeam> teams = new ArrayList<>();
     private List<BingoTeam> winnerTeams = new ArrayList<>();
     private BukkitTask matchEndTask = null;
 
     public GameManager() {
         this.currentMatchSettings = new MatchSettings();
+        this.itemRepository = new ItemRepository();
+        this.cardGenerator = new CardGenerator(this.itemRepository);
     }
 
     public void updateSettings(MatchSettings matchSettings) {
@@ -44,8 +48,8 @@ public class GameManager {
 
         // Generate card
         DifficultyLevel difficulty = currentMatchSettings.getDifficultyLevel();
-        this.sharedBingoCard = new BingoCard();
-        this.sharedBingoCard.generateNewCard(difficulty);
+        this.sharedBingoCard = cardGenerator.generateCard(difficulty);
+
         // Team management
         if (currentMatchSettings.getTeamMode() == TeamMode.MANUAL) {
             // TODO: Team GUI
@@ -66,7 +70,6 @@ public class GameManager {
 
         // When teams are ready
         this.currentState = GameState.IN_PROGRESS;
-        this.matchStartTime = System.currentTimeMillis();
 
         if (currentMatchSettings.getGameMode() == GameMode.TIMED) {
             long durationInTicks =
