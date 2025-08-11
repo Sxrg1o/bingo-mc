@@ -4,9 +4,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BingoPlugin extends JavaPlugin {
 
-    // This class is a singleton
-    public final static BingoPlugin INSTANCE = new BingoPlugin();
+    public static final BingoPlugin INSTANCE = new BingoPlugin();
+
     private BingoPlugin() {}
+
     public static BingoPlugin getInstance() {
         return INSTANCE;
     }

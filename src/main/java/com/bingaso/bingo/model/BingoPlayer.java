@@ -1,15 +1,15 @@
 package com.bingaso.bingo.model;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public class BingoPlayer {
-    private final static Map<UUID, BingoPlayer> ALL_PLAYERS = new HashMap<>();
+
+    private static final Map<UUID, BingoPlayer> ALL_PLAYERS = new HashMap<>();
 
     public static BingoPlayer getBingoPlayer(UUID uuid) {
         return ALL_PLAYERS.get(uuid);
@@ -42,17 +42,17 @@ public class BingoPlayer {
             if (newTeam != null) {
                 newTeam.addPlayer(this);
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
 
     public Player getOnlinePlayer() {
-        if(!isOnline()) {
+        if (!isOnline()) {
             return null;
-        } else{
+        } else {
             return Bukkit.getPlayer(uuid);
         }
     }
+
     public BingoPlayer(Player player) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
@@ -65,6 +65,10 @@ public class BingoPlayer {
 
     public String getName() {
         return name;
+    }
+
+    public BingoTeam getTeam() {
+        return team;
     }
 
     public boolean isOnline() {
@@ -102,10 +106,16 @@ public class BingoPlayer {
 
     @Override
     public String toString() {
-        return "BingoPlayer{" +
-                "uuid=" + uuid +
-                ", name='" + name + '\'' +
-                ", isOnline=" + isOnline +
-                '}';
+        return (
+            "BingoPlayer{" +
+            "uuid=" +
+            uuid +
+            ", name='" +
+            name +
+            '\'' +
+            ", isOnline=" +
+            isOnline +
+            '}'
+        );
     }
 }

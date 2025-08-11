@@ -1,12 +1,14 @@
 package com.bingaso.bingo.model;
 
-import org.bukkit.entity.Player;
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 /**
  * Represents a team of players in the Bingo game.
@@ -14,10 +16,12 @@ import java.util.UUID;
  * where players log off and on.
  */
 public class BingoTeam {
+
     /**
      * Thrown when an attempt is made to add a player to a team that is already full.
      */
     public static class MaxPlayersException extends Exception {
+
         public MaxPlayersException(String message) {
             super(message);
         }
@@ -28,6 +32,7 @@ public class BingoTeam {
      * that has not yet been set.
      */
     public static class ConfigNotSetException extends Exception {
+
         public ConfigNotSetException(String message) {
             super(message);
         }
@@ -38,6 +43,7 @@ public class BingoTeam {
      * already in.
      */
     public static class PlayersAlreadyInTeam extends Exception {
+
         public PlayersAlreadyInTeam(String message) {
             super(message);
         }
@@ -52,8 +58,8 @@ public class BingoTeam {
     public static void setTeamsMaxSize(int newMaxSize) {
         MAX_SIZE = newMaxSize;
         // Deletes all teams as size has changes
-        for(BingoTeam t: ALL_TEAMS) {
-            for(BingoPlayer player: t.getPlayers()) {
+        for (BingoTeam t : ALL_TEAMS) {
+            for (BingoPlayer player : t.getPlayers()) {
                 t.removePlayer(player);
             }
         }
@@ -73,10 +79,11 @@ public class BingoTeam {
     public static int getTeamsMaxSize() {
         return MAX_SIZE;
     }
-    
+
     private final List<BingoPlayer> players;
     private String name = "";
     private final UUID uuid;
+    private final Set<Material> foundItems = new HashSet<>();
 
     /**
      * Constructs a new Team with a given name.
@@ -107,7 +114,7 @@ public class BingoTeam {
 
     /**
      * Changes the team's name.
-     * 
+     *
      * @param name The new name of the team.
      */
     public void SetName(String name) {
@@ -123,15 +130,18 @@ public class BingoTeam {
      * @throws MaxPlayersException If the team is already full.
      * @throws PlayersAlreadyInTeam If the player is already in the team.
      */
-    public void addPlayer(BingoPlayer bingoPlayer) throws ConfigNotSetException, MaxPlayersException, PlayersAlreadyInTeam {
-        if(BingoTeam.MAX_SIZE == -1) {
+    public void addPlayer(BingoPlayer bingoPlayer)
+        throws ConfigNotSetException, MaxPlayersException, PlayersAlreadyInTeam {
+        if (BingoTeam.MAX_SIZE == -1) {
             throw new BingoTeam.ConfigNotSetException("MaxSize not set.");
         }
-        if(players.size() + 1 > BingoTeam.MAX_SIZE) {
+        if (players.size() + 1 > BingoTeam.MAX_SIZE) {
             throw new BingoTeam.MaxPlayersException("Team is already full");
         }
         if (players.contains(bingoPlayer)) {
-            throw new BingoTeam.PlayersAlreadyInTeam("Player is already in the team.");
+            throw new BingoTeam.PlayersAlreadyInTeam(
+                "Player is already in the team."
+            );
         }
         players.add(bingoPlayer);
     }
@@ -145,7 +155,7 @@ public class BingoTeam {
      */
     public boolean removePlayer(BingoPlayer bingoPlayer) {
         boolean b = players.remove(bingoPlayer);
-        if(b && players.size() == 0) {
+        if (b && players.size() == 0) {
             ALL_TEAMS.remove(this);
         }
         return b;
@@ -180,6 +190,18 @@ public class BingoTeam {
         return Collections.unmodifiableList(players);
     }
 
+    public void addFoundItem(Material item) {
+        foundItems.add(item);
+    }
+
+    public Set<Material> getFoundItems() {
+        return foundItems;
+    }
+
+    public void clearFoundItems() {
+        foundItems.clear();
+    }
+
     /**
      * Gets a list of all team members who are currently online.
      *
@@ -187,7 +209,7 @@ public class BingoTeam {
      */
     public List<Player> getOnlinePlayers() {
         List<Player> onlinePlayers = new ArrayList<>();
-        for(BingoPlayer player: players) {
+        for (BingoPlayer player : players) {
             Player onlinePlayer = player.getOnlinePlayer();
             if (onlinePlayer != null) {
                 onlinePlayers.add(onlinePlayer);
