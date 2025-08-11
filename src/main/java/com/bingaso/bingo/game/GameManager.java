@@ -1,12 +1,18 @@
 package com.bingaso.bingo.game;
 
+import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.model.BingoCard;
 import com.bingaso.bingo.model.BingoItem;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
+import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
 import com.bingaso.bingo.model.TeamMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.Material;
+import org.bukkit.scheduler.BukkitTask;
 
 public class GameManager {
 
@@ -14,6 +20,9 @@ public class GameManager {
     private MatchSettings currentMatchSettings;
     private BingoCard sharedBingoCard;
     private long matchStartTime;
+    private final List<BingoTeam> teams = new ArrayList<>();
+    private List<BingoTeam> winnerTeams = new ArrayList<>();
+    private BukkitTask matchEndTask = null;
 
     public GameManager() {
         this.currentMatchSettings = new MatchSettings();
@@ -26,8 +35,17 @@ public class GameManager {
     }
 
     public void startMatch() {
-        // First generate card
+        // Restart state
+        this.teams.clear();
+        this.winnerTeams.clear();
+        if (this.matchEndTask != null) {
+            this.matchEndTask.cancel();
+        }
+
+        // Generate card
+        DifficultyLevel difficulty = currentMatchSettings.getDifficultyLevel();
         this.sharedBingoCard = new BingoCard();
+        this.sharedBingoCard.generateNewCard(difficulty);
         // Team management
         if (currentMatchSettings.getTeamMode() == TeamMode.MANUAL) {
             // TODO: Team GUI
@@ -35,14 +53,69 @@ public class GameManager {
             // TODO: Random team assignment
         }
 
+        for (BingoTeam team : BingoTeam.getAllTeams()) {
+            if (team.getSize() > 0) {
+                this.teams.add(team);
+            }
+        }
+
+        if (teams.isEmpty()) {
+            // TODO: Cancel match if no valid teams
+            return;
+        }
+
         // When teams are ready
         this.currentState = GameState.IN_PROGRESS;
         this.matchStartTime = System.currentTimeMillis();
+
+        if (currentMatchSettings.getGameMode() == GameMode.TIMED) {
+            long durationInTicks =
+                currentMatchSettings.getGameDuration() * 60 * 20L;
+            this.matchEndTask = BingoPlugin.getInstance()
+                .getServer()
+                .getScheduler()
+                .runTaskLater(
+                    BingoPlugin.getInstance(),
+                    this::determineTimedWinners,
+                    durationInTicks
+                );
+        }
+
+        // TODO: Broadcast match start, spreadplayers, kit? idk
     }
 
     public void stopMatch() {
-        // idk if we need smth more
+        // idk if we need smth more, xd tp to lobby
+        if (this.matchEndTask != null) {
+            this.matchEndTask.cancel();
+            this.matchEndTask = null;
+        }
         this.currentState = GameState.LOBBY;
+        this.teams.clear();
+        this.winnerTeams.clear();
+    }
+
+    // If match has winner
+    private void endMatch(List<BingoTeam> winners) {
+        if (currentState != GameState.IN_PROGRESS) return;
+
+        this.currentState = GameState.FINISHING;
+        this.winnerTeams = winners;
+
+        if (winners.isEmpty()) {
+            // TODO: No winners (error)
+        } else if (winners.size() == 1) {
+            // TODO: Broadcast winner
+        } else {
+            // TODO: Broadcast draw
+        }
+
+        if (this.matchEndTask != null) {
+            this.matchEndTask.cancel();
+            this.matchEndTask = null;
+        }
+
+        // TODO: Stop match after celebration
     }
 
     public void onPlayerFindsItem(BingoPlayer player, Material item) {
@@ -52,6 +125,8 @@ public class GameManager {
         if (bingoItem == null) return;
 
         BingoTeam team = player.getTeam();
+
+        if (!teams.contains(team)) return;
 
         if (
             currentMatchSettings.getGameMode() == GameMode.LOCKED &&
@@ -75,8 +150,87 @@ public class GameManager {
         GameMode mode = currentMatchSettings.getGameMode();
         switch (mode) {
             case LOCKED:
+                int teamCount = teams.size();
+                if (teamCount == 0) return;
+
+                int requiredItems = (int) Math.floor(25.0 / teamCount) + 1;
+                int foundItems = team.getFoundItems().size();
+
+                if (foundItems >= requiredItems) {
+                    endMatch(Collections.singletonList(team));
+                }
+                break;
             case STANDARD:
+                // Rows
+                BingoItem[][] items = sharedBingoCard.getItems();
+                for (int i = 0; i < 5; i++) {
+                    boolean rowComplete = true;
+                    for (int j = 0; j < 5; j++) {
+                        if (!items[i][j].isCompletedBy(team)) {
+                            rowComplete = false;
+                            break;
+                        }
+                    }
+                    if (rowComplete) {
+                        endMatch(Collections.singletonList(team));
+                    }
+                }
+                // Columns
+                for (int i = 0; i < 5; i++) {
+                    boolean columnComplete = true;
+                    for (int j = 0; j < 5; j++) {
+                        if (!items[j][i].isCompletedBy(team)) {
+                            columnComplete = false;
+                            break;
+                        }
+                    }
+                    if (columnComplete) {
+                        endMatch(Collections.singletonList(team));
+                    }
+                }
+                // Diagonal
+                boolean diagonalComplete = true;
+                for (int i = 0; i < 5; i++) {
+                    if (
+                        !items[i][i].isCompletedBy(team) ||
+                        !items[i][4 - i].isCompletedBy(team)
+                    ) {
+                        diagonalComplete = false;
+                        break;
+                    }
+                }
+                if (diagonalComplete) {
+                    endMatch(Collections.singletonList(team));
+                }
+                break;
             case BLACKOUT:
+                int totalFoundItems = team.getFoundItems().size();
+                if (totalFoundItems == 25) {
+                    endMatch(Collections.singletonList(team));
+                }
+                break;
+            case TIMED:
+                break;
         }
+    }
+
+    private void determineTimedWinners() {
+        if (currentState != GameState.IN_PROGRESS) return;
+
+        List<BingoTeam> potentialWinners = new ArrayList<>();
+        int highestScore = -1;
+
+        for (BingoTeam team : this.teams) {
+            int currentScore = team.getFoundItems().size();
+            if (currentScore > highestScore) {
+                highestScore = currentScore;
+                potentialWinners.clear();
+                potentialWinners.add(team);
+            } else if (currentScore == highestScore) {
+                potentialWinners.add(team);
+            }
+        }
+
+        endMatch(potentialWinners);
     }
 }

@@ -5,10 +5,10 @@ import org.bukkit.Material;
 public class BingoCard {
 
     private final BingoItem[][] items;
+    private final int size = 5;
 
     public BingoCard() {
-        BingoCard newCard = generateNewCard();
-        this.items = newCard.getItems();
+        this.items = new BingoItem[size][size];
     }
 
     public BingoCard(BingoItem[][] items) {
@@ -19,8 +19,7 @@ public class BingoCard {
         return items;
     }
 
-    public BingoCard generateNewCard() {
-        // TODO: Generate card
+    public BingoCard generateNewCard(DifficultyLevel diff) {
         return null;
     }
 
