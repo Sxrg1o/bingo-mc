@@ -1,9 +1,10 @@
 name: MiBingo
 version: ${project.version}
 main: com.bingaso.bingo.BingoPlugin
-api-version: '1.21.8'
+api-version: "1.21.8"
 description: Plugin de bingo
 author: Sergio
+api: 1.21.8
 
 commands:
   team:

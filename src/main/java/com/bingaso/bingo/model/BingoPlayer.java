@@ -1,18 +1,18 @@
 package com.bingaso.bingo.model;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 /**
  * Represents a player in the Bingo game with team management capabilities.
  */
 public class BingoPlayer {
-    private final static Map<UUID, BingoPlayer> ALL_PLAYERS = new HashMap<>();
+
+    private static final Map<UUID, BingoPlayer> ALL_PLAYERS = new HashMap<>();
 
     /**
      * Retrieves a BingoPlayer instance by their UUID.

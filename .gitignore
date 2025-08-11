@@ -24,3 +24,7 @@ debug/
 # keys
 *.pem
 .env
+
+bin
+
+.project

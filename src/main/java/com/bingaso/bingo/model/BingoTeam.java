@@ -1,21 +1,29 @@
 package com.bingaso.bingo.model;
 
-import org.bukkit.entity.Player;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+
+import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
  * Represents a team of players in the Bingo game.
  */
 public class BingoTeam {
+
     /**
      * Thrown when an attempt is made to add a player to a team that is already full.
      */
     public static class MaxPlayersException extends Exception {
+
         public MaxPlayersException(String message) {
             super(message);
         }
@@ -109,6 +117,8 @@ public class BingoTeam {
 
     private final List<BingoPlayer> players = new ArrayList<>();
     private String name = "";
+    private final Set<Material> foundItems = new HashSet<>();
+    private final NamedTextColor color;
 
     /**
      * Constructs a new Team with a given name.
@@ -119,6 +129,8 @@ public class BingoTeam {
         if (!isTeamNameAvailable(name)) {
             throw new TeamNameAlreadyExistsException("A team with the name '" + name + "' already exists.");
         }
+        this.color = TEAM_COLORS.get(nextColorIdx);
+        nextColorIdx = (nextColorIdx + 1) % TEAM_COLORS.size();
         this.name = name;
         ALL_TEAMS.put(this.name, this);
     }
@@ -208,6 +220,10 @@ public class BingoTeam {
         return players.size();
     }
 
+    public NamedTextColor getColor() {
+        return color;
+    }
+
     /**
      * Gets an unmodifiable list of all player UUIDs on this team.
      * This prevents external code from modifying the team's player list directly.
@@ -218,6 +234,18 @@ public class BingoTeam {
         return Collections.unmodifiableList(players);
     }
 
+    public void addFoundItem(Material item) {
+        foundItems.add(item);
+    }
+
+    public Set<Material> getFoundItems() {
+        return foundItems;
+    }
+
+    public void clearFoundItems() {
+        foundItems.clear();
+    }
+
     /**
      * Gets a list of all team members who are currently online.
      *
@@ -225,7 +253,7 @@ public class BingoTeam {
      */
     public List<Player> getOnlinePlayers() {
         List<Player> onlinePlayers = new ArrayList<>();
-        for(BingoPlayer player: players) {
+        for (BingoPlayer player : players) {
             Player onlinePlayer = player.getOnlinePlayer();
             if (onlinePlayer != null) {
                 onlinePlayers.add(onlinePlayer);
@@ -259,4 +287,12 @@ public class BingoTeam {
         BingoTeam team = (BingoTeam) o;
         return Objects.equals(name, team.name);
     }
+
+    private static final List<NamedTextColor> TEAM_COLORS = Arrays.asList(
+        NamedTextColor.BLUE,
+        NamedTextColor.GREEN,
+        NamedTextColor.RED,
+        NamedTextColor.YELLOW
+    );
+    private static int nextColorIdx = 0;
 }
