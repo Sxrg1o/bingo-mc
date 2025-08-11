@@ -1,12 +1,14 @@
 package com.bingaso.bingo.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -84,6 +86,7 @@ public class BingoTeam {
     private String name = "";
     private final UUID uuid;
     private final Set<Material> foundItems = new HashSet<>();
+    private final NamedTextColor color;
 
     /**
      * Constructs a new Team with a given name.
@@ -91,6 +94,8 @@ public class BingoTeam {
     public BingoTeam() {
         this.players = new ArrayList<>();
         this.uuid = UUID.randomUUID();
+        this.color = TEAM_COLORS.get(nextColorIdx);
+        nextColorIdx = (nextColorIdx + 1) % TEAM_COLORS.size();
         ALL_TEAMS.add(this);
     }
 
@@ -180,6 +185,10 @@ public class BingoTeam {
         return players.size();
     }
 
+    public NamedTextColor getColor() {
+        return color;
+    }
+
     /**
      * Gets an unmodifiable list of all player UUIDs on this team.
      * This prevents external code from modifying the team's player list directly.
@@ -253,4 +262,12 @@ public class BingoTeam {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    private static final List<NamedTextColor> TEAM_COLORS = Arrays.asList(
+        NamedTextColor.BLUE,
+        NamedTextColor.GREEN,
+        NamedTextColor.RED,
+        NamedTextColor.YELLOW
+    );
+    private static int nextColorIdx = 0;
 }

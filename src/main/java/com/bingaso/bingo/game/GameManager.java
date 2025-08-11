@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 public class GameManager {
@@ -20,8 +21,12 @@ public class GameManager {
     private GameState currentState = GameState.LOBBY;
     private MatchSettings currentMatchSettings;
     private BingoCard sharedBingoCard;
+    private long matchStartTime;
+
     private final CardGenerator cardGenerator;
     private final Broadcaster broadcaster;
+    private final BingoScoreboard scoreboard;
+
     private final List<BingoTeam> teams = new ArrayList<>();
     private List<BingoTeam> winnerTeams = new ArrayList<>();
     private BukkitTask matchEndTask = null;
@@ -30,12 +35,34 @@ public class GameManager {
         this.currentMatchSettings = new MatchSettings();
         this.cardGenerator = cardGenerator;
         this.broadcaster = broadcaster;
+        this.scoreboard = new BingoScoreboard(this);
     }
 
     public void updateSettings(MatchSettings matchSettings) {
         if (currentState == GameState.LOBBY) {
             this.currentMatchSettings = matchSettings;
         }
+    }
+
+    public GameState getCurrentState() {
+        return currentState;
+    }
+
+    public long getElapsedSeconds() {
+        if (currentState != GameState.IN_PROGRESS) return 0;
+        return (System.currentTimeMillis() - matchStartTime) / 1000;
+    }
+
+    public List<Player> getOnlinePlayersInMatch() {
+        List<Player> players = new ArrayList<>();
+        for (BingoTeam team : teams) {
+            players.addAll(team.getOnlinePlayers());
+        }
+        return players;
+    }
+
+    public List<BingoTeam> getTeams() {
+        return teams;
     }
 
     public void startMatch() {
@@ -70,6 +97,7 @@ public class GameManager {
 
         // When teams are ready
         this.currentState = GameState.IN_PROGRESS;
+        this.matchStartTime = System.currentTimeMillis();
 
         if (currentMatchSettings.getGameMode() == GameMode.TIMED) {
             long durationInTicks =
@@ -86,21 +114,21 @@ public class GameManager {
 
         // TODO: Spreadplayers, kit? idk
         broadcaster.announceStart();
+        this.scoreboard.start();
     }
 
-    // If ended manually by op
     public void stopMatch() {
         // idk if we need smth more, xd tp to lobby
         if (this.matchEndTask != null) {
             this.matchEndTask.cancel();
             this.matchEndTask = null;
         }
+        this.scoreboard.stop();
         this.currentState = GameState.LOBBY;
         this.teams.clear();
         this.winnerTeams.clear();
     }
 
-    // If match has winner
     private void endMatch(List<BingoTeam> winners) {
         if (currentState != GameState.IN_PROGRESS) return;
 
@@ -109,12 +137,9 @@ public class GameManager {
 
         broadcaster.announceWinners(winners);
 
-        if (this.matchEndTask != null) {
-            this.matchEndTask.cancel();
-            this.matchEndTask = null;
-        }
+        // TODO: Celebration or smth like that idk
 
-        // TODO: Stop match after celebration
+        stopMatch();
     }
 
     public void onPlayerFindsItem(BingoPlayer player, Material item) {
