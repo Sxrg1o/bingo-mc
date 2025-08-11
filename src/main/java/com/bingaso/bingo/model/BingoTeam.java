@@ -4,14 +4,12 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Represents a team of players in the Bingo game.
- * Manages players by their unique identifiers (UUIDs) to handle cases
- * where players log off and on.
  */
 public class BingoTeam {
     /**
@@ -24,27 +22,16 @@ public class BingoTeam {
     }
 
     /**
-     * Thrown when an operation requires a configuration value (like max team size)
-     * that has not yet been set.
+     * Thrown when attempting to create a team with a name that already exists.
      */
-    public static class ConfigNotSetException extends Exception {
-        public ConfigNotSetException(String message) {
+    public static class TeamNameAlreadyExistsException extends Exception {
+        public TeamNameAlreadyExistsException(String message) {
             super(message);
         }
     }
 
-    /**
-     * Thrown when attempting to add a player into a team in which it is
-     * already in.
-     */
-    public static class PlayersAlreadyInTeam extends Exception {
-        public PlayersAlreadyInTeam(String message) {
-            super(message);
-        }
-    }
-
-    private static final List<BingoTeam> ALL_TEAMS = new ArrayList<>();
-    private static int MAX_SIZE = -1;
+    private static final HashMap<String, BingoTeam> ALL_TEAMS = new HashMap<>();
+    private static int MAX_SIZE = 1;
 
     /**
      * Sets the maximum size of the teams
@@ -52,19 +39,11 @@ public class BingoTeam {
     public static void setTeamsMaxSize(int newMaxSize) {
         MAX_SIZE = newMaxSize;
         // Deletes all teams as size has changes
-        for(BingoTeam t: ALL_TEAMS) {
+        for(BingoTeam t: new ArrayList<>(ALL_TEAMS.values())) {
             for(BingoPlayer player: t.getPlayers()) {
                 t.removePlayer(player);
             }
         }
-    }
-
-    /**
-     * Get all teams.
-     * @return All teams created.
-     */
-    public static List<BingoTeam> getAllTeams() {
-        return ALL_TEAMS;
     }
 
     /**
@@ -74,26 +53,47 @@ public class BingoTeam {
         return MAX_SIZE;
     }
     
-    private final List<BingoPlayer> players;
-    private String name = "";
-    private final UUID uuid;
 
     /**
-     * Constructs a new Team with a given name.
+     * Get all teams.
+     * @return All teams created.
      */
-    public BingoTeam() {
-        this.players = new ArrayList<>();
-        this.uuid = UUID.randomUUID();
-        ALL_TEAMS.add(this);
+    public static List<BingoTeam> getAllTeams() {
+        return new ArrayList<>(ALL_TEAMS.values());
     }
 
     /**
-     * Gets the uuid of the team.
-     *
-     * @return The team's unique identificator.
+     * Get a team by its name.
+     * @param name The name of the team.
+     * @return The team with the given name, or null if not found.
      */
-    public UUID getUniqueId() {
-        return uuid;
+    public static BingoTeam getTeamByName(String name) {
+        return ALL_TEAMS.get(name);
+    }
+
+    /**
+     * Checks if a team name is already taken.
+     * @param name The name to check.
+     * @return true if the name is available, false if it's already taken.
+     */
+    public static boolean isTeamNameAvailable(String name) {
+        return ALL_TEAMS.get(name) == null;
+    }
+
+    private final List<BingoPlayer> players = new ArrayList<>();
+    private String name = "";
+
+    /**
+     * Constructs a new Team with a given name.
+     * @param name The name of the team.
+     * @throws TeamNameAlreadyExistsException If a team with this name already exists.
+     */
+    public BingoTeam(String name) throws TeamNameAlreadyExistsException {
+        if (!isTeamNameAvailable(name)) {
+            throw new TeamNameAlreadyExistsException("A team with the name '" + name + "' already exists.");
+        }
+        this.name = name;
+        ALL_TEAMS.put(this.name, this);
     }
 
     /**
@@ -108,10 +108,17 @@ public class BingoTeam {
     /**
      * Changes the team's name.
      * 
-     * @param name The new name of the team.
+     * @param newName The new name of the team.
+     * @throws TeamNameAlreadyExistsException If a team with this name already exists.
      */
-    public void SetName(String name) {
-        this.name = name;
+    public void setName(String newName) throws TeamNameAlreadyExistsException {
+        if (!this.name.equals(newName) && !isTeamNameAvailable(newName)) {
+            throw new TeamNameAlreadyExistsException("A team with the name '" + newName + "' already exists.");
+        }
+        // Remove from map with old name and add with new name
+        ALL_TEAMS.remove(this.name);
+        this.name = newName;
+        ALL_TEAMS.put(this.name, this);
     }
 
     /**
@@ -121,19 +128,22 @@ public class BingoTeam {
      * @param bingoPlayer The UUID of the player to add.
      * @throws ConfigNotSetException If the maxSize is not set.
      * @throws MaxPlayersException If the team is already full.
-     * @throws PlayersAlreadyInTeam If the player is already in the team.
+     * @throws PlayerAlreadyInThisTeam If the player is already in the team.
      */
-    public void addPlayer(BingoPlayer bingoPlayer) throws ConfigNotSetException, MaxPlayersException, PlayersAlreadyInTeam {
-        if(BingoTeam.MAX_SIZE == -1) {
-            throw new BingoTeam.ConfigNotSetException("MaxSize not set.");
-        }
+    public void addPlayer(BingoPlayer bingoPlayer) throws MaxPlayersException {
         if(players.size() + 1 > BingoTeam.MAX_SIZE) {
             throw new BingoTeam.MaxPlayersException("Team is already full");
         }
         if (players.contains(bingoPlayer)) {
-            throw new BingoTeam.PlayersAlreadyInTeam("Player is already in the team.");
+            return;
+        }
+        // If the player is already in a team, remove them from that team
+        BingoTeam oldTeam = bingoPlayer.getTeam();
+        if(oldTeam != null) {
+            oldTeam.removePlayer(bingoPlayer);
         }
         players.add(bingoPlayer);
+        bingoPlayer.setTeam(this);
     }
 
     /**
@@ -145,8 +155,9 @@ public class BingoTeam {
      */
     public boolean removePlayer(BingoPlayer bingoPlayer) {
         boolean b = players.remove(bingoPlayer);
+        bingoPlayer.setTeam(null);
         if(b && players.size() == 0) {
-            ALL_TEAMS.remove(this);
+            ALL_TEAMS.remove(this.name);
         }
         return b;
     }
@@ -219,16 +230,6 @@ public class BingoTeam {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BingoTeam team = (BingoTeam) o;
-        return name.equals(team.name);
-    }
-
-    /**
-     * Generates a hash code for the Team, based on its name.
-     *
-     * @return The hash code.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
+        return Objects.equals(name, team.name);
     }
 }
