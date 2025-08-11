@@ -1,6 +1,6 @@
 package com.bingaso.bingo.command;
 
-import com.bingaso.bingo.gui.TeamsGui;
+import com.bingaso.bingo.gui.BingoTeamGui;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
 
@@ -79,7 +79,7 @@ public class BingoTeamCommand implements CommandExecutor, TabCompleter {
     }
     
     private boolean handleSelectTeam(Player player) {
-        TeamsGui.getInstance().openForPlayer(player);
+        BingoTeamGui.getInstance().openForPlayer(player);
         return true;
     }
 
@@ -95,6 +95,7 @@ public class BingoTeamCommand implements CommandExecutor, TabCompleter {
         } catch (BingoTeam.TeamNameAlreadyExistsException e) {
             player.sendMessage(Component.text("A team with this name already exists. Please choose a different name.", NamedTextColor.RED));
         }
+        BingoTeamGui.getInstance().updateInventories();
         return true;
     }
     
@@ -114,6 +115,7 @@ public class BingoTeamCommand implements CommandExecutor, TabCompleter {
         } catch (Exception e) {
             player.sendMessage(Component.text("An error occurred while joining the team.", NamedTextColor.RED));
         }
+        BingoTeamGui.getInstance().updateInventories();
         return true;
     }
     
@@ -131,6 +133,7 @@ public class BingoTeamCommand implements CommandExecutor, TabCompleter {
         } catch (Exception e) {
             player.sendMessage(Component.text("An error occurred while leaving the team.", NamedTextColor.RED));
         }
+        BingoTeamGui.getInstance().updateInventories();
         return true;
     }
     

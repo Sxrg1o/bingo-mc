@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 
 import com.bingaso.bingo.gui.BingoCardGui;
 import com.bingaso.bingo.gui.GuiItem;
-import com.bingaso.bingo.model.BingoCard;
 import com.bingaso.bingo.model.BingoTeam;
 
 /**
@@ -63,8 +62,7 @@ public class BingoCardGuiListener implements Listener {
 
             BingoCardGui.getInstance().openForPlayer(
                 player,
-                BingoTeam.getTeamByName(teamName),
-                new BingoCard()
+                BingoTeam.getTeamByName(teamName)
             );
             return;
         }

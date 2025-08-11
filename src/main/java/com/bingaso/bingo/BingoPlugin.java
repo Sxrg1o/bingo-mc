@@ -5,7 +5,7 @@ import com.bingaso.bingo.command.BingoStartCommand;
 import com.bingaso.bingo.command.BingoTeamCommand;
 import com.bingaso.bingo.listener.BingoCardGuiListener;
 import com.bingaso.bingo.listener.BingoPlayerListener;
-import com.bingaso.bingo.listener.TeamGuiListener;
+import com.bingaso.bingo.listener.BingoTeamGuiListener;
 import com.bingaso.bingo.game.CardGenerator;
 import com.bingaso.bingo.game.GameManager;
 import com.bingaso.bingo.utils.Broadcaster;
@@ -32,7 +32,7 @@ public final class BingoPlugin extends JavaPlugin {
         // Register event listeners
         getServer().getPluginManager().registerEvents(new BingoPlayerListener(), this);
         getServer().getPluginManager().registerEvents(new BingoCardGuiListener(), this);
-        getServer().getPluginManager().registerEvents(new TeamGuiListener(), this);
+        getServer().getPluginManager().registerEvents(new BingoTeamGuiListener(), this);
 
         // Register commands
         getCommand("bingoteam").setExecutor(new BingoTeamCommand());

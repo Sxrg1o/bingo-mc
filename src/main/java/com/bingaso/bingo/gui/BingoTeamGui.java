@@ -21,11 +21,11 @@ import org.bukkit.entity.Player;
  * GUI for displaying and managing teams in the Bingo game.
  * Provides interface for creating new teams and joining existing ones.
  */
-public class TeamsGui {
+public class BingoTeamGui {
 
     /** Singleton instance */
-    public static final TeamsGui INSTANCE = new TeamsGui();
-    private TeamsGui() {}
+    public static final BingoTeamGui INSTANCE = new BingoTeamGui();
+    private BingoTeamGui() {}
     
     /** List of players who currently have the teams GUI open */
     private final List<Player> openPlayers = new ArrayList<>();
@@ -34,7 +34,7 @@ public class TeamsGui {
      * Gets the singleton instance of TeamsGui.
      * @return The singleton TeamsGui instance
      */
-    public static TeamsGui getInstance() {
+    public static BingoTeamGui getInstance() {
         return INSTANCE;
     }
 
@@ -43,7 +43,7 @@ public class TeamsGui {
      * @param player the player to open the GUI for
      */
     public void openForPlayer(Player player) {
-        player.openInventory(GetInventory());
+        player.openInventory(getInventory());
         if (!openPlayers.contains(player)) {
             openPlayers.add(player);
         }
@@ -66,10 +66,21 @@ public class TeamsGui {
     }
 
     /**
+     * Updates all open team GUI inventories with current team state.
+     * Refreshes the GUI for all players who currently have it open.
+     */
+    public void updateInventories() {
+        List<Player> copyOpenPlayers = new ArrayList<>(openPlayers);
+        for (Player player : copyOpenPlayers) {
+            openForPlayer(player);
+        }
+    }
+
+    /**
      * Creates an ItemStack for creating a new team.
      * @return GuiItem representing the "Create New Team" option
      */
-    public GuiItem NewTeamItemStack() {
+    private GuiItem newTeamItemStack() {
         GuiItem itemStack = new GuiItem(Material.WHITE_WOOL, "NewTeamItemStack");
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.displayName(Component.text("Create New Team", NamedTextColor.WHITE, TextDecoration.BOLD));
@@ -85,7 +96,7 @@ public class TeamsGui {
      * @param team The team to create an ItemStack for
      * @return GuiItem representing the team with appropriate styling and lore
      */
-    public GuiItem teamItemStack(BingoTeam team) {
+    private GuiItem teamItemStack(BingoTeam team) {
         Material material = Material.GREEN_WOOL;
         String displayNameText = (
             "Team \"" + team.getName() + "\n" +
@@ -131,7 +142,7 @@ public class TeamsGui {
      * 
      * @return The configured teams GUI inventory
      */
-    public Inventory GetInventory() {
+    private Inventory getInventory() {
         Inventory teamsGui = Bukkit.createInventory(
             null,
             27,
@@ -144,7 +155,7 @@ public class TeamsGui {
         }
 
         // Adds a wool to create a team
-        teamsGui.addItem(NewTeamItemStack());
+        teamsGui.addItem(newTeamItemStack());
         return teamsGui;
     }
 }

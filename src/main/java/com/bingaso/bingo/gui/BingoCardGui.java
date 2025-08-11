@@ -8,17 +8,19 @@ import com.bingaso.bingo.model.BingoCard;
 import com.bingaso.bingo.model.BingoItem;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
+import com.bingaso.bingo.BingoPlugin;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.bukkit.entity.Player;
+import java.util.Map.Entry;
 
 /**
  * GUI for displaying each teams bingo card.
@@ -28,9 +30,9 @@ public class BingoCardGui {
     /** Singleton instance */
     public static final BingoCardGui INSTANCE = new BingoCardGui();
     private BingoCardGui() {}
-    
-    private final List<Player> openPlayers = new ArrayList<>(); 
-    
+
+    private final HashMap<Player, BingoTeam> openPlayers = new HashMap<>();
+
     /**
      * Gets the singleton instance of BingoCardGui.
      * @return The singleton BingoCardGui instance
@@ -43,14 +45,11 @@ public class BingoCardGui {
      * Opens the GUI for the given player with specified team and player context.
      * @param player the player to open the GUI for
      * @param team the team whose bingo card to display
-     * @param bingoCard the bingo card to display in the GUI
      */
-    public void openForPlayer(Player player, BingoTeam team, BingoCard bingoCard) {
+    public void openForPlayer(Player player, BingoTeam team) {
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
-        player.openInventory(getInventory(team, bingoPlayer, bingoCard));
-        if (!openPlayers.contains(player)) {
-            openPlayers.add(player);
-        }
+        player.openInventory(getInventory(team, bingoPlayer));
+        openPlayers.put(player, team);
     }
 
     /**
@@ -58,7 +57,7 @@ public class BingoCardGui {
      * @return unmodifiable list of players with the GUI open
      */
     public List<Player> getOpenPlayers() {
-        return java.util.Collections.unmodifiableList(openPlayers);
+        return java.util.Collections.unmodifiableList(new ArrayList<>(openPlayers.keySet()));
     }
 
     /**
@@ -70,6 +69,19 @@ public class BingoCardGui {
     }
 
     /**
+     * Updates all open inventories with current bingo card state.
+     * Refreshes the GUI for all players who currently have it open.
+     */
+    public void updateInventories() {
+        HashMap<Player, BingoTeam> copyOpenPlayers = new HashMap<>(this.openPlayers);
+        for (Entry<Player, BingoTeam> entry : copyOpenPlayers.entrySet()) {
+            Player player = entry.getKey();
+            BingoTeam team = entry.getValue();
+            openForPlayer(player, team);
+        }
+    }
+
+    /**
      * Creates an ItemStack representing a specific team.
      * The item appearance changes based on whether the bingo player is part of
      * the team or not.
@@ -78,7 +90,7 @@ public class BingoCardGui {
      * @param bingoPlayer The bingo player context for styling the item
      * @return ItemStack representing the team with appropriate styling and lore
      */
-    public GuiItem TeamItemStack(BingoTeam team, BingoPlayer bingoPlayer) {
+    private GuiItem teamItemStack(BingoTeam team, BingoPlayer bingoPlayer) {
         GuiItem itemStack = new GuiItem(Material.PAPER, "TeamItemStack");
         ItemMeta meta = itemStack.getItemMeta();
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
@@ -109,7 +121,7 @@ public class BingoCardGui {
      * @param team the current team to get the previous team from
      * @return ItemStack representing the previous team navigation arrow
      */
-    public GuiItem PreviousTeamItemStack(BingoTeam team) {
+    private GuiItem PreviousTeamItemStack(BingoTeam team) {
         GuiItem itemStack = new GuiItem(Material.ARROW, "PreviousTeamItemStack");
         ItemMeta meta = itemStack.getItemMeta();
         meta.displayName(Component.text("Previous Team"));
@@ -123,7 +135,7 @@ public class BingoCardGui {
      * @param team the current team to get the next team from
      * @return ItemStack representing the next team navigation arrow
      */
-    public GuiItem NextTeamItemStack(BingoTeam team) {
+    private GuiItem nextTeamItemStack(BingoTeam team) {
         GuiItem itemStack = new GuiItem(Material.ARROW, "NextTeamItemStack");
         ItemMeta meta = itemStack.getItemMeta();
         meta.displayName(Component.text("Next Team"));
@@ -137,7 +149,7 @@ public class BingoCardGui {
      * @param bingoItem the bingo item that has been completed
      * @return GuiItem representing the completed state with green styling
      */
-    public GuiItem CompletedItem(BingoItem bingoItem) {
+    private GuiItem completedItem(BingoItem bingoItem) {
         GuiItem itemStack = new GuiItem(Material.GREEN_STAINED_GLASS_PANE, "CompletedItem");
         ItemMeta meta = itemStack.getItemMeta();
         meta.displayName(Component.text("Completed: " + bingoItem.getMaterial().toString(), NamedTextColor.GREEN));
@@ -152,10 +164,10 @@ public class BingoCardGui {
      * 
      * @param team The team whose bingo card to display
      * @param bingoPlayer The bingo player context for styling
-     * @param bingoCard The bingo card containing the items to display
      * @return The configured bingo card GUI inventory
      */
-    public Inventory getInventory(BingoTeam team, BingoPlayer bingoPlayer, BingoCard bingoCard) {
+    private Inventory getInventory(BingoTeam team, BingoPlayer bingoPlayer) {
+        BingoCard bingoCard = BingoPlugin.getInstance().getGameManager().getSharedBingoCard();
         Inventory bingoCardGui = Bukkit.createInventory(
             null,
             54,
@@ -168,17 +180,17 @@ public class BingoCardGui {
             int j = i % 5;
             int k = i / 5;
 
-            ItemStack bingoItemStack = new ItemStack(bingoItem.getMaterial());
+            GuiItem bingoItemStack = new GuiItem(bingoItem.getMaterial(), "BingoItemStack");
             if(bingoItem.isCompletedBy(team)) {
-                bingoItemStack = CompletedItem(bingoItem);
+                bingoItemStack = completedItem(bingoItem);
             }
-            bingoCardGui.setItem(11 + k*9 + j, bingoItemStack); // Place in the center 5x5 grid
+            bingoCardGui.setItem(2 + k*9 + j, bingoItemStack); // Place in the center 5x5 grid
             i++;
         }
         // Add arrows for navigating teams
         bingoCardGui.setItem(45, PreviousTeamItemStack(team));
-        bingoCardGui.setItem(49, TeamItemStack(team, bingoPlayer));
-        bingoCardGui.setItem(53, NextTeamItemStack(team));
+        bingoCardGui.setItem(49, teamItemStack(team, bingoPlayer));
+        bingoCardGui.setItem(53, nextTeamItemStack(team));
         return bingoCardGui;
     }
 }

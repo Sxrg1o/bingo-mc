@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.bingaso.bingo.gui.GuiItem;
-import com.bingaso.bingo.gui.TeamsGui;
+import com.bingaso.bingo.gui.BingoTeamGui;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
 
@@ -22,7 +22,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
  * Listener for handling interactions with the Teams GUI.
  * Manages team creation and joining through inventory click events.
  */
-public class TeamGuiListener implements Listener {
+public class BingoTeamGuiListener implements Listener {
 
     /**
      * Handles inventory close events for the Teams GUI.
@@ -33,8 +33,8 @@ public class TeamGuiListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
-        if (TeamsGui.getInstance().getOpenPlayers().contains(player)) {
-            TeamsGui.getInstance().removeOpenPlayer(player);
+        if (BingoTeamGui.getInstance().getOpenPlayers().contains(player)) {
+            BingoTeamGui.getInstance().removeOpenPlayer(player);
         }
     }
 
@@ -53,7 +53,7 @@ public class TeamGuiListener implements Listener {
 
         Player player = (Player) event.getWhoClicked();
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
-        if (!TeamsGui.getInstance().getOpenPlayers().contains(player)) {
+        if (!BingoTeamGui.getInstance().getOpenPlayers().contains(player)) {
             return;
         }
 
@@ -82,14 +82,13 @@ public class TeamGuiListener implements Listener {
                     "Added you to the new team.",
                     NamedTextColor.GREEN
                 ));
-                return;
             } catch (BingoTeam.MaxPlayersException e) {
                 player.sendMessage(Component.text(
                     "Couldn't add you to the new team.",
                     NamedTextColor.RED
                 ));
-                return;
             }
+            BingoTeamGui.getInstance().updateInventories();
         }
 
         // Check second gui item
@@ -111,13 +110,12 @@ public class TeamGuiListener implements Listener {
                     "You have joined the team \"" + team.getName() + "\".",
                     NamedTextColor.GREEN
                 ));
-                return;
+                BingoTeamGui.getInstance().updateInventories();
             } catch (BingoTeam.MaxPlayersException e) {
                 player.sendMessage(Component.text(
                     "Couldn't join the team, it is full.",
                     NamedTextColor.RED
                 ));
-                return;
             }
         }
     }

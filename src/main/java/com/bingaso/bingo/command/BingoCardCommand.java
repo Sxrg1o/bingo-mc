@@ -1,6 +1,5 @@
 package com.bingaso.bingo.command;
 
-import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.gui.BingoCardGui;
 import com.bingaso.bingo.model.BingoPlayer;
 
@@ -38,7 +37,7 @@ public class BingoCardCommand implements CommandExecutor {
         }
 
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
-        BingoCardGui.getInstance().openForPlayer(player, bingoPlayer.getTeam(), BingoPlugin.getInstance().getGameManager().getSharedBingoCard());
+        BingoCardGui.getInstance().openForPlayer(player, bingoPlayer.getTeam());
         return true;
     }
 
