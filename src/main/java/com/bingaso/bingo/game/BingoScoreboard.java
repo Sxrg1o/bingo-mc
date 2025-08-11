@@ -16,15 +16,30 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
+/**
+ * Manages the in-game scoreboard display for Bingo matches.
+ * This class handles creating, updating, and removing scoreboards that show
+ * game information such as elapsed time and team scores to all players.
+ */
 public class BingoScoreboard {
 
     private final GameManager gameManager;
     private BukkitRunnable updateTask;
 
+    /**
+     * Creates a new BingoScoreboard with the specified game manager.
+     *
+     * @param gameManager The game manager that provides game state information
+     */
     public BingoScoreboard(GameManager gameManager) {
         this.gameManager = gameManager;
     }
 
+    /**
+     * Starts the scoreboard update task.
+     * This schedules a repeating task that updates the scoreboard for all players
+     * once per second while the game is in progress.
+     */
     public void start() {
         this.updateTask = new BukkitRunnable() {
             @Override
@@ -39,6 +54,10 @@ public class BingoScoreboard {
         updateTask.runTaskTimer(BingoPlugin.getInstance(), 0L, 20L);
     }
 
+    /**
+     * Stops the scoreboard update task and resets all players to the main scoreboard.
+     * This should be called when the game ends or is interrupted.
+     */
     public void stop() {
         if (this.updateTask != null) {
             this.updateTask.cancel();
@@ -54,6 +73,10 @@ public class BingoScoreboard {
             );
     }
 
+    /**
+     * Updates the scoreboard for all players currently in the match.
+     * This method is called periodically while the game is in progress.
+     */
     private void updateScoreboardForAllPlayers() {
         List<Player> players = gameManager.getOnlinePlayersInMatch();
         for (Player player : players) {
@@ -61,6 +84,13 @@ public class BingoScoreboard {
         }
     }
 
+    /**
+     * Updates the scoreboard display for a specific player.
+     * Shows game time and team scores sorted by number of found items.
+     *
+     * @param player The player whose scoreboard should be updated
+     * @deprecated This implementation may be revised in the future
+     */
     @Deprecated
     private void updatePlayerScoreboard(Player player) {
         Scoreboard scoreboard = player.getScoreboard();
@@ -123,6 +153,12 @@ public class BingoScoreboard {
         }
     }
 
+    /**
+     * Converts an Adventure Component to a legacy string format for use with the scoreboard API.
+     *
+     * @param component The component to convert
+     * @return A legacy string representation of the component
+     */
     private String legacy(Component component) {
         return net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
             component

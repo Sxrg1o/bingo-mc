@@ -14,6 +14,11 @@ import java.util.Random;
 import java.util.Set;
 import org.bukkit.Material;
 
+/**
+ * Generates Bingo cards with items of varying difficulty levels.
+ * This class handles the weighted random selection of items based on
+ * difficulty scores to create balanced Bingo cards for gameplay.
+ */
 public class CardGenerator {
 
     private final ItemRepository itemRepository;
@@ -23,11 +28,23 @@ public class CardGenerator {
         Map<Integer, Integer>
     > difficultyWeights = new HashMap<>();
 
+    /**
+     * Creates a new CardGenerator with the specified item repository.
+     * Initializes the difficulty weight mappings for item selection.
+     *
+     * @param itemRepository The repository containing all available items
+     */
     public CardGenerator(ItemRepository itemRepository) {
         this.itemRepository = itemRepository;
         initializeWeights();
     }
 
+    /**
+     * Initializes the weight mappings for each difficulty level.
+     * These weights determine how likely items of different scores (1-5)
+     * are to be selected for each difficulty level.
+     * Higher weights mean higher probability of selection.
+     */
     private void initializeWeights() {
         // EASY
         Map<Integer, Integer> easyWeights = new HashMap<>();
@@ -66,6 +83,14 @@ public class CardGenerator {
         difficultyWeights.put(DifficultyLevel.EXTREME, extremeWeights);
     }
 
+    /**
+     * Generates a Bingo card with 25 items based on the specified difficulty level.
+     * Uses weighted random selection to choose items according to the difficulty weights.
+     * The selected materials are then shuffled and arranged into a Bingo card.
+     *
+     * @param difficulty The difficulty level that determines item selection weights
+     * @return A new BingoCard containing 25 randomly selected items
+     */
     public BingoCard generateCard(DifficultyLevel difficulty) {
         List<ItemRepository.ItemData> sourceItems =
             itemRepository.getAllItems();

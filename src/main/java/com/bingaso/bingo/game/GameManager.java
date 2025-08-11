@@ -16,6 +16,11 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
+/**
+ * Core class that manages the Bingo game lifecycle and gameplay.
+ * Handles game state transitions, team management, match settings,
+ * item discovery, win conditions, and coordination between game components.
+ */
 public class GameManager {
 
     private GameState currentState = GameState.LOBBY;
@@ -31,6 +36,13 @@ public class GameManager {
     private final List<BingoTeam> winnerTeams = new ArrayList<>();
     private BukkitTask matchEndTask = null;
 
+    /**
+     * Creates a new GameManager with the specified dependencies.
+     * Initializes with default match settings.
+     *
+     * @param cardGenerator The generator used to create Bingo cards
+     * @param broadcaster The broadcaster used for game announcements
+     */
     public GameManager(CardGenerator cardGenerator, Broadcaster broadcaster) {
         this.currentMatchSettings = new MatchSettings();
         this.cardGenerator = cardGenerator;
@@ -38,21 +50,42 @@ public class GameManager {
         this.scoreboard = new BingoScoreboard(this);
     }
 
+    /**
+     * Updates the match settings for the next game.
+     * Settings can only be changed while in the lobby state.
+     *
+     * @param matchSettings The new match settings to apply
+     */
     public void updateSettings(MatchSettings matchSettings) {
         if (currentState == GameState.LOBBY) {
             this.currentMatchSettings = matchSettings;
         }
     }
 
+    /**
+     * Gets the current state of the game.
+     *
+     * @return The current GameState (LOBBY, IN_PROGRESS, or FINISHING)
+     */
     public GameState getCurrentState() {
         return currentState;
     }
 
+    /**
+     * Calculates the elapsed time since the match started.
+     *
+     * @return The number of seconds elapsed since the match started, or 0 if not in progress
+     */
     public long getElapsedSeconds() {
         if (currentState != GameState.IN_PROGRESS) return 0;
         return (System.currentTimeMillis() - matchStartTime) / 1000;
     }
 
+    /**
+     * Gets a list of all online players currently participating in the match.
+     *
+     * @return A list of online players across all teams
+     */
     public List<Player> getOnlinePlayersInMatch() {
         List<Player> players = new ArrayList<>();
         for (BingoTeam team : teams) {
@@ -61,10 +94,20 @@ public class GameManager {
         return players;
     }
 
+    /**
+     * Gets all teams participating in the current match.
+     *
+     * @return A list of participating teams
+     */
     public List<BingoTeam> getTeams() {
         return teams;
     }
 
+    /**
+     * Starts a new Bingo match with the current settings.
+     * Initializes teams, generates a Bingo card, and transitions to the IN_PROGRESS state.
+     * For timed matches, schedules the end-of-match task.
+     */
     public void startMatch() {
         // Restart state
         this.teams.clear();
@@ -115,6 +158,10 @@ public class GameManager {
         this.scoreboard.start();
     }
 
+    /**
+     * Stops the current match and resets the game state to LOBBY.
+     * Cleans up resources, cancels scheduled tasks, and clears team data.
+     */
     public void stopMatch() {
         // idk if we need smth more, xd tp to lobby
         if (this.matchEndTask != null) {
@@ -130,6 +177,12 @@ public class GameManager {
         this.winnerTeams.clear();
     }
 
+    /**
+     * Ends the current match with the specified winners.
+     * Transitions the game to the FINISHING state and announces the results.
+     *
+     * @param winners The list of teams that won the match
+     */
     private void endMatch(List<BingoTeam> winners) {
         if (currentState != GameState.IN_PROGRESS) return;
 
@@ -144,6 +197,14 @@ public class GameManager {
         stopMatch();
     }
 
+    /**
+     * Handles a player finding an item during the match.
+     * Checks if the item is on the Bingo card, marks it as found for the player's team,
+     * announces the discovery, and checks if win conditions have been met.
+     *
+     * @param player The player who found the item
+     * @param item The material type of the found item
+     */
     public void onPlayerFindsItem(BingoPlayer player, Material item) {
         if (currentState != GameState.IN_PROGRESS) return;
 
@@ -174,6 +235,16 @@ public class GameManager {
         checkWinConditions(team);
     }
 
+    /**
+     * Checks if the specified team has met win conditions based on the current game mode.
+     * Different modes have different win conditions:
+     * - LOCKED: First team to find a certain number of items
+     * - STANDARD: Complete a row, column, or diagonal
+     * - BLACKOUT: Find all 25 items
+     * - TIMED: Most items found when time expires
+     *
+     * @param team The team to check for win conditions
+     */
     private void checkWinConditions(BingoTeam team) {
         GameMode mode = currentMatchSettings.getGameMode();
         switch (mode) {
@@ -254,6 +325,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * Determines the winners for a timed match when the time expires.
+     * Winners are teams with the highest number of found items.
+     * Multiple teams can win if they have the same highest score.
+     */
     private void determineTimedWinners() {
         if (currentState != GameState.IN_PROGRESS) return;
 
@@ -274,6 +350,11 @@ public class GameManager {
         endMatch(potentialWinners);
     }
 
+    /**
+     * Gets the shared Bingo card used in the current match.
+     *
+     * @return The current match's Bingo card
+     */
     public BingoCard getSharedBingoCard() {
         return sharedBingoCard;
     }
