@@ -25,8 +25,8 @@ JAR_FILE := $(shell find build/libs -name "*.jar" ! -name "*-plain.jar" ! -name 
 all: deploy
 
 # Target: deploy
-# Builds, uploads, and reloads the plugin on the server.
-deploy: build upload reload
+# Builds, uploads, and restarts the plugin on the server.
+deploy: build upload restart
 	@echo "✅ Deployment complete!"
 
 # Target: build
@@ -44,24 +44,21 @@ upload: build
 	@scp -i $(KEY_FILE) $(JAR_FILE) $(SSH_USER)@$(REMOTE_IP):$(REMOTE_DEST_DIR)
 	@echo "✅ Upload complete."
 
-# Target: reload
+# Target: restart
 # Connects to the server via SSH and handles server state.
-# - If the 'minecraft' screen exists, it sends the 'reload' command.
+# - If the 'minecraft' screen exists, it sends the 'restart' command.
 # - If the screen does NOT exist, it starts the server in a new screen.
-reload:
+restart:
 	@echo "▶️  Connecting to server to reload plugin..."
 	@ssh -i $(KEY_FILE) $(SSH_USER)@$(REMOTE_IP) ' \
 			if screen -ls | grep -q "\.minecraft"; then \
-				echo "Server is running. Sending stop command..."; \
-				screen -S minecraft -p 0 -X stuff "stop\n"; \
-				echo "Waiting 10 seconds for graceful shutdown..."; \
-				sleep 10; \
+				echo "Server is running. Sending restart command..."; \
+				screen -S minecraft -p 0 -X stuff "restart\n"; \
 			else \
-				echo "Server not found. Will start a new one."; \
+				echo "Server not found. Starting server..."; \
+				cd $(REMOTE_SERVER_DIR) && screen -dmS minecraft java -Xms2G -Xmx2G -jar server.jar nogui; \
+				echo "✅ Server started in screen session '\''minecraft'\''."; \
 			fi; \
-			echo "Starting server in a new screen session..."; \
-			cd $(REMOTE_SERVER_DIR) && screen -dmS minecraft java -Xms2G -Xmx2G -jar server.jar nogui; \
-			echo "✅ Server started in screen session '\''minecraft'\''."; \
 		'
 
 # Target: clean

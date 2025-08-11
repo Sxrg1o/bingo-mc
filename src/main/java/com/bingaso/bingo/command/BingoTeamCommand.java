@@ -1,5 +1,6 @@
 package com.bingaso.bingo.command;
 
+import com.bingaso.bingo.gui.TeamsGui;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
 
@@ -19,9 +20,9 @@ import java.util.stream.Collectors;
 
 /**
  * Command executor for team-related commands.
- * Handles: /team create, /team join <teamId>, /team leave, /team list
+ * Handles: /bingoteam create, /bingoteam join <teamId>, /bingoteam leave, /bingoteam list
  */
-public class TeamCommand implements CommandExecutor, TabCompleter {
+public class BingoTeamCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(
@@ -67,13 +68,21 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 
             case "info":
                 return handleTeamInfo(player);
-                
+
+            case "select":
+                return handleSelectTeam(player);
+
             default:
                 sendHelpMessage(player);
                 return true;
         }
     }
     
+    private boolean handleSelectTeam(Player player) {
+        TeamsGui.getInstance().openForPlayer(player);
+        return true;
+    }
+
     private boolean handleCreateTeam(Player player, String teamName) {
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
 
@@ -163,18 +172,19 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     }
     
     private void sendHelpMessage(Player player) {
-        player.sendMessage(Component.text("=== Team Commands ===", NamedTextColor.GREEN));
-        player.sendMessage(Component.text("/team create - Create a new team", NamedTextColor.GREEN));
-        player.sendMessage(Component.text("/team join <teamId> - Join an existing team", NamedTextColor.GREEN));
-        player.sendMessage(Component.text("/team leave - Leave your current team", NamedTextColor.GREEN));
-        player.sendMessage(Component.text("/team list - List available teams", NamedTextColor.GREEN));
-        player.sendMessage(Component.text("/team info - Show your team information", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("=== bingo Team Commands ===", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("/bingoteam create - Create a new team", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("/bingoteam join <teamId> - Join an existing team", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("/bingoteam leave - Leave your current team", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("/bingoteam list - List available teams", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("/bingoteam info - Show your team information", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("/bingoteam select - Select your team with gui", NamedTextColor.GREEN));
     }
     
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("create", "join", "leave", "list", "info");
+            return Arrays.asList("create", "join", "leave", "list", "info", "select");
         }
         
         if (args.length == 2 && args[0].equalsIgnoreCase("join")) {

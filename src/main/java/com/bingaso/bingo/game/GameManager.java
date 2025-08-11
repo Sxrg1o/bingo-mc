@@ -269,4 +269,8 @@ public class GameManager {
 
         endMatch(potentialWinners);
     }
+
+    public BingoCard getSharedBingoCard() {
+        return sharedBingoCard;
+    }
 }

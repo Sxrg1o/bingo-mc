@@ -7,7 +7,15 @@ author: Sergio
 api: 1.21.8
 
 commands:
-  team:
+  bingoteam:
     description: Team management commands
-    usage: /team <create|join|leave|list|info>
-    aliases: [t, teams]
+    usage: /bingoteam <create|join|leave|list|info|select>
+    aliases: [bt, bingoteams]
+  bingostart:
+    description: Bingo Start command
+    usage: /bingostart
+    aliases: [bs]
+  bingocard:
+    description: Bingo Card command
+    usage: /bingocard
+    aliases: [bc]
