@@ -78,10 +78,8 @@ public class GameManager {
         this.sharedBingoCard = cardGenerator.generateCard(difficulty);
 
         // Team management
-        if (currentMatchSettings.getTeamMode() == TeamMode.MANUAL) {
-            // TODO: Team GUI
-        } else {
-            // TODO: Random team assignment
+        if (currentMatchSettings.getTeamMode() != TeamMode.MANUAL) {
+            // TODO: Random assignment
         }
 
         for (BingoTeam team : BingoTeam.getAllTeams()) {
@@ -125,6 +123,9 @@ public class GameManager {
         }
         this.scoreboard.stop();
         this.currentState = GameState.LOBBY;
+        for (BingoTeam team : teams) {
+            team.clearFoundItems();
+        }
         this.teams.clear();
         this.winnerTeams.clear();
     }
