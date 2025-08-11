@@ -80,6 +80,33 @@ public class BingoTeam {
         return ALL_TEAMS.get(name) == null;
     }
 
+    /**
+     * Gets the next team in the collection relative to this team.
+     * @return The next team in the collection, or the first if this team is
+     * the last.
+     */
+    public BingoTeam getNextTeam() {
+        List<BingoTeam> teamList = new ArrayList<>(ALL_TEAMS.values());
+        int currentIndex = teamList.indexOf(this);
+        if(currentIndex == teamList.size() - 1) {
+            return teamList.get(0);
+        }
+        return teamList.get(currentIndex + 1);
+    }
+
+    /**
+     * Gets the previous team in the collection relative to this team.
+     * @return The previous team in the collection, or the last if this team is the first.
+     */
+    public BingoTeam getPreviousTeam() {        
+        List<BingoTeam> teamList = new ArrayList<>(ALL_TEAMS.values());
+        int currentIndex = teamList.indexOf(this);
+        if (currentIndex == 0) {
+            return teamList.get(teamList.size() - 1);
+        }
+        return teamList.get(currentIndex - 1);
+    }
+
     private final List<BingoPlayer> players = new ArrayList<>();
     private String name = "";
 
