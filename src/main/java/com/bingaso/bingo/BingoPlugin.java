@@ -28,7 +28,7 @@ public final class BingoPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getLogger().info("Bingo plugin enabled!");
-        
+
         // Register event listeners
         getServer().getPluginManager().registerEvents(new BingoPlayerListener(), this);
         getServer().getPluginManager().registerEvents(new BingoCardGuiListener(), this);
@@ -40,7 +40,7 @@ public final class BingoPlugin extends JavaPlugin {
 
         getCommand("bingocard").setExecutor(new BingoCardCommand());
         getCommand("bingostart").setExecutor(new BingoStartCommand());
-        
+
         getLogger().info("Team system initialized successfully!");
         instance = this;
 
