@@ -8,7 +8,7 @@ import com.bingaso.bingo.model.BingoTeam;
 import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
 import com.bingaso.bingo.model.TeamMode;
-import com.bingaso.bingo.utils.ItemRepository;
+import com.bingaso.bingo.utils.Broadcaster;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,15 +21,15 @@ public class GameManager {
     private MatchSettings currentMatchSettings;
     private BingoCard sharedBingoCard;
     private final CardGenerator cardGenerator;
-    private ItemRepository itemRepository;
+    private final Broadcaster broadcaster;
     private final List<BingoTeam> teams = new ArrayList<>();
     private List<BingoTeam> winnerTeams = new ArrayList<>();
     private BukkitTask matchEndTask = null;
 
-    public GameManager() {
+    public GameManager(CardGenerator cardGenerator, Broadcaster broadcaster) {
         this.currentMatchSettings = new MatchSettings();
-        this.itemRepository = new ItemRepository();
-        this.cardGenerator = new CardGenerator(this.itemRepository);
+        this.cardGenerator = cardGenerator;
+        this.broadcaster = broadcaster;
     }
 
     public void updateSettings(MatchSettings matchSettings) {
@@ -84,9 +84,11 @@ public class GameManager {
                 );
         }
 
-        // TODO: Broadcast match start, spreadplayers, kit? idk
+        // TODO: Spreadplayers, kit? idk
+        broadcaster.announceStart();
     }
 
+    // If ended manually by op
     public void stopMatch() {
         // idk if we need smth more, xd tp to lobby
         if (this.matchEndTask != null) {
@@ -105,13 +107,7 @@ public class GameManager {
         this.currentState = GameState.FINISHING;
         this.winnerTeams = winners;
 
-        if (winners.isEmpty()) {
-            // TODO: No winners (error)
-        } else if (winners.size() == 1) {
-            // TODO: Broadcast winner
-        } else {
-            // TODO: Broadcast draw
-        }
+        broadcaster.announceWinners(winners);
 
         if (this.matchEndTask != null) {
             this.matchEndTask.cancel();
@@ -144,7 +140,7 @@ public class GameManager {
         bingoItem.addCompletingTeam(team);
         team.addFoundItem(item);
 
-        // TODO: Broadcast
+        broadcaster.announceItemFound(team, item);
 
         checkWinConditions(team);
     }

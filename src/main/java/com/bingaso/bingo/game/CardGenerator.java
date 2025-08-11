@@ -95,9 +95,7 @@ public class CardGenerator {
             }
 
             if (chosenItem != null) {
-                selectedMaterials.add(
-                    Material.getMaterial(chosenItem.material)
-                );
+                selectedMaterials.add(Material.getMaterial(chosenItem.name));
             }
         }
 

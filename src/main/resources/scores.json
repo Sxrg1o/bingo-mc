@@ -1,0 +1,950 @@
+[
+  {
+    "name": "ACACIA_BOAT",
+    "score": 2
+  },
+  {
+    "name": "ACACIA_CHEST_BOAT",
+    "score": 2
+  },
+  {
+    "name": "AMETHYST_SHARD",
+    "score": 3
+  },
+  {
+    "name": "APPLE",
+    "score": 1
+  },
+  {
+    "name": "ARMADILLO_SCUTE",
+    "score": 3
+  },
+  {
+    "name": "ARMOR_STAND",
+    "score": 1
+  },
+  {
+    "name": "ARROW",
+    "score": 1
+  },
+  {
+    "name": "AXOLOTL_BUCKET",
+    "score": 2
+  },
+  {
+    "name": "BAKED_POTATO",
+    "score": 2
+  },
+  {
+    "name": "BAMBOO_CHEST_RAFT",
+    "score": 2
+  },
+  {
+    "name": "BAMBOO_RAFT",
+    "score": 2
+  },
+  {
+    "name": "BEETROOT",
+    "score": 2
+  },
+  {
+    "name": "BEETROOT_SEEDS",
+    "score": 1
+  },
+  {
+    "name": "BEETROOT_SOUP",
+    "score": 3
+  },
+  {
+    "name": "BLACK_DYE",
+    "score": 1
+  },
+  {
+    "name": "BLAZE_POWDER",
+    "score": 3
+  },
+  {
+    "name": "BLAZE_ROD",
+    "score": 3
+  },
+  {
+    "name": "BLUE_DYE",
+    "score": 1
+  },
+  {
+    "name": "BLUE_EGG",
+    "score": 3
+  },
+  {
+    "name": "BOOK",
+    "score": 1
+  },
+  {
+    "name": "BOW",
+    "score": 1
+  },
+  {
+    "name": "BREAD",
+    "score": 1
+  },
+  {
+    "name": "BREEZE_ROD",
+    "score": 5
+  },
+  {
+    "name": "BRICK",
+    "score": 1
+  },
+  {
+    "name": "BROWN_DYE",
+    "score": 1
+  },
+  {
+    "name": "BROWN_EGG",
+    "score": 3
+  },
+  {
+    "name": "BRUSH",
+    "score": 1
+  },
+  {
+    "name": "BUNDLE",
+    "score": 1
+  },
+  {
+    "name": "CARROT",
+    "score": 2
+  },
+  {
+    "name": "CARROT_ON_A_STICK",
+    "score": 2
+  },
+  {
+    "name": "CHAINMAIL_BOOTS",
+    "score": 4
+  },
+  {
+    "name": "CHAINMAIL_CHESTPLATE",
+    "score": 4
+  },
+  {
+    "name": "CHAINMAIL_HELMET",
+    "score": 4
+  },
+  {
+    "name": "CHAINMAIL_LEGGINGS",
+    "score": 4
+  },
+  {
+    "name": "CHERRY_BOAT",
+    "score": 3
+  },
+  {
+    "name": "CHERRY_CHEST_BOAT",
+    "score": 3
+  },
+  {
+    "name": "CHEST_MINECART",
+    "score": 1
+  },
+  {
+    "name": "CHORUS_FRUIT",
+    "score": 5
+  },
+  {
+    "name": "CLOCK",
+    "score": 2
+  },
+  {
+    "name": "COCOA_BEANS",
+    "score": 2
+  },
+  {
+    "name": "COD",
+    "score": 1
+  },
+  {
+    "name": "COD_BUCKET",
+    "score": 1
+  },
+  {
+    "name": "COMPASS",
+    "score": 2
+  },
+  {
+    "name": "COOKED_COD",
+    "score": 1
+  },
+  {
+    "name": "COOKED_SALMON",
+    "score": 1
+  },
+  {
+    "name": "COOKIE",
+    "score": 2
+  },
+  {
+    "name": "CROSSBOW",
+    "score": 2
+  },
+  {
+    "name": "CYAN_DYE",
+    "score": 1
+  },
+  {
+    "name": "DARK_OAK_BOAT",
+    "score": 2
+  },
+  {
+    "name": "DARK_OAK_CHEST_BOAT",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_AXE",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_BOOTS",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_CHESTPLATE",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_HELMET",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_HOE",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_HORSE_ARMOR",
+    "score": 3
+  },
+  {
+    "name": "DIAMOND_LEGGINGS",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_PICKAXE",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_SHOVEL",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_SWORD",
+    "score": 2
+  },
+  {
+    "name": "DRAGON_BREATH",
+    "score": 5
+  },
+  {
+    "name": "DRIED_KELP",
+    "score": 1
+  },
+  {
+    "name": "ECHO_SHARD",
+    "score": 4
+  },
+  {
+    "name": "EGG",
+    "score": 2
+  },
+  {
+    "name": "EMERALD",
+    "score": 2
+  },
+  {
+    "name": "ENCHANTED_BOOK",
+    "score": 3
+  },
+  {
+    "name": "END_CRYSTAL",
+    "score": 4
+  },
+  {
+    "name": "ENDER_CHEST",
+    "score": 3
+  },
+  {
+    "name": "ENDER_EYE",
+    "score": 3
+  },
+  {
+    "name": "ENDER_PEARL",
+    "score": 2
+  },
+  {
+    "name": "EXPERIENCE_BOTTLE",
+    "score": 4
+  },
+  {
+    "name": "FEATHER",
+    "score": 1
+  },
+  {
+    "name": "FERMENTED_SPIDER_EYE",
+    "score": 2
+  },
+  {
+    "name": "FIRE_CHARGE",
+    "score": 3
+  },
+  {
+    "name": "FIREWORK_ROCKET",
+    "score": 2
+  },
+  {
+    "name": "FIREWORK_STAR",
+    "score": 2
+  },
+  {
+    "name": "FISHING_ROD",
+    "score": 1
+  },
+  {
+    "name": "FURNACE_MINECART",
+    "score": 1
+  },
+  {
+    "name": "GHAST_TEAR",
+    "score": 2
+  },
+  {
+    "name": "GLISTERING_MELON_SLICE",
+    "score": 3
+  },
+  {
+    "name": "GLOW_BERRIES",
+    "score": 1
+  },
+  {
+    "name": "GLOW_INK_SAC",
+    "score": 1
+  },
+  {
+    "name": "GLOW_ITEM_FRAME",
+    "score": 2
+  },
+  {
+    "name": "GLOWSTONE_DUST",
+    "score": 2
+  },
+  {
+    "name": "GOAT_HORN",
+    "score": 4
+  },
+  {
+    "name": "GOLDEN_APPLE",
+    "score": 2
+  },
+  {
+    "name": "GOLDEN_AXE",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_BOOTS",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_CARROT",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_CHESTPLATE",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_HELMET",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_HOE",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_HORSE_ARMOR",
+    "score": 3
+  },
+  {
+    "name": "GOLDEN_LEGGINGS",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_PICKAXE",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_SHOVEL",
+    "score": 1
+  },
+  {
+    "name": "GOLDEN_SWORD",
+    "score": 1
+  },
+  {
+    "name": "GRAY_DYE",
+    "score": 1
+  },
+  {
+    "name": "HEART_OF_THE_SEA",
+    "score": 4
+  },
+  {
+    "name": "HONEY_BOTTLE",
+    "score": 2
+  },
+  {
+    "name": "HONEYCOMB",
+    "score": 2
+  },
+  {
+    "name": "HOPPER_MINECART",
+    "score": 2
+  },
+  {
+    "name": "IRON_HORSE_ARMOR",
+    "score": 3
+  },
+  {
+    "name": "ITEM_FRAME",
+    "score": 1
+  },
+  {
+    "name": "JUNGLE_BOAT",
+    "score": 2
+  },
+  {
+    "name": "JUNGLE_CHEST_BOAT",
+    "score": 2
+  },
+  {
+    "name": "LAPIS_LAZULI",
+    "score": 1
+  },
+  {
+    "name": "LEAD",
+    "score": 3
+  },
+  {
+    "name": "LIGHT_BLUE_DYE",
+    "score": 1
+  },
+  {
+    "name": "LIGHT_GRAY_DYE",
+    "score": 1
+  },
+  {
+    "name": "LIME_DYE",
+    "score": 1
+  },
+  {
+    "name": "MAGENTA_DYE",
+    "score": 1
+  },
+  {
+    "name": "MAGMA_CREAM",
+    "score": 3
+  },
+  {
+    "name": "MANGROVE_BOAT",
+    "score": 3
+  },
+  {
+    "name": "MANGROVE_CHEST_BOAT",
+    "score": 3
+  },
+  {
+    "name": "MAP",
+    "score": 2
+  },
+  {
+    "name": "MELON_SEEDS",
+    "score": 2
+  },
+  {
+    "name": "MUSHROOM_STEW",
+    "score": 2
+  },
+  {
+    "name": "NAME_TAG",
+    "score": 3
+  },
+  {
+    "name": "NAUTILUS_SHELL",
+    "score": 4
+  },
+  {
+    "name": "NETHER_BRICK",
+    "score": 2
+  },
+  {
+    "name": "NETHERITE_SCRAP",
+    "score": 4
+  },
+  {
+    "name": "NETHERITE_SHOVEL",
+    "score": 5
+  },
+  {
+    "name": "OMINOUS_BOTTLE",
+    "score": 4
+  },
+  {
+    "name": "PAINTING",
+    "score": 1
+  },
+  {
+    "name": "PHANTOM_MEMBRANE",
+    "score": 3
+  },
+  {
+    "name": "POISONOUS_POTATO",
+    "score": 4
+  },
+  {
+    "name": "POTATO",
+    "score": 2
+  },
+  {
+    "name": "POWDER_SNOW_BUCKET",
+    "score": 4
+  },
+  {
+    "name": "PRISMARINE_CRYSTALS",
+    "score": 4
+  },
+  {
+    "name": "PRISMARINE_SHARD",
+    "score": 4
+  },
+  {
+    "name": "PUFFERFISH",
+    "score": 2
+  },
+  {
+    "name": "PUFFERFISH_BUCKET",
+    "score": 2
+  },
+  {
+    "name": "PUMPKIN_PIE",
+    "score": 3
+  },
+  {
+    "name": "RABBIT_FOOT",
+    "score": 5
+  },
+  {
+    "name": "RABBIT_HIDE",
+    "score": 3
+  },
+  {
+    "name": "RABBIT_STEW",
+    "score": 3
+  },
+  {
+    "name": "RECOVERY_COMPASS",
+    "score": 4
+  },
+  {
+    "name": "SADDLE",
+    "score": 1
+  },
+  {
+    "name": "SALMON",
+    "score": 1
+  },
+  {
+    "name": "SLIME_BALL",
+    "score": 3
+  },
+  {
+    "name": "SNOWBALL",
+    "score": 2
+  },
+  {
+    "name": "SPECTRAL_ARROW",
+    "score": 2
+  },
+  {
+    "name": "SPYGLASS",
+    "score": 3
+  },
+  {
+    "name": "SUSPICIOUS_STEW",
+    "score": 2
+  },
+  {
+    "name": "SWEET_BERRIES",
+    "score": 1
+  },
+  {
+    "name": "TADPOLE_BUCKET",
+    "score": 5
+  },
+  {
+    "name": "TNT_MINECART",
+    "score": 2
+  },
+  {
+    "name": "TOTEM_OF_UNDYING",
+    "score": 5
+  },
+  {
+    "name": "TRIAL_KEY",
+    "score": 4
+  },
+  {
+    "name": "WARPED_FUNGUS_ON_A_STICK",
+    "score": 2
+  },
+  {
+    "name": "WIND_CHARGE",
+    "score": 5
+  },
+  {
+    "name": "WOLF_ARMOR",
+    "score": 4
+  },
+  {
+    "name": "WRITABLE_BOOK",
+    "score": 2
+  },
+  {
+    "name": "ACTIVATOR_RAIL",
+    "score": 2
+  },
+  {
+    "name": "ALLIUM",
+    "score": 1
+  },
+  {
+    "name": "AMETHYST_BLOCK",
+    "score": 3
+  },
+  {
+    "name": "ANCIENT_DEBRIS",
+    "score": 5
+  },
+  {
+    "name": "AZALEA",
+    "score": 2
+  },
+  {
+    "name": "BAMBOO",
+    "score": 3
+  },
+  {
+    "name": "BAMBOO_BLOCK",
+    "score": 3
+  },
+  {
+    "name": "BARREL",
+    "score": 1
+  },
+  {
+    "name": "BASALT",
+    "score": 3
+  },
+  {
+    "name": "BEE_NEST",
+    "score": 5
+  },
+  {
+    "name": "BEEHIVE",
+    "score": 3
+  },
+  {
+    "name": "BELL",
+    "score": 3
+  },
+  {
+    "name": "BLACKSTONE",
+    "score": 3
+  },
+  {
+    "name": "BLAST_FURNACE",
+    "score": 2
+  },
+  {
+    "name": "BLUE_ICE",
+    "score": 5
+  },
+  {
+    "name": "BOOKSHELF",
+    "score": 2
+  },
+  {
+    "name": "BREWING_STAND",
+    "score": 3
+  },
+  {
+    "name": "CACTUS_FLOWER",
+    "score": 3
+  },
+  {
+    "name": "CAKE",
+    "score": 3
+  },
+  {
+    "name": "CALCITE",
+    "score": 3
+  },
+  {
+    "name": "CALIBRATED_SCULK_SENSOR",
+    "score": 4
+  },
+  {
+    "name": "CAMPFIRE",
+    "score": 1
+  },
+  {
+    "name": "CANDLE",
+    "score": 2
+  },
+  {
+    "name": "CARTOGRAPHY_TABLE",
+    "score": 1
+  },
+  {
+    "name": "CARVED_PUMPKIN",
+    "score": 1
+  },
+  {
+    "name": "CHIPPED_ANVIL",
+    "score": 1
+  },
+  {
+    "name": "COBWEB",
+    "score": 2
+  },
+  {
+    "name": "COMPARATOR",
+    "score": 2
+  },
+  {
+    "name": "COPPER_BULB",
+    "score": 3
+  },
+  {
+    "name": "CRAFTER",
+    "score": 2
+  },
+  {
+    "name": "CRYING_OBSIDIAN",
+    "score": 3
+  },
+  {
+    "name": "DAYLIGHT_DETECTOR",
+    "score": 3
+  },
+  {
+    "name": "DEAD_BUSH",
+    "score": 2
+  },
+  {
+    "name": "DETECTOR_RAIL",
+    "score": 2
+  },
+  {
+    "name": "DIAMOND_BLOCK",
+    "score": 2
+  },
+  {
+    "name": "DISPENSER",
+    "score": 1
+  },
+  {
+    "name": "DRIED_GHAST",
+    "score": 3
+  },
+  {
+    "name": "DRIED_KELP_BLOCK",
+    "score": 1
+  },
+  {
+    "name": "DROPPER",
+    "score": 1
+  },
+  {
+    "name": "EMERALD_BLOCK",
+    "score": 3
+  },
+  {
+    "name": "ENCHANTING_TABLE",
+    "score": 2
+  },
+  {
+    "name": "END_ROD",
+    "score": 5
+  },
+  {
+    "name": "END_STONE",
+    "score": 4
+  },
+  {
+    "name": "FLETCHING_TABLE",
+    "score": 1
+  },
+  {
+    "name": "FLOWER_POT",
+    "score": 1
+  },
+  {
+    "name": "GILDED_BLACKSTONE",
+    "score": 4
+  },
+  {
+    "name": "GLOWSTONE",
+    "score": 2
+  },
+  {
+    "name": "GOLD_BLOCK",
+    "score": 1
+  },
+  {
+    "name": "GRINDSTONE",
+    "score": 1
+  },
+  {
+    "name": "HAY_BLOCK",
+    "score": 1
+  },
+  {
+    "name": "ICE",
+    "score": 5
+  },
+  {
+    "name": "JACK_O_LANTERN",
+    "score": 2
+  },
+  {
+    "name": "JUKEBOX",
+    "score": 2
+  },
+  {
+    "name": "KELP",
+    "score": 1
+  },
+  {
+    "name": "LECTERN",
+    "score": 1
+  },
+  {
+    "name": "MELON",
+    "score": 2
+  },
+  {
+    "name": "MUD",
+    "score": 1
+  },
+  {
+    "name": "MUD_BRICKS",
+    "score": 2
+  },
+  {
+    "name": "NETHER_WART",
+    "score": 3
+  },
+  {
+    "name": "OBSERVER",
+    "score": 3
+  },
+  {
+    "name": "OBSIDIAN",
+    "score": 2
+  },
+  {
+    "name": "PODZOL",
+    "score": 5
+  },
+  {
+    "name": "POWERED_RAIL",
+    "score": 2
+  },
+  {
+    "name": "PRISMARINE",
+    "score": 4
+  },
+  {
+    "name": "RAIL",
+    "score": 1
+  },
+  {
+    "name": "RED_SAND",
+    "score": 4
+  },
+  {
+    "name": "REPEATER",
+    "score": 1
+  },
+  {
+    "name": "RESPAWN_ANCHOR",
+    "score": 4
+  },
+  {
+    "name": "SCAFFOLDING",
+    "score": 3
+  },
+  {
+    "name": "SEA_PICKLE",
+    "score": 2
+  },
+  {
+    "name": "SHROOMLIGHT",
+    "score": 2
+  },
+  {
+    "name": "SLIME_BLOCK",
+    "score": 3
+  },
+  {
+    "name": "SOUL_CAMPFIRE",
+    "score": 2
+  },
+  {
+    "name": "SOUL_LANTERN",
+    "score": 2
+  },
+  {
+    "name": "SOUL_SAND",
+    "score": 2
+  },
+  {
+    "name": "SOUL_SOIL",
+    "score": 2
+  },
+  {
+    "name": "SPONGE",
+    "score": 5
+  },
+  {
+    "name": "STICKY_PISTON",
+    "score": 3
+  },
+  {
+    "name": "TARGET",
+    "score": 2
+  },
+  {
+    "name": "TERRACOTTA",
+    "score": 1
+  },
+  {
+    "name": "TNT",
+    "score": 1
+  },
+  {
+    "name": "WITHER_SKELETON_SKULL",
+    "score": 5
+  }
+]
