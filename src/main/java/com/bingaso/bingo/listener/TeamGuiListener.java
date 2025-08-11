@@ -3,17 +3,14 @@ package com.bingaso.bingo.listener;
 import java.util.UUID;
 
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
-import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.gui.GuiItem;
 import com.bingaso.bingo.gui.TeamsGui;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
@@ -21,30 +18,49 @@ import com.bingaso.bingo.model.BingoTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+/**
+ * Listener for handling interactions with the Teams GUI.
+ * Manages team creation and joining through inventory click events.
+ */
 public class TeamGuiListener implements Listener {
 
-    public final NamespacedKey TEAM_NAME = new NamespacedKey(BingoPlugin.getInstance(), "team_name");
+    /**
+     * Handles inventory close events for the Teams GUI.
+     * Removes the player from the list of players with the GUI open.
+     * 
+     * @param event The inventory close event
+     */
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        Player player = (Player) event.getPlayer();
+        if (TeamsGui.getInstance().getOpenPlayers().contains(player)) {
+            TeamsGui.getInstance().removeOpenPlayer(player);
+        }
+    }
 
+    /**
+     * Handles inventory click events for the Teams GUI.
+     * Processes team creation and team joining based on the clicked item.
+     * 
+     * @param event The inventory click event
+     */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        // Check if the clicked inventory is null or the clicked item is null or air
         ItemStack clickedItem = event.getCurrentItem();
-        Inventory clickedInventory = event.getClickedInventory();
-        if (event.getClickedInventory() == null || clickedItem == null || clickedItem.getType() == Material.AIR) {
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;
         }
 
-        // Check if the inventory matches
-        if (clickedInventory.equals(TeamsGui.getIntentory())) {
-            return; // If it's not our inventory, do nothing.
-        }
-        event.setCancelled(true);
-        
         Player player = (Player) event.getWhoClicked();
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
+        if (!TeamsGui.getInstance().getOpenPlayers().contains(player)) {
+            return;
+        }
 
-        // Create new team click
-        if(clickedItem.equals(TeamsGui.NewTeamItemStack())) {
+        event.setCancelled(true);
+
+        // Check first gui item
+        if(GuiItem.isGuiItem(clickedItem, "NewTeamItemStack")) {
             String randomTeamName = "Team-" + UUID.randomUUID().toString().substring(0, 8);
             BingoTeam newTeam;
             try {
@@ -75,40 +91,34 @@ public class TeamGuiListener implements Listener {
                 return;
             }
         }
-        
-        // Otherwise joins to the existent team
-        ItemMeta clickedItemMeta = clickedItem.getItemMeta();
-        String teamName;
-        try {
-            teamName = clickedItemMeta.getPersistentDataContainer().get(
-                TEAM_NAME,
-                PersistentDataType.STRING
-            );
-        } catch (Exception e) {
-            return; // If the item does not have the team_name key, do nothing.
-        }
-        BingoTeam team = BingoTeam.getTeamByName(teamName);
-        if(team == null) {
-            player.sendMessage(Component.text(
-                "Team not found, couldn't join.",
-                NamedTextColor.RED
-            ));
-            return;
-        } 
 
-        try {
-            team.addPlayer(bingoPlayer);
-            player.sendMessage(Component.text(
-                "You have joined the team \"" + team.getName() + "\".",
-                NamedTextColor.GREEN
-            ));
-            return;
-        } catch (BingoTeam.MaxPlayersException e) {
-            player.sendMessage(Component.text(
-                "Couldn't join the team, it is full.",
-                NamedTextColor.RED
-            ));
-            return;
+        // Check second gui item
+        if(GuiItem.isGuiItem(clickedItem, "TeamItemStack")) {
+            String teamName = GuiItem.getCustomString(clickedItem, "team");
+            if(teamName == null) return;
+            BingoTeam team = BingoTeam.getTeamByName(teamName);
+            if(team == null) {
+                player.sendMessage(Component.text(
+                    "Team not found, couldn't join.",
+                    NamedTextColor.RED
+                ));
+                return;
+            } 
+
+            try {
+                team.addPlayer(bingoPlayer);
+                player.sendMessage(Component.text(
+                    "You have joined the team \"" + team.getName() + "\".",
+                    NamedTextColor.GREEN
+                ));
+                return;
+            } catch (BingoTeam.MaxPlayersException e) {
+                player.sendMessage(Component.text(
+                    "Couldn't join the team, it is full.",
+                    NamedTextColor.RED
+                ));
+                return;
+            }
         }
     }
 }
