@@ -28,7 +28,7 @@ public class GameManager {
     private final BingoScoreboard scoreboard;
 
     private final List<BingoTeam> teams = new ArrayList<>();
-    private List<BingoTeam> winnerTeams = new ArrayList<>();
+    private final List<BingoTeam> winnerTeams = new ArrayList<>();
     private BukkitTask matchEndTask = null;
 
     public GameManager(CardGenerator cardGenerator, Broadcaster broadcaster) {
@@ -133,7 +133,8 @@ public class GameManager {
         if (currentState != GameState.IN_PROGRESS) return;
 
         this.currentState = GameState.FINISHING;
-        this.winnerTeams = winners;
+        this.winnerTeams.clear();
+        this.winnerTeams.addAll(winners);
 
         broadcaster.announceWinners(winners);
 
@@ -219,7 +220,7 @@ public class GameManager {
                 // diagonal
                 boolean diagonalComplete = true;
                 for (int i = 0; i < 5; i++) {
-                    if (items.get(i * 5 + i).isCompletedBy(team)) {
+                    if (!items.get(i * 5 + i).isCompletedBy(team)) {
                         diagonalComplete = false;
                         break;
                     }

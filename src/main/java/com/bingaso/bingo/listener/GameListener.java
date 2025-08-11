@@ -1,6 +1,5 @@
 package com.bingaso.bingo.listener;
 
-import com.bingaso.bingo.game.GameManager;
 import com.bingaso.bingo.game.GameState;
 import com.bingaso.bingo.gui.GuiItem;
 import com.bingaso.bingo.model.BingoPlayer;
@@ -15,17 +14,12 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import com.bingaso.bingo.BingoPlugin;
 
 public class GameListener implements Listener {
 
-    private final GameManager gameManager;
-
-    public GameListener(GameManager gameManager) {
-        this.gameManager = gameManager;
-    }
-
     private void processGetItem(Player player, Material material) {
-        if (gameManager.getCurrentState() != GameState.IN_PROGRESS) return;
+        if (BingoPlugin.getInstance().getGameManager().getCurrentState() != GameState.IN_PROGRESS) return;
 
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(
             player.getUniqueId()
@@ -34,7 +28,7 @@ public class GameListener implements Listener {
             return;
         }
 
-        gameManager.onPlayerFindsItem(bingoPlayer, material);
+        BingoPlugin.getInstance().getGameManager().onPlayerFindsItem(bingoPlayer, material);
     }
 
     @EventHandler
@@ -66,7 +60,7 @@ public class GameListener implements Listener {
 
         if (GuiItem.getCustomString(clickedItem, "custom_id") != null) return;
 
-        if (gameManager.getCurrentState() != GameState.IN_PROGRESS) return;
+        if (BingoPlugin.getInstance().getGameManager().getCurrentState() != GameState.IN_PROGRESS) return;
 
         Player player = (Player) event.getWhoClicked();
 

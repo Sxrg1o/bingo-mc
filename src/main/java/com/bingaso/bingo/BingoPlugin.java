@@ -34,7 +34,7 @@ public final class BingoPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BingoPlayerListener(), this);
         getServer().getPluginManager().registerEvents(new BingoCardGuiListener(), this);
         getServer().getPluginManager().registerEvents(new BingoTeamGuiListener(), this);
-        getServer().getPluginManager().registerEvents(new GameListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new GameListener(), this);
 
         // Register commands
         getCommand("bingoteam").setExecutor(new BingoTeamCommand());
