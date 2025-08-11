@@ -152,6 +152,8 @@ public class GameManager {
 
         if (!teams.contains(team)) return;
 
+        if (bingoItem.isCompletedBy(team)) return;
+
         if (
             currentMatchSettings.getGameMode() == GameMode.LOCKED &&
             bingoItem.isCompletedByAnyTeam()
