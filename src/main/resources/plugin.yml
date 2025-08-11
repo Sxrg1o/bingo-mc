@@ -4,3 +4,9 @@ main: com.bingaso.bingo.BingoPlugin
 api-version: '1.21.8'
 description: Plugin de bingo
 author: Sergio
+
+commands:
+  team:
+    description: Team management commands
+    usage: /team <create|join|leave|list|info>
+    aliases: [t, teams]

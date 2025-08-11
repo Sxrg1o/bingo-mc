@@ -22,7 +22,7 @@ import com.bingaso.bingo.model.BingoTeam;
 public class TeamsGui {
     private TeamsGui() {}
 
-    public final static NamespacedKey TEAM_ID_KEY = new NamespacedKey(BingoPlugin.getInstance(), "team_id");
+    public static final NamespacedKey TEAM_NAME = new NamespacedKey(BingoPlugin.getInstance(), "team_name");
 
     public static ItemStack NewTeamItemStack() {
         ItemStack newTeamItemStack = new ItemStack(Material.WHITE_WOOL);
@@ -52,11 +52,11 @@ public class TeamsGui {
         ItemStack newTeamItemStack = new ItemStack(newTeamMaterial);
         ItemMeta newTeamItemMeta = newTeamItemStack.getItemMeta();
 
-        // Add the team_id_key into the item
+        // Add the team_name key into the item
         newTeamItemMeta.getPersistentDataContainer().set(
-            TEAM_ID_KEY,
+            TEAM_NAME,
             PersistentDataType.STRING,
-            team.getUniqueId().toString());
+            team.getName());
 
         newTeamItemMeta.displayName(Component.text(
             newTeamDisplayName,
