@@ -1,9 +1,6 @@
 package com.bingaso.bingo;
 
-import com.bingaso.bingo.command.BingoCardCommand;
-import com.bingaso.bingo.command.BingoConfigCommand;
-import com.bingaso.bingo.command.BingoStartCommand;
-import com.bingaso.bingo.command.BingoTeamCommand;
+import com.bingaso.bingo.command.BingoCommand;
 import com.bingaso.bingo.game.CardGenerator;
 import com.bingaso.bingo.game.GameManager;
 import com.bingaso.bingo.listener.BingoCardGuiListener;
@@ -47,16 +44,9 @@ public final class BingoPlugin extends JavaPlugin {
             .registerEvents(new ConfigGuiListener(), this);
         getServer().getPluginManager().registerEvents(new GameListener(), this);
 
-        // Register commands
-        getCommand("bingoteam").setExecutor(new BingoTeamCommand());
-        getCommand("bingoteam").setTabCompleter(new BingoTeamCommand());
-
-        getCommand("bingocard").setExecutor(new BingoCardCommand());
-        getCommand("bingostart").setExecutor(new BingoStartCommand());
-
-        getCommand("bingoconfig").setExecutor(new BingoConfigCommand());
-
-        getLogger().info("Team system initialized successfully!");
+        // Register bingo command
+        getCommand("bingo").setExecutor(new BingoCommand());
+        getCommand("bingo").setTabCompleter(new BingoCommand());
         instance = this;
 
         this.itemRepository = new ItemRepository();

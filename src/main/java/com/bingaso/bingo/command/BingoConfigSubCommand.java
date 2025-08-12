@@ -6,25 +6,22 @@ import com.bingaso.bingo.game.MatchSettings;
 import com.bingaso.bingo.gui.ConfigGui;
 import com.bingaso.bingo.gui.ConfigGui.ConfigGuiContext;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
+import java.util.List;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Command handler for the Bingo configuration command.
  * This command opens the configuration GUI that allows server operators
  * to modify game settings while in the lobby state.
  */
-public class BingoConfigCommand implements CommandExecutor {
+public class BingoConfigSubCommand implements SubCommand {
 
     @Override
-    public boolean onCommand(
-        CommandSender sender,
-        Command command,
-        String label,
-        String[] args
-    ) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("This command can only be used by players.");
             return true;
@@ -58,5 +55,11 @@ public class BingoConfigCommand implements CommandExecutor {
             new ConfigGuiContext(settings)
         );
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
