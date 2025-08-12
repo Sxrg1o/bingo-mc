@@ -24,6 +24,16 @@ public class BingoPlayer {
         return ALL_PLAYERS.get(uuid);
     }
 
+    /**
+     * Retrieves a BingoPlayer instance by their online Player
+     * 
+     * @param player The Player instance.
+     * @return The BingoPlayer instance, or null if not found.
+     */
+    public static BingoPlayer getBingoPlayer(Player player) {
+        return getBingoPlayer(player.getUniqueId());
+    }
+
     private final UUID uuid;
     private String name;
     private BingoTeam team = null;

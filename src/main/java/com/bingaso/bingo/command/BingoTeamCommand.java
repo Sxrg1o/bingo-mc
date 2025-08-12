@@ -1,5 +1,6 @@
 package com.bingaso.bingo.command;
 
+import com.bingaso.bingo.gui.AbstractGui.AbstractGuiContext;
 import com.bingaso.bingo.gui.BingoTeamGui;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
@@ -79,7 +80,10 @@ public class BingoTeamCommand implements CommandExecutor, TabCompleter {
     }
     
     private boolean handleSelectTeam(Player player) {
-        BingoTeamGui.getInstance().openForPlayer(player);
+        BingoTeamGui.getInstance().openForPlayer(
+            player,
+            new AbstractGuiContext()
+        );
         return true;
     }
 

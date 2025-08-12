@@ -2,7 +2,10 @@ package com.bingaso.bingo.command;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.game.GameState;
+import com.bingaso.bingo.game.MatchSettings;
 import com.bingaso.bingo.gui.ConfigGui;
+import com.bingaso.bingo.gui.ConfigGui.ConfigGuiContext;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -45,10 +48,14 @@ public class BingoConfigCommand implements CommandExecutor {
             );
             return true;
         }
+        
+        MatchSettings settings = BingoPlugin.getInstance()
+            .getGameManager()
+            .getCurrentMatchSettings();
 
         ConfigGui.getInstance().openForPlayer(
             player,
-            BingoPlugin.getInstance().getGameManager().getCurrentMatchSettings()
+            new ConfigGuiContext(settings)
         );
         return true;
     }

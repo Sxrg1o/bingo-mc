@@ -3,6 +3,7 @@ package com.bingaso.bingo.listener;
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.game.MatchSettings;
 import com.bingaso.bingo.gui.ConfigGui;
+import com.bingaso.bingo.gui.ConfigGui.ConfigGuiContext;
 import com.bingaso.bingo.gui.GuiItem;
 import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
@@ -83,6 +84,6 @@ public class ConfigGuiListener implements Listener {
                 break;
         }
 
-        ConfigGui.getInstance().openForPlayer(player, settings);
+        ConfigGui.getInstance().openForPlayer(player, new ConfigGuiContext(settings));
     }
 }

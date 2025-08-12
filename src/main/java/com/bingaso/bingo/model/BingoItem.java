@@ -14,8 +14,7 @@ public class BingoItem {
 
     private final Material material;
     private final Set<BingoTeam> completedByTeams = new HashSet<>();
-    private final HashMap<BingoTeam, Instant> completionTimestamps =
-        new HashMap<>();
+    private final HashMap<BingoTeam, Long> completionMilliseconds = new HashMap<>();
 
     /**
      * Creates a new BingoItem for the specified material.
@@ -39,10 +38,21 @@ public class BingoItem {
      * Marks this item as completed by the specified team and records the completion timestamp.
      *
      * @param team The team that has found this item
+     * @param startInstant The instant when the bingo match started
      */
-    public void addCompletingTeam(BingoTeam team) {
+    public void addCompletingTeam(BingoTeam team, Instant startInstant) {
         this.completedByTeams.add(team);
-        this.completionTimestamps.put(team, Instant.now());
+        Long milli = Instant.now().toEpochMilli() - startInstant.toEpochMilli();
+        this.completionMilliseconds.put(team, milli);
+    }
+
+    /**
+     * Returns the completion milliseconds for the specified team.
+     * @param team The team to get the completion milliseconds for
+     * @return The completion milliseconds for the team, or null if not found
+     */
+    public Long getCompletionMilliseconds(BingoTeam team) {
+        return this.completionMilliseconds.get(team);
     }
 
     /**

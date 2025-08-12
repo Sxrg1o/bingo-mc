@@ -9,6 +9,8 @@ import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
 import com.bingaso.bingo.model.TeamMode;
 import com.bingaso.bingo.utils.Broadcaster;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +28,7 @@ public class GameManager {
     private GameState currentState = GameState.LOBBY;
     private MatchSettings currentMatchSettings;
     private BingoCard sharedBingoCard;
-    private long matchStartTime;
+    private Instant startInstant;
 
     private final CardGenerator cardGenerator;
     private final Broadcaster broadcaster;
@@ -78,7 +80,7 @@ public class GameManager {
      */
     public long getElapsedSeconds() {
         if (currentState != GameState.IN_PROGRESS) return 0;
-        return (System.currentTimeMillis() - matchStartTime) / 1000;
+        return Instant.now().getEpochSecond() - startInstant.getEpochSecond();
     }
 
     /**
@@ -138,7 +140,7 @@ public class GameManager {
 
         // When teams are ready
         this.currentState = GameState.IN_PROGRESS;
-        this.matchStartTime = System.currentTimeMillis();
+        this.startInstant = Instant.now();
 
         if (currentMatchSettings.getGameMode() == GameMode.TIMED) {
             long durationInTicks =
@@ -227,7 +229,7 @@ public class GameManager {
             }
         }
 
-        bingoItem.addCompletingTeam(team);
+        bingoItem.addCompletingTeam(team, startInstant);
         team.addFoundItem(item);
 
         broadcaster.announceItemFound(team, item);

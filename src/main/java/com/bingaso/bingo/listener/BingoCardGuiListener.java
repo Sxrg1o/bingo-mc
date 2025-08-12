@@ -8,8 +8,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.gui.BingoCardGui;
+import com.bingaso.bingo.gui.BingoCardGui.BingoCardGuiContext;
 import com.bingaso.bingo.gui.GuiItem;
+import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
 
 /**
@@ -27,7 +30,7 @@ public class BingoCardGuiListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
-        if (BingoCardGui.getInstance().getOpenPlayers().contains(player)) {
+        if (BingoCardGui.getInstance().isOpenBy(player)) {
             BingoCardGui.getInstance().removeOpenPlayer(player);
         }
     }
@@ -46,7 +49,8 @@ public class BingoCardGuiListener implements Listener {
         }
 
         Player player = (Player) event.getWhoClicked();
-        if (!BingoCardGui.getInstance().getOpenPlayers().contains(player)) {
+        BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player);
+        if (!BingoCardGui.getInstance().isOpenBy(player)) {
             return;
         }
 
@@ -62,7 +66,10 @@ public class BingoCardGuiListener implements Listener {
 
             BingoCardGui.getInstance().openForPlayer(
                 player,
-                BingoTeam.getTeamByName(teamName)
+                new BingoCardGuiContext(
+                    BingoTeam.getTeamByName(teamName),
+                    bingoPlayer.getTeam(),
+                    BingoPlugin.getInstance().getGameManager().getSharedBingoCard())
             );
             return;
         }

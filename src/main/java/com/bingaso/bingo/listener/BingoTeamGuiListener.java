@@ -33,7 +33,7 @@ public class BingoTeamGuiListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
-        if (BingoTeamGui.getInstance().getOpenPlayers().contains(player)) {
+        if (BingoTeamGui.getInstance().isOpenBy(player)) {
             BingoTeamGui.getInstance().removeOpenPlayer(player);
         }
     }
@@ -53,7 +53,7 @@ public class BingoTeamGuiListener implements Listener {
 
         Player player = (Player) event.getWhoClicked();
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
-        if (!BingoTeamGui.getInstance().getOpenPlayers().contains(player)) {
+        if (!BingoTeamGui.getInstance().isOpenBy(player)) {
             return;
         }
 

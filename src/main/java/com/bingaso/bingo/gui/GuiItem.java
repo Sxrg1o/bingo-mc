@@ -56,6 +56,16 @@ public class GuiItem extends ItemStack{
     }
 
     /**
+     * Checks if an ItemStack is a GuiItem.
+     * 
+     * @param itemStack the ItemStack to check
+     * @return true if the ItemStack is a GuiItem false otherwise
+     */
+    public static boolean isGuiItem(ItemStack itemStack) {
+        return getCustomString(itemStack, "custom_id") != null;
+    }
+
+    /**
      * Retrieves a custom string value from the item's persistent data container.
      *
      * @param itemStack The ItemStack to query
