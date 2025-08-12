@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.bingaso.bingo.gui.GuiItem;
+import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.gui.BingoTeamGui;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
@@ -60,7 +60,7 @@ public class BingoTeamGuiListener implements Listener {
         event.setCancelled(true);
 
         // Check first gui item
-        if(GuiItem.isGuiItem(clickedItem, "NewTeamItemStack")) {
+        if(BingoGuiItem.isGuiItem(clickedItem, "NewTeamItemStack")) {
             String randomTeamName = "Team-" + UUID.randomUUID().toString().substring(0, 8);
             BingoTeam newTeam;
             try {
@@ -92,8 +92,8 @@ public class BingoTeamGuiListener implements Listener {
         }
 
         // Check second gui item
-        if(GuiItem.isGuiItem(clickedItem, "TeamItemStack")) {
-            String teamName = GuiItem.getCustomString(clickedItem, "team");
+        if(BingoGuiItem.isGuiItem(clickedItem, "TeamItemStack")) {
+            String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
             if(teamName == null) return;
             BingoTeam team = BingoTeam.getTeamByName(teamName);
             if(team == null) {

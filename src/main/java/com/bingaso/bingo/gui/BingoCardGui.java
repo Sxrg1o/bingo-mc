@@ -14,7 +14,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 /**
  * GUI for displaying each teams bingo card.
  */
-public class BingoCardGui extends AbstractGui {
+public class BingoCardGui extends BingoGui {
 
     /** Singleton instance */
     public static final BingoCardGui INSTANCE = new BingoCardGui();
@@ -29,7 +29,7 @@ public class BingoCardGui extends AbstractGui {
     }
 
     /** Context necessary to open this inventory */
-    public static class BingoCardGuiContext extends AbstractGuiContext {
+    public static class BingoCardGuiContext extends GuiContext {
         public BingoTeam bingoTeamToShow;
         public BingoTeam bingoTeamFromWatcher;
         public BingoCard bingoCard;
@@ -51,7 +51,7 @@ public class BingoCardGui extends AbstractGui {
      * @throws IllegalArgumentException if the context is invalid
      */
     @Override
-    public Inventory getInventory(AbstractGuiContext context) {
+    public Inventory getInventory(GuiContext context) {
         if(context instanceof BingoCardGuiContext) {
             return getInventory((BingoCardGuiContext) context);
         } else {
@@ -84,17 +84,17 @@ public class BingoCardGui extends AbstractGui {
             int j = i % 5;
             int k = i / 5;
 
-            GuiItem bingoItemStack = new GuiItem(bingoItem.getMaterial(), "BingoItemStack");
+            BingoGuiItem bingoItemStack = new BingoGuiItem(bingoItem.getMaterial(), "BingoItemStack");
             if(bingoItem.isCompletedBy(bingoTeamToShow)) {
-                bingoItemStack = GuiItemFactory.createCompletedGuiItem(bingoItem, bingoTeamToShow, bingoTeamFromWatcher);
+                bingoItemStack = BingoGuiItemFactory.createCompletedGuiItem(bingoItem, bingoTeamToShow, bingoTeamFromWatcher);
             }
             inventory.setItem(2 + k*9 + j, bingoItemStack); // Place in the center 5x5 grid
             i++;
         }
         // Add arrows for navigating teams
-        inventory.setItem(45, GuiItemFactory.createPreviousTeamGuiItem(bingoTeamToShow));
-        inventory.setItem(49, GuiItemFactory.createTeamGuiItem(bingoTeamToShow, bingoTeamFromWatcher));
-        inventory.setItem(53, GuiItemFactory.createNextTeamGuiItem(bingoTeamToShow));
+        inventory.setItem(45, BingoGuiItemFactory.createPreviousTeamGuiItem(bingoTeamToShow));
+        inventory.setItem(49, BingoGuiItemFactory.createTeamGuiItem(bingoTeamToShow, bingoTeamFromWatcher));
+        inventory.setItem(53, BingoGuiItemFactory.createNextTeamGuiItem(bingoTeamToShow));
         return inventory;
     }
 }

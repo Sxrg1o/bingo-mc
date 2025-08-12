@@ -2,9 +2,9 @@ package com.bingaso.bingo.listener;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.game.MatchSettings;
-import com.bingaso.bingo.gui.ConfigGui;
-import com.bingaso.bingo.gui.ConfigGui.ConfigGuiContext;
-import com.bingaso.bingo.gui.GuiItem;
+import com.bingaso.bingo.gui.BingoConfigGui;
+import com.bingaso.bingo.gui.BingoConfigGui.ConfigGuiContext;
+import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
 import com.bingaso.bingo.model.TeamMode;
@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
  * Listener that handles interactions with the Bingo configuration GUI.
  * Processes click events on configuration items to update game settings.
  */
-public class ConfigGuiListener implements Listener {
+public class BingoConfigGuiListener implements Listener {
 
     /**
      * Handles inventory click events in the configuration GUI.
@@ -39,7 +39,7 @@ public class ConfigGuiListener implements Listener {
         if (clickedItem == null) return;
 
         Player player = (Player) event.getWhoClicked();
-        String customId = GuiItem.getCustomString(clickedItem, "custom_id");
+        String customId = BingoGuiItem.getCustomString(clickedItem, "custom_id");
         if (customId == null) return;
 
         MatchSettings settings = BingoPlugin.getInstance()
@@ -84,6 +84,6 @@ public class ConfigGuiListener implements Listener {
                 break;
         }
 
-        ConfigGui.getInstance().openForPlayer(player, new ConfigGuiContext(settings));
+        BingoConfigGui.getInstance().openForPlayer(player, new ConfigGuiContext(settings));
     }
 }

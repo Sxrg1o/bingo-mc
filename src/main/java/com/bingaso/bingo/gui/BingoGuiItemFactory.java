@@ -23,7 +23,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
-public class GuiItemFactory {
+public class BingoGuiItemFactory {
     
     /**
      * Creates an ItemStack representing a specific team.
@@ -33,7 +33,7 @@ public class GuiItemFactory {
      * @param bingoTeamFromWatcher The bingo team from the player watching
      * @return ItemStack representing the team with appropriate styling and lore
      */
-    public static GuiItem createTeamGuiItem(BingoTeam bingoTeamToShow, BingoTeam bingoTeamFromWatcher) {
+    public static BingoGuiItem createTeamGuiItem(BingoTeam bingoTeamToShow, BingoTeam bingoTeamFromWatcher) {
         // style depending on team ownership
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
         if(!bingoTeamToShow.equals(bingoTeamFromWatcher)) {
@@ -50,7 +50,7 @@ public class GuiItemFactory {
         }
         
         // item itself
-        GuiItem itemStack = new GuiItem(Material.PAPER, "bingo_card_team_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.PAPER, "bingo_card_team_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.displayName(Component.text(
@@ -70,9 +70,9 @@ public class GuiItemFactory {
      * @param team the current team to get the previous team from
      * @return ItemStack representing the previous team navigation arrow
      */
-    public static GuiItem createPreviousTeamGuiItem(BingoTeam team) {
+    public static BingoGuiItem createPreviousTeamGuiItem(BingoTeam team) {
         // item itself
-        GuiItem itemStack = new GuiItem(Material.ARROW, "bingo_card_previous_team_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.ARROW, "bingo_card_previous_team_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.displayName(Component.text("Previous Team"));
@@ -88,9 +88,9 @@ public class GuiItemFactory {
      * @param team the current team to get the next team from
      * @return ItemStack representing the next team navigation arrow
      */
-    public static GuiItem createNextTeamGuiItem(BingoTeam team) {
+    public static BingoGuiItem createNextTeamGuiItem(BingoTeam team) {
         // item itself
-        GuiItem itemStack = new GuiItem(Material.ARROW, "bingo_card_next_team_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.ARROW, "bingo_card_next_team_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.displayName(Component.text("Next Team"));
@@ -108,7 +108,7 @@ public class GuiItemFactory {
      * @param bingoTeamFromWatcher The bingo team from the player watching
      * @return GuiItem representing the completed state with green styling
      */
-    public static GuiItem createCompletedGuiItem(BingoItem bingoItem, BingoTeam bingoTeamThatCompleted, BingoTeam bingoTeamFromWatcher) {
+    public static BingoGuiItem createCompletedGuiItem(BingoItem bingoItem, BingoTeam bingoTeamThatCompleted, BingoTeam bingoTeamFromWatcher) {
         // style depending on team ownership
         Material material = Material.GREEN_STAINED_GLASS_PANE;
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
@@ -130,7 +130,7 @@ public class GuiItemFactory {
         }
 
         // item itself
-        GuiItem itemStack = new GuiItem(material, "bingo_card_completed_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(material, "bingo_card_completed_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.displayName(Component.text("Completed: " + bingoItem.getMaterial().toString(), namedTextColor));
@@ -145,9 +145,9 @@ public class GuiItemFactory {
      * Creates an ItemStack for creating a new team.
      * @return GuiItem representing the "Create New Team" option
      */
-    public static GuiItem createNewTeamGuiItem() {
+    public static BingoGuiItem createNewTeamGuiItem() {
         // item itself
-        GuiItem itemStack = new GuiItem(Material.WHITE_WOOL, "bingo_team_new_team_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.WHITE_WOOL, "bingo_team_new_team_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.displayName(Component.text("Create New Team", NamedTextColor.WHITE, TextDecoration.BOLD));
@@ -165,7 +165,7 @@ public class GuiItemFactory {
      * @param team The team to create an ItemStack for
      * @return GuiItem representing the team with appropriate styling and lore
      */
-    public static GuiItem createJoinTeamGuiItem(BingoTeam team) {
+    public static BingoGuiItem createJoinTeamGuiItem(BingoTeam team) {
         // Variables for the item
         Material material = Material.GREEN_WOOL;
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
@@ -197,7 +197,7 @@ public class GuiItemFactory {
         }
 
         // item itself
-        GuiItem itemStack = new GuiItem(material, "bingo_team_join_team_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(material, "bingo_team_join_team_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.displayName(Component.text(
@@ -219,7 +219,7 @@ public class GuiItemFactory {
      * @param currentMode The currently selected team mode
      * @return A configured GuiItem for team mode selection
      */
-    public static GuiItem createTeamModeGuiItem(TeamMode currentMode) {
+    public static BingoGuiItem createTeamModeGuiItem(TeamMode currentMode) {
         // lore
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Click to cycle to the next mode.",NamedTextColor.GRAY));
@@ -228,7 +228,7 @@ public class GuiItemFactory {
             .append(Component.text(currentMode.name(), NamedTextColor.YELLOW)));
 
         // item itself
-        GuiItem itemStack = new GuiItem(Material.PLAYER_HEAD, "bingo_config_team_mode_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.PLAYER_HEAD, "bingo_config_team_mode_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
         
         itemMeta.displayName(Component.text("Team Mode", NamedTextColor.AQUA));
@@ -244,14 +244,14 @@ public class GuiItemFactory {
      * @param currentLevel The currently selected difficulty level
      * @return A configured GuiItem for difficulty selection
      */
-    public static GuiItem createDifficultyGuiItem(DifficultyLevel currentLevel) {
+    public static BingoGuiItem createDifficultyGuiItem(DifficultyLevel currentLevel) {
         // lore
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Click to cycle to the next level.", NamedTextColor.GRAY));
         lore.add(Component.text("Current: ", NamedTextColor.GRAY).append(Component.text(currentLevel.name(), NamedTextColor.YELLOW)));
 
         // item itself
-        GuiItem itemStack = new GuiItem(Material.DIAMOND_SWORD, "bingo_config_difficulty_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.DIAMOND_SWORD, "bingo_config_difficulty_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.displayName(Component.text("Difficulty", NamedTextColor.AQUA));
@@ -268,7 +268,7 @@ public class GuiItemFactory {
      * @param currentDuration The current game duration in minutes
      * @return A configured GuiItem for duration adjustment
      */
-    public static GuiItem createDurationGuiItem(int currentDuration) {
+    public static BingoGuiItem createDurationGuiItem(int currentDuration) {
         // lore
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Left-click to add 5 minutes.", NamedTextColor.GRAY));
@@ -276,7 +276,7 @@ public class GuiItemFactory {
         lore.add(Component.text("Current: ", NamedTextColor.GRAY).append(Component.text(currentDuration + " minutes", NamedTextColor.YELLOW)));
 
         // item itself
-        GuiItem itemStack = new GuiItem(Material.CLOCK, "bingo_config_duration_gui_item");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.CLOCK, "bingo_config_duration_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.displayName(Component.text("Game Duration", NamedTextColor.AQUA));
         itemMeta.lore(lore);
@@ -291,14 +291,14 @@ public class GuiItemFactory {
      * @param currentMode The currently selected game mode
      * @return A configured GuiItem for game mode selection
      */
-    public static GuiItem createGameModeGuiItem(GameMode currentMode) {
+    public static BingoGuiItem createGameModeGuiItem(GameMode currentMode) {
         // lore
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Click to cycle to the next mode.",NamedTextColor.GRAY));
         lore.add(Component.text("Current: ", NamedTextColor.GRAY).append(Component.text(currentMode.name(), NamedTextColor.YELLOW)));
 
         // item itself
-        GuiItem itemStack = new GuiItem(Material.ENCHANTED_BOOK, "config_gamemode");
+        BingoGuiItem itemStack = new BingoGuiItem(Material.ENCHANTED_BOOK, "bingo_config_gamemode_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.lore(lore);
         itemMeta.displayName(Component.text("Game Mode", NamedTextColor.AQUA));

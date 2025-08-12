@@ -13,7 +13,7 @@ import com.bingaso.bingo.BingoPlugin;
  * Provides utilities for storing and retrieving custom string data in items
  * using Bukkit's persistent data container system.
  */
-public class GuiItem extends ItemStack{
+public class BingoGuiItem extends ItemStack{
     
     /**
      * Creates a new GuiItem with the specified material and custom identifier.
@@ -21,7 +21,7 @@ public class GuiItem extends ItemStack{
      * @param material the material type for this GUI item
      * @param customId the unique identifier for this GUI item type
      */
-    public GuiItem(Material material, String customId) {
+    public BingoGuiItem(Material material, String customId) {
         super(material);
         setCustomString("custom_id", customId);
     }

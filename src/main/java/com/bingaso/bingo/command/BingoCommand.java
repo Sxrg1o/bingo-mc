@@ -13,12 +13,22 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.bingaso.bingo.command.subcommand.BingoCardSubCommand;
+import com.bingaso.bingo.command.subcommand.BingoConfigSubCommand;
+import com.bingaso.bingo.command.subcommand.BingoStartSubCommand;
+import com.bingaso.bingo.command.subcommand.BingoTeamSubCommand;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 public class BingoCommand implements CommandExecutor, TabCompleter {
     
-    private final Map<String, SubCommand> subCommands = new HashMap<>();
+    public static interface BingoSubCommand {
+        boolean execute(@NotNull CommandSender sender, @NotNull String[] args);
+        @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args);
+    }
+    
+    private final Map<String, BingoSubCommand> subCommands = new HashMap<>();
     
     public BingoCommand() {
         // Register subcommands
@@ -35,7 +45,7 @@ public class BingoCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length > 1) {
-            SubCommand subCommand = subCommands.get(args[0].toLowerCase());
+            BingoSubCommand subCommand = subCommands.get(args[0].toLowerCase());
             if (subCommand != null) {
                 String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
                 return subCommand.getTabCompletions(sender, subArgs);
@@ -52,7 +62,7 @@ public class BingoCommand implements CommandExecutor, TabCompleter {
         }
         
         String subCommandName = args[0].toLowerCase();
-        SubCommand subCommand = subCommands.get(subCommandName);
+        BingoSubCommand subCommand = subCommands.get(subCommandName);
         
         if (subCommand == null) {
             sender.sendMessage(Component.text("Unknown subcommand: " + subCommandName, NamedTextColor.RED));

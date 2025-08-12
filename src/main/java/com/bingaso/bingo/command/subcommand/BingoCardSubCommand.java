@@ -1,6 +1,7 @@
-package com.bingaso.bingo.command;
+package com.bingaso.bingo.command.subcommand;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
 import com.bingaso.bingo.gui.BingoCardGui;
 import com.bingaso.bingo.gui.BingoCardGui.BingoCardGuiContext;
 import com.bingaso.bingo.model.BingoPlayer;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
  * Command executor for bingo card-related commands.
  * Handles: /bingocard
  */
-public class BingoCardSubCommand implements SubCommand {
+public class BingoCardSubCommand implements BingoSubCommand {
     
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {

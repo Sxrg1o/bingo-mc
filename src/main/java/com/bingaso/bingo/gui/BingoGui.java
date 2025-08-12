@@ -1,6 +1,5 @@
 package com.bingaso.bingo.gui;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,13 +11,13 @@ import org.bukkit.inventory.Inventory;
 import com.bingaso.bingo.model.BingoPlayer;
 import java.util.Collections;
 
-public abstract class AbstractGui {
+public abstract class BingoGui {
 
     /** If context is needed to open the inventory, this structure is used */
-    public static class AbstractGuiContext {}
+    public static abstract class GuiContext {}
 
     /** Map that contains all players that have this inventory opened */
-    private final AbstractMap<BingoPlayer, AbstractGuiContext> openPlayers = new HashMap<>();
+    private final HashMap<BingoPlayer, GuiContext> openPlayers = new HashMap<>();
 
     /**
      * Opens the GUI for the given player with specified team and player context.
@@ -26,7 +25,7 @@ public abstract class AbstractGui {
      * @param context The context containing other information needed to
      * display the GUI
      */
-    public void openForPlayer(Player player, AbstractGuiContext context) {
+    public void openForPlayer(Player player, GuiContext context) {
         BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player);
         openForPlayer(bingoPlayer, player, context);
     }
@@ -37,7 +36,7 @@ public abstract class AbstractGui {
      * @param context The context containing other information needed to
      * display the GUI
      */
-    public void openForPlayer(BingoPlayer bingoPlayer, AbstractGuiContext context) {
+    public void openForPlayer(BingoPlayer bingoPlayer, GuiContext context) {
         Player player = bingoPlayer.getOnlinePlayer();
         if(player == null) return;
         openForPlayer(bingoPlayer, player, context);
@@ -50,7 +49,7 @@ public abstract class AbstractGui {
      * @param context The context containing other information needed to
      * display the GUI
      */
-    private void openForPlayer(BingoPlayer bingoPlayer, Player player, AbstractGuiContext context) {
+    private void openForPlayer(BingoPlayer bingoPlayer, Player player, GuiContext context) {
         player.openInventory(getInventory(context));
         openPlayers.put(bingoPlayer, context);
     }
@@ -102,10 +101,10 @@ public abstract class AbstractGui {
      * Refreshes the GUI for all players who currently have it open.
      */
     public void updateInventories() {
-        HashMap<BingoPlayer, AbstractGuiContext> copyOpenPlayers = new HashMap<>(this.openPlayers);
-        for (Entry<BingoPlayer, AbstractGuiContext> entry : copyOpenPlayers.entrySet()) {
+        HashMap<BingoPlayer, GuiContext> copyOpenPlayers = new HashMap<>(this.openPlayers);
+        for (Entry<BingoPlayer, GuiContext> entry : copyOpenPlayers.entrySet()) {
             BingoPlayer player = entry.getKey();
-            AbstractGuiContext context = entry.getValue();
+            GuiContext context = entry.getValue();
             openForPlayer(player, context);
         }
     }
@@ -117,5 +116,5 @@ public abstract class AbstractGui {
      * @param context The context containing information to open the inventory
      * @return The configured inventory for the given context
      */
-    public abstract Inventory getInventory(AbstractGuiContext context);
+    public abstract Inventory getInventory(GuiContext context);
 }

@@ -13,7 +13,7 @@ import com.bingaso.bingo.model.BingoTeam;
  * GUI for displaying and managing teams in the Bingo game.
  * Provides interface for creating new teams and joining existing ones.
  */
-public class BingoTeamGui extends AbstractGui {
+public class BingoTeamGui extends BingoGui {
 
     /** Singleton instance */
     public static final BingoTeamGui INSTANCE = new BingoTeamGui();
@@ -27,6 +27,11 @@ public class BingoTeamGui extends AbstractGui {
         return INSTANCE;
     }
 
+    /** Context necessary to open this inventory */
+    public static class BingoTeamGuiContext extends GuiContext {
+        public BingoTeamGuiContext() {}
+    }
+
     /**
      * Creates and returns the teams GUI inventory.
      * Contains items for all existing teams plus an option to create
@@ -35,7 +40,7 @@ public class BingoTeamGui extends AbstractGui {
      * @return The configured teams GUI inventory
      */
     @Override
-    public Inventory getInventory(AbstractGuiContext context) {
+    public Inventory getInventory(GuiContext context) {
         Inventory inventory = Bukkit.createInventory(
             null,
             27,
@@ -44,11 +49,11 @@ public class BingoTeamGui extends AbstractGui {
 
         // Adds a new wool for each team
         for(BingoTeam t: BingoTeam.getAllTeams()) {
-            inventory.addItem(GuiItemFactory.createJoinTeamGuiItem(t));
+            inventory.addItem(BingoGuiItemFactory.createJoinTeamGuiItem(t));
         }
 
         // Adds a wool to create a team
-        inventory.addItem(GuiItemFactory.createNewTeamGuiItem());
+        inventory.addItem(BingoGuiItemFactory.createNewTeamGuiItem());
         return inventory;
     }
 }

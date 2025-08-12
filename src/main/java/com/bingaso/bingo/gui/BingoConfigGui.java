@@ -11,27 +11,27 @@ import org.bukkit.inventory.Inventory;
  * game mode, team mode, difficulty level, and game duration.
  * Uses the singleton pattern for global access.
  */
-public class ConfigGui extends AbstractGui {
+public class BingoConfigGui extends BingoGui {
 
     /** Singleton instance of the ConfigGui */
-    public static final ConfigGui INSTANCE = new ConfigGui();
+    public static final BingoConfigGui INSTANCE = new BingoConfigGui();
 
     /**
      * Private constructor to enforce singleton pattern.
      */
-    private ConfigGui() {}
+    private BingoConfigGui() {}
 
     /**
      * Gets the singleton instance of ConfigGui.
      *
      * @return The singleton ConfigGui instance
      */
-    public static ConfigGui getInstance() {
+    public static BingoConfigGui getInstance() {
         return INSTANCE;
     }
 
     /** Context necessary to open this inventory */
-    public static class ConfigGuiContext extends AbstractGuiContext {
+    public static class ConfigGuiContext extends GuiContext {
         public MatchSettings matchSettings;
 
         public ConfigGuiContext(MatchSettings matchSettings) {
@@ -49,7 +49,7 @@ public class ConfigGui extends AbstractGui {
      * @throws IllegalArgumentException if the context is invalid
      */
     @Override
-    public Inventory getInventory(AbstractGuiContext context) {
+    public Inventory getInventory(GuiContext context) {
         if(context instanceof ConfigGuiContext) {
             return getInventory((ConfigGuiContext) context);
         } else {
@@ -73,10 +73,10 @@ public class ConfigGui extends AbstractGui {
             Component.text("Bingo Configuration")
         );
 
-        inventory.setItem(10, GuiItemFactory.createGameModeGuiItem(matchSettings.getGameMode()));
-        inventory.setItem(12, GuiItemFactory.createTeamModeGuiItem(matchSettings.getTeamMode()));
-        inventory.setItem(14, GuiItemFactory.createDifficultyGuiItem(matchSettings.getDifficultyLevel()));
-        inventory.setItem(16, GuiItemFactory.createDurationGuiItem(matchSettings.getGameDuration()));
+        inventory.setItem(10, BingoGuiItemFactory.createGameModeGuiItem(matchSettings.getGameMode()));
+        inventory.setItem(12, BingoGuiItemFactory.createTeamModeGuiItem(matchSettings.getTeamMode()));
+        inventory.setItem(14, BingoGuiItemFactory.createDifficultyGuiItem(matchSettings.getDifficultyLevel()));
+        inventory.setItem(16, BingoGuiItemFactory.createDurationGuiItem(matchSettings.getGameDuration()));
 
         return inventory;
     }

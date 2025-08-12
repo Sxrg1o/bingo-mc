@@ -1,6 +1,7 @@
-package com.bingaso.bingo.command;
+package com.bingaso.bingo.command.subcommand;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
  * Command executor for bingo match start.
  * Handles: /bingostart
  */
-public class BingoStartSubCommand implements SubCommand {
+public class BingoStartSubCommand implements BingoSubCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {

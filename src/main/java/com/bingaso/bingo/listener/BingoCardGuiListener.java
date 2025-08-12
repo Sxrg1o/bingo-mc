@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.gui.BingoCardGui;
 import com.bingaso.bingo.gui.BingoCardGui.BingoCardGuiContext;
-import com.bingaso.bingo.gui.GuiItem;
+import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
 
@@ -58,10 +58,10 @@ public class BingoCardGuiListener implements Listener {
 
         // Check if the clicked item is the next or previous team arrow
         if(
-            GuiItem.isGuiItem(clickedItem, "NextTeamItemStack") ||
-            GuiItem.isGuiItem(clickedItem, "PreviousTeamItemStack")
+            BingoGuiItem.isGuiItem(clickedItem, "NextTeamItemStack") ||
+            BingoGuiItem.isGuiItem(clickedItem, "PreviousTeamItemStack")
         ) {
-            String teamName = GuiItem.getCustomString(clickedItem, "team");
+            String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
             if(teamName == null) return;
 
             BingoCardGui.getInstance().openForPlayer(

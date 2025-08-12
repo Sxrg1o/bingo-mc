@@ -2,7 +2,7 @@ package com.bingaso.bingo.listener;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.game.GameState;
-import com.bingaso.bingo.gui.GuiItem;
+import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.model.BingoPlayer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -106,7 +106,7 @@ public class GameListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         ItemStack clickedItem = event.getCurrentItem();
 
-        if (GuiItem.getCustomString(clickedItem, "custom_id") != null) return;
+        if (BingoGuiItem.getCustomString(clickedItem, "custom_id") != null) return;
 
         if (
             BingoPlugin.getInstance().getGameManager().getCurrentState() !=

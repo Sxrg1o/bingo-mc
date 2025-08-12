@@ -1,7 +1,8 @@
-package com.bingaso.bingo.command;
+package com.bingaso.bingo.command.subcommand;
 
-import com.bingaso.bingo.gui.AbstractGui.AbstractGuiContext;
+import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
 import com.bingaso.bingo.gui.BingoTeamGui;
+import com.bingaso.bingo.gui.BingoTeamGui.BingoTeamGuiContext;
 import com.bingaso.bingo.model.BingoPlayer;
 import com.bingaso.bingo.model.BingoTeam;
 
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
  * Command executor for team-related commands.
  * Handles: /bingoteam create, /bingoteam join <teamId>, /bingoteam leave, /bingoteam list
  */
-public class BingoTeamSubCommand implements SubCommand {
+public class BingoTeamSubCommand implements BingoSubCommand {
     
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
@@ -76,7 +77,7 @@ public class BingoTeamSubCommand implements SubCommand {
     private boolean handleSelectTeam(Player player) {
         BingoTeamGui.getInstance().openForPlayer(
             player,
-            new AbstractGuiContext()
+            new BingoTeamGuiContext()
         );
         return true;
     }

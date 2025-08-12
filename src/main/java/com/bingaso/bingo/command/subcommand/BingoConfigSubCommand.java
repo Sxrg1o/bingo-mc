@@ -1,10 +1,11 @@
-package com.bingaso.bingo.command;
+package com.bingaso.bingo.command.subcommand;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
 import com.bingaso.bingo.game.GameState;
 import com.bingaso.bingo.game.MatchSettings;
-import com.bingaso.bingo.gui.ConfigGui;
-import com.bingaso.bingo.gui.ConfigGui.ConfigGuiContext;
+import com.bingaso.bingo.gui.BingoConfigGui;
+import com.bingaso.bingo.gui.BingoConfigGui.ConfigGuiContext;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
  * This command opens the configuration GUI that allows server operators
  * to modify game settings while in the lobby state.
  */
-public class BingoConfigSubCommand implements SubCommand {
+public class BingoConfigSubCommand implements BingoSubCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
@@ -50,7 +51,7 @@ public class BingoConfigSubCommand implements SubCommand {
             .getGameManager()
             .getCurrentMatchSettings();
 
-        ConfigGui.getInstance().openForPlayer(
+        BingoConfigGui.getInstance().openForPlayer(
             player,
             new ConfigGuiContext(settings)
         );
