@@ -1,9 +1,11 @@
 package com.bingaso.bingo.listener;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.game.BingoGameManager;
 import com.bingaso.bingo.game.GameState;
 import com.bingaso.bingo.gui.BingoGuiItem;
-import com.bingaso.bingo.model.BingoPlayer;
+import com.bingaso.bingo.player.BingoPlayer;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,18 +34,10 @@ public class GameListener implements Listener {
      * @param material The material type of the acquired item
      */
     private void processGetItem(Player player, Material material) {
-        if (
-            BingoPlugin.getInstance().getGameManager().getCurrentState() !=
-            GameState.IN_PROGRESS
-        ) return;
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        if (gameManager.getCurrentState() != GameState.IN_PROGRESS) return;
 
-        BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(
-            player.getUniqueId()
-        );
-        if (bingoPlayer == null || bingoPlayer.getTeam() == null) {
-            return;
-        }
-
+        BingoPlayer bingoPlayer = gameManager.getBingoPlayer(player);
         BingoPlugin.getInstance()
             .getGameManager()
             .onPlayerFindsItem(bingoPlayer, material);

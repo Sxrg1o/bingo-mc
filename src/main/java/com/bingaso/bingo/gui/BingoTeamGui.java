@@ -3,11 +3,13 @@ package com.bingaso.bingo.gui;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
+import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.game.BingoGameManager;
+import com.bingaso.bingo.team.BingoTeam;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-
-import com.bingaso.bingo.model.BingoTeam;
 
 /**
  * GUI for displaying and managing teams in the Bingo game.
@@ -47,8 +49,9 @@ public class BingoTeamGui extends BingoGui {
             Component.text("Choose your team", NamedTextColor.GOLD, TextDecoration.BOLD)
         );
 
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
         // Adds a new wool for each team
-        for(BingoTeam t: BingoTeam.getAllTeams()) {
+        for(BingoTeam t: gameManager.getTeams()) {
             inventory.addItem(BingoGuiItemFactory.createJoinTeamGuiItem(t));
         }
 

@@ -2,9 +2,9 @@ package com.bingaso.bingo.command.subcommand;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
+import com.bingaso.bingo.game.BingoGameManager;
 import com.bingaso.bingo.gui.BingoCardGui;
 import com.bingaso.bingo.gui.BingoCardGui.BingoCardGuiContext;
-import com.bingaso.bingo.model.BingoPlayer;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -36,12 +36,12 @@ public class BingoCardSubCommand implements BingoSubCommand {
             return true;
         }
 
-        BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
         BingoCardGui.getInstance().openForPlayer(
             player,
             new BingoCardGuiContext(
-                bingoPlayer.getTeam(),
-                bingoPlayer.getTeam(),
+                gameManager.getPlayerTeam(player),
+                gameManager.getPlayerTeam(player),
                 BingoPlugin.getInstance().getGameManager().getSharedBingoCard()
             )
         );
@@ -56,6 +56,6 @@ public class BingoCardSubCommand implements BingoSubCommand {
 
     private void sendHelpMessage(Player player) {
         player.sendMessage(Component.text("=== Bingo Card Commands ===", NamedTextColor.GREEN));
-        player.sendMessage(Component.text("/bingocard - Shows the bingo card GUI", NamedTextColor.GREEN));
+        player.sendMessage(Component.text("/bingo card - Shows the bingo card GUI", NamedTextColor.GREEN));
     }
 }

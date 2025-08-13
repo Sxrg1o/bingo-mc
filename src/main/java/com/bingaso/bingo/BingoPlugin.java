@@ -1,29 +1,23 @@
 package com.bingaso.bingo;
 
 import com.bingaso.bingo.command.BingoCommand;
-import com.bingaso.bingo.game.CardGenerator;
-import com.bingaso.bingo.game.GameManager;
+import com.bingaso.bingo.game.BingoGameManager;
 import com.bingaso.bingo.listener.BingoCardGuiListener;
-import com.bingaso.bingo.listener.BingoPlayerListener;
+import com.bingaso.bingo.listener.BingoPlayerManagerListener;
 import com.bingaso.bingo.listener.BingoTeamGuiListener;
 import com.bingaso.bingo.listener.BingoConfigGuiListener;
 import com.bingaso.bingo.listener.GameListener;
-import com.bingaso.bingo.utils.Broadcaster;
-import com.bingaso.bingo.utils.ItemRepository;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BingoPlugin extends JavaPlugin {
 
-    private static BingoPlugin instance;
+    private static BingoPlugin INSTANCE = new BingoPlugin();
 
     public static BingoPlugin getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
-    private ItemRepository itemRepository;
-    private CardGenerator cardGenerator;
-    private Broadcaster broadcaster;
-    private GameManager gameManager;
+    private BingoGameManager gameManager;
 
     @Override
     public void onEnable() {
@@ -32,7 +26,7 @@ public final class BingoPlugin extends JavaPlugin {
         // Register event listeners
         getServer()
             .getPluginManager()
-            .registerEvents(new BingoPlayerListener(), this);
+            .registerEvents(new BingoPlayerManagerListener(), this);
         getServer()
             .getPluginManager()
             .registerEvents(new BingoCardGuiListener(), this);
@@ -47,17 +41,8 @@ public final class BingoPlugin extends JavaPlugin {
         // Register bingo command
         getCommand("bingo").setExecutor(new BingoCommand());
         getCommand("bingo").setTabCompleter(new BingoCommand());
-        instance = this;
 
-        this.itemRepository = new ItemRepository();
-        this.broadcaster = new Broadcaster();
-        this.cardGenerator = new CardGenerator(this.itemRepository);
-        this.gameManager = new GameManager(
-            this.cardGenerator,
-            this.broadcaster
-        );
-
-        getLogger().info("Me encendi jajaj");
+        this.gameManager = new BingoGameManager();
     }
 
     @Override
@@ -65,11 +50,7 @@ public final class BingoPlugin extends JavaPlugin {
         getLogger().info("Bingo plugin disabled!");
     }
 
-    public GameManager getGameManager() {
+    public BingoGameManager getGameManager() {
         return gameManager;
-    }
-
-    public Broadcaster getBroadcaster() {
-        return broadcaster;
     }
 }

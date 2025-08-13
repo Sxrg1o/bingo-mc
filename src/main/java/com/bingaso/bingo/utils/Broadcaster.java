@@ -1,6 +1,5 @@
 package com.bingaso.bingo.utils;
 
-import com.bingaso.bingo.model.BingoTeam;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
@@ -10,6 +9,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import com.bingaso.bingo.team.BingoTeam;
 
 /**
  * Handles broadcasting messages to players in the Bingo game.

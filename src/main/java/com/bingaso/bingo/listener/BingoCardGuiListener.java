@@ -9,11 +9,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.game.BingoGameManager;
 import com.bingaso.bingo.gui.BingoCardGui;
 import com.bingaso.bingo.gui.BingoCardGui.BingoCardGuiContext;
 import com.bingaso.bingo.gui.BingoGuiItem;
-import com.bingaso.bingo.model.BingoPlayer;
-import com.bingaso.bingo.model.BingoTeam;
 
 /**
  * Listener for handling interactions with the Bingo Card GUI.
@@ -43,13 +42,13 @@ public class BingoCardGuiListener implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;
         }
 
         Player player = (Player) event.getWhoClicked();
-        BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player);
         if (!BingoCardGui.getInstance().isOpenBy(player)) {
             return;
         }
@@ -67,8 +66,8 @@ public class BingoCardGuiListener implements Listener {
             BingoCardGui.getInstance().openForPlayer(
                 player,
                 new BingoCardGuiContext(
-                    BingoTeam.getTeamByName(teamName),
-                    bingoPlayer.getTeam(),
+                    gameManager.getBingoTeam(teamName),
+                    gameManager.getPlayerTeam(player),
                     BingoPlugin.getInstance().getGameManager().getSharedBingoCard())
             );
             return;

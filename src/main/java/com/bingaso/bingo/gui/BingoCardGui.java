@@ -5,7 +5,7 @@ import org.bukkit.inventory.Inventory;
 
 import com.bingaso.bingo.model.BingoCard;
 import com.bingaso.bingo.model.BingoItem;
-import com.bingaso.bingo.model.BingoTeam;
+import com.bingaso.bingo.team.BingoTeam;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

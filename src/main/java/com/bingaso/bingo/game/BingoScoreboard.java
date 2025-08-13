@@ -1,7 +1,8 @@
 package com.bingaso.bingo.game;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.model.BingoTeam;
+import com.bingaso.bingo.team.BingoTeam;
+
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +24,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
  */
 public class BingoScoreboard {
 
-    private final GameManager gameManager;
+    private final BingoGameManager gameManager;
     private BukkitRunnable updateTask;
 
     /**
@@ -31,7 +32,7 @@ public class BingoScoreboard {
      *
      * @param gameManager The game manager that provides game state information
      */
-    public BingoScoreboard(GameManager gameManager) {
+    public BingoScoreboard(BingoGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

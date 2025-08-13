@@ -10,10 +10,13 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.game.BingoGameManager;
 import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.gui.BingoTeamGui;
-import com.bingaso.bingo.model.BingoPlayer;
-import com.bingaso.bingo.model.BingoTeam;
+import com.bingaso.bingo.team.BingoTeam;
+import com.bingaso.bingo.team.BingoTeamManager.MaxPlayersException;
+import com.bingaso.bingo.team.BingoTeamManager.TeamNameAlreadyExistsException;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -46,13 +49,14 @@ public class BingoTeamGuiListener implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        // Check no air conditions
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;
         }
 
         Player player = (Player) event.getWhoClicked();
-        BingoPlayer bingoPlayer = BingoPlayer.getBingoPlayer(player.getUniqueId());
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
         if (!BingoTeamGui.getInstance().isOpenBy(player)) {
             return;
         }
@@ -64,8 +68,8 @@ public class BingoTeamGuiListener implements Listener {
             String randomTeamName = "Team-" + UUID.randomUUID().toString().substring(0, 8);
             BingoTeam newTeam;
             try {
-                newTeam = new BingoTeam(randomTeamName);
-            } catch (BingoTeam.TeamNameAlreadyExistsException e) {
+                newTeam = gameManager.createBingoTeam(randomTeamName);
+            } catch (TeamNameAlreadyExistsException e) {
                 player.sendMessage(Component.text(
                     "Haha random collision, try again.",
                     NamedTextColor.RED
@@ -77,12 +81,12 @@ public class BingoTeamGuiListener implements Listener {
                 NamedTextColor.GREEN
             ));
             try {
-                newTeam.addPlayer(bingoPlayer);
+                gameManager.addPlayerToTeam(player, newTeam);
                 player.sendMessage(Component.text(
                     "Added you to the new team.",
                     NamedTextColor.GREEN
                 ));
-            } catch (BingoTeam.MaxPlayersException e) {
+            } catch (MaxPlayersException e) {
                 player.sendMessage(Component.text(
                     "Couldn't add you to the new team.",
                     NamedTextColor.RED
@@ -95,7 +99,7 @@ public class BingoTeamGuiListener implements Listener {
         if(BingoGuiItem.isGuiItem(clickedItem, "TeamItemStack")) {
             String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
             if(teamName == null) return;
-            BingoTeam team = BingoTeam.getTeamByName(teamName);
+            BingoTeam team = gameManager.getBingoTeam(teamName);
             if(team == null) {
                 player.sendMessage(Component.text(
                     "Team not found, couldn't join.",
@@ -105,13 +109,13 @@ public class BingoTeamGuiListener implements Listener {
             } 
 
             try {
-                team.addPlayer(bingoPlayer);
+                gameManager.addPlayerToTeam(player, team);
                 player.sendMessage(Component.text(
                     "You have joined the team \"" + team.getName() + "\".",
                     NamedTextColor.GREEN
                 ));
                 BingoTeamGui.getInstance().updateInventories();
-            } catch (BingoTeam.MaxPlayersException e) {
+            } catch (MaxPlayersException e) {
                 player.sendMessage(Component.text(
                     "Couldn't join the team, it is full.",
                     NamedTextColor.RED

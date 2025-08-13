@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.Material;
 
+import com.bingaso.bingo.team.BingoTeam;
+
 /**
  * Represents an item on a Bingo card that players need to find during a game.
  * Each BingoItem tracks which teams have found it and when they found it.
@@ -48,6 +50,7 @@ public class BingoItem {
 
     /**
      * Returns the completion milliseconds for the specified team.
+     * 
      * @param team The team to get the completion milliseconds for
      * @return The completion milliseconds for the team, or null if not found
      */

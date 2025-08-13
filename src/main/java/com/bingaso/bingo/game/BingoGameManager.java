@@ -1,14 +1,19 @@
 package com.bingaso.bingo.game;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.model.BingoCard;
 import com.bingaso.bingo.model.BingoItem;
-import com.bingaso.bingo.model.BingoPlayer;
-import com.bingaso.bingo.model.BingoTeam;
 import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
 import com.bingaso.bingo.model.TeamMode;
+import com.bingaso.bingo.player.BingoPlayer;
+import com.bingaso.bingo.player.BingoPlayerManager;
+import com.bingaso.bingo.team.BingoTeam;
+import com.bingaso.bingo.team.BingoTeamManager;
+import com.bingaso.bingo.team.BingoTeamManager.MaxPlayersException;
+import com.bingaso.bingo.team.BingoTeamManager.TeamNameAlreadyExistsException;
 import com.bingaso.bingo.utils.Broadcaster;
+import com.bingaso.bingo.utils.ItemRepository;
+import com.bingaso.bingo.model.BingoCard;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -23,18 +28,20 @@ import org.bukkit.scheduler.BukkitTask;
  * Handles game state transitions, team management, match settings,
  * item discovery, win conditions, and coordination between game components.
  */
-public class GameManager {
+public class BingoGameManager {
+    private ItemRepository itemRepository = new ItemRepository();
 
     private GameState currentState = GameState.LOBBY;
-    private MatchSettings currentMatchSettings;
+    private MatchSettings currentMatchSettings = new MatchSettings();
     private BingoCard sharedBingoCard;
     private Instant startInstant;
 
-    private final CardGenerator cardGenerator;
-    private final Broadcaster broadcaster;
-    private final BingoScoreboard scoreboard;
+    private final CardGenerator cardGenerator = new CardGenerator(itemRepository);
+    private final Broadcaster broadcaster = new Broadcaster();
+    private final BingoScoreboard scoreboard = new BingoScoreboard(this);
 
-    private final List<BingoTeam> teams = new ArrayList<>();
+    private final BingoTeamManager bingoTeamManager  = new BingoTeamManager();
+    private final BingoPlayerManager bingoPlayerManager = new BingoPlayerManager();
     private final List<BingoTeam> winnerTeams = new ArrayList<>();
     private BukkitTask matchEndTask = null;
 
@@ -42,15 +49,8 @@ public class GameManager {
      * Creates a new GameManager with the specified dependencies.
      * Initializes with default match settings.
      *
-     * @param cardGenerator The generator used to create Bingo cards
-     * @param broadcaster The broadcaster used for game announcements
      */
-    public GameManager(CardGenerator cardGenerator, Broadcaster broadcaster) {
-        this.currentMatchSettings = new MatchSettings();
-        this.cardGenerator = cardGenerator;
-        this.broadcaster = broadcaster;
-        this.scoreboard = new BingoScoreboard(this);
-    }
+    public BingoGameManager() {}
 
     /**
      * Updates the match settings for the next game.
@@ -90,7 +90,7 @@ public class GameManager {
      */
     public List<Player> getOnlinePlayersInMatch() {
         List<Player> players = new ArrayList<>();
-        for (BingoTeam team : teams) {
+        for (BingoTeam team : bingoTeamManager.getTeams()) {
             players.addAll(team.getOnlinePlayers());
         }
         return players;
@@ -102,7 +102,7 @@ public class GameManager {
      * @return A list of participating teams
      */
     public List<BingoTeam> getTeams() {
-        return teams;
+        return bingoTeamManager.getTeams();
     }
 
     /**
@@ -112,7 +112,7 @@ public class GameManager {
      */
     public void startMatch() {
         // Restart state
-        this.teams.clear();
+        bingoTeamManager.clear();
         this.winnerTeams.clear();
         if (this.matchEndTask != null) {
             this.matchEndTask.cancel();
@@ -127,13 +127,7 @@ public class GameManager {
             // TODO: Random assignment
         }
 
-        for (BingoTeam team : BingoTeam.getAllTeams()) {
-            if (team.getSize() > 0) {
-                this.teams.add(team);
-            }
-        }
-
-        if (teams.isEmpty()) {
+        if (bingoTeamManager.isEmpty()) {
             // TODO: Cancel match if no valid teams
             return;
         }
@@ -172,10 +166,10 @@ public class GameManager {
         }
         this.scoreboard.stop();
         this.currentState = GameState.LOBBY;
-        for (BingoTeam team : teams) {
-            team.clearFoundItems();
+        for (BingoTeam team : bingoTeamManager.getTeams()) {
+            bingoTeamManager.clearTeamFoundItems(team);
         }
-        this.teams.clear();
+        bingoTeamManager.clear();
         this.winnerTeams.clear();
     }
 
@@ -213,9 +207,8 @@ public class GameManager {
         BingoItem bingoItem = sharedBingoCard.getItem(item);
         if (bingoItem == null) return;
 
-        BingoTeam team = player.getTeam();
-
-        if (!teams.contains(team)) return;
+        BingoTeam team = bingoTeamManager.getPlayerTeam(player);
+        if(team == null) return;
 
         if (bingoItem.isCompletedBy(team)) return;
 
@@ -224,13 +217,13 @@ public class GameManager {
             bingoItem.isCompletedByAnyTeam()
         ) {
             if (!bingoItem.isCompletedBy(team)) {
-                player.getPlayer().sendMessage("§cItem already claimed!");
+                player.getOnlinePlayer().sendMessage("§cItem already claimed!");
                 return;
             }
         }
 
         bingoItem.addCompletingTeam(team, startInstant);
-        team.addFoundItem(item);
+        bingoTeamManager.addFoundItemToTeam(team, item);
 
         broadcaster.announceItemFound(team, item);
 
@@ -251,7 +244,7 @@ public class GameManager {
         GameMode mode = currentMatchSettings.getGameMode();
         switch (mode) {
             case LOCKED:
-                int teamCount = teams.size();
+                int teamCount = bingoTeamManager.getTeams().size();
                 if (teamCount == 0) return;
 
                 int requiredItems = (int) Math.floor(25.0 / teamCount) + 1;
@@ -338,7 +331,7 @@ public class GameManager {
         List<BingoTeam> potentialWinners = new ArrayList<>();
         int highestScore = -1;
 
-        for (BingoTeam team : this.teams) {
+        for (BingoTeam team : bingoTeamManager.getTeams()) {
             int currentScore = team.getFoundItems().size();
             if (currentScore > highestScore) {
                 highestScore = currentScore;
@@ -368,5 +361,65 @@ public class GameManager {
      */
     public MatchSettings getCurrentMatchSettings() {
         return currentMatchSettings;
+    }
+
+    public void removeBingoPlayer(Player player) {
+        // Only able to remove players in lobby state
+        if(currentState != GameState.LOBBY) return;
+
+        BingoPlayer bingoPlayer = bingoPlayerManager.getBingoPlayer(player);
+        if(bingoPlayer == null) return;
+
+        bingoPlayerManager.removeBingoPlayer(player);
+        bingoTeamManager.removePlayerFromTeam(bingoPlayer);
+    }
+
+    public BingoPlayer addPlayer(Player player) {
+        // Only able to add players in lobby state
+        if(currentState != GameState.LOBBY) return null;
+
+        return bingoPlayerManager.createBingoPlayer(player);
+    }
+
+    public void addPlayerToTeam(Player player, BingoTeam bingoTeam) throws MaxPlayersException {
+        // Only able to change teams during lobby state
+        if(currentState != GameState.LOBBY) return;
+
+        BingoPlayer bingoPlayer = bingoPlayerManager.getBingoPlayer(player);
+        bingoTeamManager.addPlayerToTeam(bingoPlayer, bingoTeam);
+    }
+
+    public BingoPlayer getBingoPlayer(Player player) {
+        return bingoPlayerManager.getBingoPlayer(player);
+    }
+
+    public BingoTeam createBingoTeam(String name) throws TeamNameAlreadyExistsException {
+        // Only able to create teams during lobby state
+        if(currentState != GameState.LOBBY) return null;
+
+        BingoTeam bingoTeam = bingoTeamManager.createBingoTeam(name);
+        return bingoTeam;
+    }
+
+    public BingoTeam getPlayerTeam(Player player) {
+        BingoPlayer bingoPlayer = bingoPlayerManager.getBingoPlayer(player);
+        if(bingoPlayer == null) return null;
+        return bingoTeamManager.getPlayerTeam(bingoPlayer);
+    }
+
+    public BingoTeam getBingoTeam(String teamName) {
+        return bingoTeamManager.getTeamByName(teamName);
+    }
+
+    public int getMaxTeamSize() {
+        return bingoTeamManager.getMaxTeamSize();
+    }
+
+    public BingoTeam getNextTeam(BingoTeam bingoTeam) {
+        return bingoTeamManager.getNextTeam(bingoTeam);
+    }
+
+    public BingoTeam getPreviousTeam(BingoTeam bingoTeam) {
+        return bingoTeamManager.getPreviousTeam(bingoTeam);
     }
 }

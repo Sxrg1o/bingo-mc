@@ -9,5 +9,7 @@ api: 1.21.8
 commands:
   bingo:
     description: Bingo management
-    usage: /bingoteam <create|team|start|config|card>
+    usage: |
+      /bingo <create|team|start|config|card>
+      Use '/bingo' for help with subcommands.
     aliases: [bg]

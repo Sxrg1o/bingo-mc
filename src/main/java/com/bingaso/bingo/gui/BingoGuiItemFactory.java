@@ -12,12 +12,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.game.BingoGameManager;
 import com.bingaso.bingo.model.BingoItem;
-import com.bingaso.bingo.model.BingoPlayer;
-import com.bingaso.bingo.model.BingoTeam;
 import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
 import com.bingaso.bingo.model.TeamMode;
+import com.bingaso.bingo.player.BingoPlayer;
+import com.bingaso.bingo.team.BingoTeam;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -71,6 +73,8 @@ public class BingoGuiItemFactory {
      * @return ItemStack representing the previous team navigation arrow
      */
     public static BingoGuiItem createPreviousTeamGuiItem(BingoTeam team) {
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+
         // item itself
         BingoGuiItem itemStack = new BingoGuiItem(Material.ARROW, "bingo_card_previous_team_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -79,7 +83,7 @@ public class BingoGuiItemFactory {
         itemMeta.addEnchant(Enchantment.PROTECTION, 1, true);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemStack.setItemMeta(itemMeta);
-        itemStack.setCustomString("team", team.getPreviousTeam().getName());
+        itemStack.setCustomString("team", gameManager.getPreviousTeam(team).getName());
         return itemStack;
     }
 
@@ -89,6 +93,8 @@ public class BingoGuiItemFactory {
      * @return ItemStack representing the next team navigation arrow
      */
     public static BingoGuiItem createNextTeamGuiItem(BingoTeam team) {
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+
         // item itself
         BingoGuiItem itemStack = new BingoGuiItem(Material.ARROW, "bingo_card_next_team_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -97,7 +103,7 @@ public class BingoGuiItemFactory {
         itemMeta.addEnchant(Enchantment.PROTECTION, 1, true);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemStack.setItemMeta(itemMeta);
-        itemStack.setCustomString("team", team.getNextTeam().getName());
+        itemStack.setCustomString("team", gameManager.getNextTeam(team).getName());
         return itemStack;
     }
 
@@ -166,17 +172,19 @@ public class BingoGuiItemFactory {
      * @return GuiItem representing the team with appropriate styling and lore
      */
     public static BingoGuiItem createJoinTeamGuiItem(BingoTeam team) {
+        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+
         // Variables for the item
         Material material = Material.GREEN_WOOL;
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
         String displayNameText = (
-            "Team \"" + team.getName() + "\n" +
-            "(" + team.getSize() + "/" + BingoTeam.getTeamsMaxSize() + ")"
+            "Team \"" + team.getName() + "\"" +
+            "(" + team.getSize() + "/" + gameManager.getMaxTeamSize() + ")"
         );
         String loreFirstLine = "Click to join the Team!";
 
         // style depending on team size
-        if(team.getSize() >= BingoTeam.getTeamsMaxSize()) {
+        if(team.getSize() >= gameManager.getMaxTeamSize()) {
             material = Material.RED_WOOL;
             loreFirstLine = "Team full!";
             namedTextColor = NamedTextColor.RED;
