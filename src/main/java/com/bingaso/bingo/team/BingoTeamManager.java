@@ -1,11 +1,11 @@
 package com.bingaso.bingo.team;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Material;
-
+import com.bingaso.bingo.card.quest.BingoQuest;
 import com.bingaso.bingo.player.BingoPlayer;
 
 /**
@@ -253,26 +253,27 @@ public class BingoTeamManager {
     }
 
     /**
-     * Adds a found item to a team's collection.
+     * Adds a completed quest to a team's collection.
      * 
-     * @param team The team that found the item
-     * @param item The material that was found
-     * @since 1.0
+     * @param bingoTeam The BingoTeam that completed the quest.
+     * @param bingoQuest The BingoQuest that was completed.
+     * @param instant The instant when the BingoQuest was completed.
+     * @since 2.0
      */
-    public void addFoundItemToTeam(BingoTeam team, Material item) {
-        team.addFoundItem(item);
+    public void addCompletedItemToTeam(BingoTeam bingoTeam, BingoQuest bingoQuest, Instant instant) {
+        bingoTeam.addCompletedItem(bingoQuest, instant);
     }
 
     /**
-     * Clears all found items from a team's collection.
+     * Clears all completed items from a team's collection.
      * 
      * This is typically used when starting a new game or resetting team progress.
      * 
-     * @param team The team to clear found items for
+     * @param bingoTeam The BingoTeam to clear completed items for
      * @since 1.0
      */
-    public void clearTeamFoundItems(BingoTeam team) {
-        team.clearFoundItems();
+    public void clearTeamCompletedItems(BingoTeam bingoTeam) {
+        bingoTeam.clearCompletedItems();
     }
 
     /**

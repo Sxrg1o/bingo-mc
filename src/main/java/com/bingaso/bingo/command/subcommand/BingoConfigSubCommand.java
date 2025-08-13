@@ -2,7 +2,7 @@ package com.bingaso.bingo.command.subcommand;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
-import com.bingaso.bingo.game.GameState;
+import com.bingaso.bingo.game.BingoGameManager.GameState;
 import com.bingaso.bingo.game.MatchSettings;
 import com.bingaso.bingo.gui.BingoConfigGui;
 import com.bingaso.bingo.gui.BingoConfigGui.ConfigGuiContext;

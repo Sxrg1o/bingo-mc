@@ -1,13 +1,14 @@
 package com.bingaso.bingo.listener;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.card.CardGenerator.DifficultyLevel;
+import com.bingaso.bingo.game.MatchSettings.TeamMode;
+import com.bingaso.bingo.game.MatchSettings.GameMode;
 import com.bingaso.bingo.game.MatchSettings;
 import com.bingaso.bingo.gui.BingoConfigGui;
 import com.bingaso.bingo.gui.BingoConfigGui.ConfigGuiContext;
 import com.bingaso.bingo.gui.BingoGuiItem;
-import com.bingaso.bingo.model.DifficultyLevel;
-import com.bingaso.bingo.model.GameMode;
-import com.bingaso.bingo.model.TeamMode;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

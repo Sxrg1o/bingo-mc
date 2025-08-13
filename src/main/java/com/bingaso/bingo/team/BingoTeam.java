@@ -1,15 +1,16 @@
 package com.bingaso.bingo.team;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import com.bingaso.bingo.card.quest.BingoQuest;
 import com.bingaso.bingo.player.BingoPlayer;
 
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,7 +18,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 /**
  * Represents a team of players in the Bingo game.
  * 
- * This class manages a group of players, their found items, team color,
+ * This class manages a group of players, their completed items, team color,
  * and provides functionality for team communication and item tracking.
  * Teams are automatically assigned colors from a predefined set when created.
  * 
@@ -26,8 +27,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public class BingoTeam {
 
     private final List<BingoPlayer> players = new ArrayList<>();
-    private String name = "";
-    private final Set<Material> foundItems = new HashSet<>();
+    private String name;
+    private final HashMap<BingoQuest, Instant> completedItems = new HashMap<>();
     private final NamedTextColor color;
 
     /**
@@ -138,41 +139,62 @@ public class BingoTeam {
     }
 
     /**
-     * Adds a found item to the team's collection.
+     * Adds a bingo quest to the team's completed collection.
      * 
-     * This method tracks which bingo items the team has successfully found.
-     * Duplicate items are automatically handled by the underlying Set implementation.
+     * This method tracks which bingo quests the team has successfully completed.
+     * Duplicate quests are automatically handled by the underlying Map implementation.
      *
-     * @param item The Material that was found by the team
+     * @param bingoQuest The BingoQuest that was completed by the team
+     * @param instant The Instant in which the team completed the quest
      * @since 1.0
      */
-    void addFoundItem(Material item) {
-        foundItems.add(item);
+    void addCompletedItem(BingoQuest bingoQuest, Instant instant) {
+        completedItems.put(bingoQuest, instant);
     }
 
     /**
-     * Gets the set of items that this team has found.
+     * Gets the set of quests that this team has completed.
      * 
      * This returns the actual Set, allowing external code to check
-     * which items have been found by the team.
+     * which quests have been completed by the team.
      *
-     * @return A Set containing all Materials found by this team
+     * @return A Set containing all BingoQuests completed by this team
      * @since 1.0
      */
-    public Set<Material> getFoundItems() {
-        return foundItems;
+    public Set<BingoQuest> getCompletedItems() {
+        return Set.copyOf(completedItems.keySet());
     }
 
     /**
-     * Clears all found items from the team's collection.
+     * Gets completion instant
+     * @param bingoQuest The BingoQuest to check
+     * @return The Instant when the quest was completed, or null if not completed
+     */
+    public Instant getCompletionInstant(BingoQuest bingoQuest) {
+        return completedItems.get(bingoQuest);
+    }
+
+    /**
+     * Checks if the team has completed a BingoQuest
+     * 
+     * @param bingoQuest The BingoQuest to check
+     * @return true if the team has completed the quest, false otherwise
+     * @since 1.0
+     */
+    public boolean hasCompletedItem(BingoQuest bingoQuest) {
+        return completedItems.containsKey(bingoQuest);
+    }
+
+    /**
+     * Clears all completed items from the team's collection.
      * 
      * This method is typically used when starting a new game
      * or resetting the team's progress.
      *
      * @since 1.0
      */
-    void clearFoundItems() {
-        foundItems.clear();
+    void clearCompletedItems() {
+        completedItems.clear();
     }
 
     /**

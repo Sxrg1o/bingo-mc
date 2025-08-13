@@ -1,10 +1,10 @@
 package com.bingaso.bingo.game;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.model.BingoItem;
-import com.bingaso.bingo.model.DifficultyLevel;
-import com.bingaso.bingo.model.GameMode;
-import com.bingaso.bingo.model.TeamMode;
+import com.bingaso.bingo.card.BingoCard;
+import com.bingaso.bingo.card.CardGenerator;
+import com.bingaso.bingo.card.CardGenerator.DifficultyLevel;
+import com.bingaso.bingo.card.quest.BingoQuest;
 import com.bingaso.bingo.player.BingoPlayer;
 import com.bingaso.bingo.player.BingoPlayerManager;
 import com.bingaso.bingo.team.BingoTeam;
@@ -13,7 +13,6 @@ import com.bingaso.bingo.team.BingoTeamManager.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeamManager.TeamNameAlreadyExistsException;
 import com.bingaso.bingo.utils.Broadcaster;
 import com.bingaso.bingo.utils.ItemRepository;
-import com.bingaso.bingo.model.BingoCard;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -123,7 +122,7 @@ public class BingoGameManager {
         this.sharedBingoCard = cardGenerator.generateCard(difficulty);
 
         // Team management
-        if (currentMatchSettings.getTeamMode() != TeamMode.MANUAL) {
+        if (currentMatchSettings.getTeamMode() != MatchSettings.TeamMode.MANUAL) {
             // TODO: Random assignment
         }
 
@@ -136,7 +135,7 @@ public class BingoGameManager {
         this.currentState = GameState.IN_PROGRESS;
         this.startInstant = Instant.now();
 
-        if (currentMatchSettings.getGameMode() == GameMode.TIMED) {
+        if (currentMatchSettings.getGameMode() == MatchSettings.GameMode.TIMED) {
             long durationInTicks =
                 currentMatchSettings.getGameDuration() * 60 * 20L;
             this.matchEndTask = BingoPlugin.getInstance()
@@ -167,7 +166,7 @@ public class BingoGameManager {
         this.scoreboard.stop();
         this.currentState = GameState.LOBBY;
         for (BingoTeam team : bingoTeamManager.getTeams()) {
-            bingoTeamManager.clearTeamFoundItems(team);
+            bingoTeamManager.clearTeamCompletedItems(team);
         }
         bingoTeamManager.clear();
         this.winnerTeams.clear();
@@ -194,36 +193,35 @@ public class BingoGameManager {
     }
 
     /**
-     * Handles a player finding an item during the match.
-     * Checks if the item is on the Bingo card, marks it as found for the player's team,
-     * announces the discovery, and checks if win conditions have been met.
-     *
+     * Handles when a player finds an item during the game.
+     * This method checks if the item is part of the bingo card and awards it to the player's team.
+     * 
      * @param player The player who found the item
      * @param item The material type of the found item
      */
     public void onPlayerFindsItem(BingoPlayer player, Material item) {
         if (currentState != GameState.IN_PROGRESS) return;
 
-        BingoItem bingoItem = sharedBingoCard.getItem(item);
-        if (bingoItem == null) return;
+        BingoQuest bingoQuest = sharedBingoCard.getItem(item);
+        if (bingoQuest == null) return;
 
         BingoTeam team = bingoTeamManager.getPlayerTeam(player);
         if(team == null) return;
 
-        if (bingoItem.isCompletedBy(team)) return;
+        if (bingoQuest.isCompletedBy(team)) return;
 
         if (
-            currentMatchSettings.getGameMode() == GameMode.LOCKED &&
-            bingoItem.isCompletedByAnyTeam()
+            currentMatchSettings.getGameMode() == MatchSettings.GameMode.LOCKED &&
+            isQuestCompletedByAnyTeam(bingoQuest)
         ) {
-            if (!bingoItem.isCompletedBy(team)) {
+            if (!bingoQuest.isCompletedBy(team)) {
                 player.getOnlinePlayer().sendMessage("§cItem already claimed!");
                 return;
             }
         }
 
-        bingoItem.addCompletingTeam(team, startInstant);
-        bingoTeamManager.addFoundItemToTeam(team, item);
+        // Mark the quest as completed by the team
+        bingoTeamManager.addCompletedItemToTeam(team, bingoQuest, startInstant);
 
         broadcaster.announceItemFound(team, item);
 
@@ -231,6 +229,19 @@ public class BingoGameManager {
     }
 
     /**
+     * Checks if a quest is completed by any team.
+     * 
+     * @param bingoQuest The quest to check
+     * @return true if any team has completed this quest, false otherwise
+     */
+    private boolean isQuestCompletedByAnyTeam(BingoQuest bingoQuest) {
+        for (BingoTeam team : bingoTeamManager.getTeams()) {
+            if (bingoQuest.isCompletedBy(team)) {
+                return true;
+            }
+        }
+        return false;
+    }    /**
      * Checks if the specified team has met win conditions based on the current game mode.
      * Different modes have different win conditions:
      * - LOCKED: First team to find a certain number of items
@@ -241,77 +252,30 @@ public class BingoGameManager {
      * @param team The team to check for win conditions
      */
     private void checkWinConditions(BingoTeam team) {
-        GameMode mode = currentMatchSettings.getGameMode();
+        MatchSettings.GameMode mode = currentMatchSettings.getGameMode();
         switch (mode) {
             case LOCKED:
                 int teamCount = bingoTeamManager.getTeams().size();
                 if (teamCount == 0) return;
 
                 int requiredItems = (int) Math.floor(25.0 / teamCount) + 1;
-                int foundItems = team.getFoundItems().size();
+                int foundItems = team.getCompletedItems().size();
 
                 if (foundItems >= requiredItems) {
                     endMatch(Collections.singletonList(team));
                 }
                 break;
             case STANDARD:
-                // Rows
-                List<BingoItem> items = sharedBingoCard.getItems();
-                for (int i = 0; i < 5; i++) {
-                    boolean rowComplete = true;
-                    for (int j = 0; j < 5; j++) {
-                        if (!items.get(i * 5 + j).isCompletedBy(team)) {
-                            rowComplete = false;
-                            break;
-                        }
-                    }
-                    if (rowComplete) {
-                        endMatch(Collections.singletonList(team));
-                        break;
-                    }
-                }
-                // Columns
-                for (int i = 0; i < 5; i++) {
-                    boolean columnComplete = true;
-                    for (int j = 0; j < 5; j++) {
-                        if (!items.get(j * 5 + i).isCompletedBy(team)) {
-                            columnComplete = false;
-                            break;
-                        }
-                    }
-                    if (columnComplete) {
-                        endMatch(Collections.singletonList(team));
-                        break;
-                    }
-                }
-                // diagonal
-                boolean diagonalComplete = true;
-                for (int i = 0; i < 5; i++) {
-                    if (!items.get(i * 5 + i).isCompletedBy(team)) {
-                        diagonalComplete = false;
-                        break;
-                    }
-                }
-                if (diagonalComplete) {
-                    endMatch(Collections.singletonList(team));
-                    break;
-                }
-                // Anti-diagonal
-                boolean antiDiagonalComplete = true;
-                for (int i = 0; i < 5; i++) {
-                    if (!items.get(i * 5 + (4 - i)).isCompletedBy(team)) {
-                        antiDiagonalComplete = false;
-                        break;
-                    }
-                }
-                if (antiDiagonalComplete) {
+                if(sharedBingoCard.isAnyRowCompletedByTeam(team) ||
+                    sharedBingoCard.isAnyColumnCompletedByTeam(team) ||
+                    sharedBingoCard.isAnyDiagonalCompletedByTeam(team)) {
                     endMatch(Collections.singletonList(team));
                     break;
                 }
                 break;
             case BLACKOUT:
-                int totalFoundItems = team.getFoundItems().size();
-                if (totalFoundItems == 25) {
+                int totalFoundItems = team.getCompletedItems().size();
+                if (totalFoundItems == sharedBingoCard.getItems().size()) {
                     endMatch(Collections.singletonList(team));
                 }
                 break;
@@ -332,7 +296,7 @@ public class BingoGameManager {
         int highestScore = -1;
 
         for (BingoTeam team : bingoTeamManager.getTeams()) {
-            int currentScore = team.getFoundItems().size();
+            int currentScore = team.getCompletedItems().size();
             if (currentScore > highestScore) {
                 highestScore = currentScore;
                 potentialWinners.clear();
@@ -422,4 +386,78 @@ public class BingoGameManager {
     public BingoTeam getPreviousTeam(BingoTeam bingoTeam) {
         return bingoTeamManager.getPreviousTeam(bingoTeam);
     }
+
+    /**
+     * Represents the team assignment modes available for Bingo games.
+     * Determines how players are organized into teams before a match starts.
+     */
+    public static enum TeamMode {
+        /**
+         * Automatically assigns players to teams.
+         * The system will distribute players evenly across teams.
+         */
+        RANDOM,
+
+        /**
+         * Players choose their teams manually.
+         * Team assignments are controlled by player commands or GUI interactions.
+         */
+        MANUAL,
+    }
+
+    /**
+     * Represents the possible states of a Bingo game.
+     * The game transitions through these states during its lifecycle.
+     */
+    public static enum GameState {
+        /**
+         * Initial state where players can join teams and settings can be configured.
+         * No active gameplay occurs in this state.
+         */
+        LOBBY,
+
+        /**
+         * Active gameplay state where players are finding items for their Bingo cards.
+         * The game remains in this state until win conditions are met or time expires.
+         */
+        IN_PROGRESS,
+
+        /**
+         * Transitional state after a game has ended but before returning to the lobby.
+         * Used for winner announcements and cleanup operations.
+         */
+        FINISHING,
+    }
+    
+    /**
+     * Represents the different modes to complete a Card.
+     * Each mode has unique win conditions and gameplay mechanics.
+     */
+    public static enum GameMode {
+        /**
+         * Traditional Bingo rules.
+         * Players win by completing any row, column, or diagonal on the card.
+         */
+        STANDARD,
+
+        /**
+         * Complete the entire card.
+         * Players must find all 25 items on their card to win.
+         */
+        BLACKOUT,
+
+        /**
+         * Time-limited matches.
+         * When time expires, the team with the most items found wins.
+         */
+        TIMED,
+
+        /**
+         * First-come-first-served mode.
+         * Once an item is found by any team, it's locked and cannot be claimed by others.
+         * Teams need to find a certain number of items based on the number of teams.
+         */
+        LOCKED,
+    }
+
 }

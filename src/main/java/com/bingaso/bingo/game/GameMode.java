@@ -1,4 +1,4 @@
-package com.bingaso.bingo.model;
+package com.bingaso.bingo.game;
 
 /**
  * Represents the different game modes available in Bingo.

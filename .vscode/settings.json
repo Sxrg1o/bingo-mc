@@ -1,3 +1,6 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "editor.wordWrapColumn": 80,
+    "editor.wordWrap": "off",
+    "editor.rulers": [80]
 }

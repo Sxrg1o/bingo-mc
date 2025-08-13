@@ -3,8 +3,9 @@ package com.bingaso.bingo.gui;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
-import com.bingaso.bingo.model.BingoCard;
-import com.bingaso.bingo.model.BingoItem;
+import com.bingaso.bingo.card.BingoCard;
+import com.bingaso.bingo.card.quest.BingoQuest;
+import com.bingaso.bingo.card.quest.BingoQuestItem;
 import com.bingaso.bingo.team.BingoTeam;
 
 import net.kyori.adventure.text.Component;
@@ -80,13 +81,23 @@ public class BingoCardGui extends BingoGui {
 
         // Add 25 items of the bingo card in the center of the inventory
         int i = 0;
-        for (BingoItem bingoItem : bingoCard.getItems()) {
+        for (BingoQuest bingoQuest : bingoCard.getItems()) {
             int j = i % 5;
             int k = i / 5;
 
-            BingoGuiItem bingoItemStack = new BingoGuiItem(bingoItem.getMaterial(), "BingoItemStack");
-            if(bingoItem.isCompletedBy(bingoTeamToShow)) {
-                bingoItemStack = BingoGuiItemFactory.createCompletedGuiItem(bingoItem, bingoTeamToShow, bingoTeamFromWatcher);
+            BingoGuiItem bingoItemStack;
+            
+            // Handle different quest types
+            if (bingoQuest instanceof BingoQuestItem) {
+                BingoQuestItem questItem = (BingoQuestItem) bingoQuest;
+                bingoItemStack = new BingoGuiItem(questItem.getMaterial(), "BingoItemStack");
+            } else {
+                // For other quest types, use a default material (placeholder)
+                bingoItemStack = new BingoGuiItem(org.bukkit.Material.PAPER, "BingoItemStack");
+            }
+            
+            if(bingoQuest.isCompletedBy(bingoTeamToShow)) {
+                bingoItemStack = BingoGuiItemFactory.createCompletedGuiItem(bingoQuest, bingoTeamToShow, bingoTeamFromWatcher);
             }
             inventory.setItem(2 + k*9 + j, bingoItemStack); // Place in the center 5x5 grid
             i++;

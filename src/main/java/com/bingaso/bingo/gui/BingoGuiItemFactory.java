@@ -9,15 +9,18 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.card.CardGenerator.DifficultyLevel;
+import com.bingaso.bingo.card.quest.BingoQuest;
+import com.bingaso.bingo.card.quest.BingoQuestItem;
 import com.bingaso.bingo.game.BingoGameManager;
-import com.bingaso.bingo.model.BingoItem;
-import com.bingaso.bingo.model.DifficultyLevel;
-import com.bingaso.bingo.model.GameMode;
-import com.bingaso.bingo.model.TeamMode;
+import com.bingaso.bingo.game.MatchSettings.GameMode;
+import com.bingaso.bingo.game.MatchSettings.TeamMode;
 import com.bingaso.bingo.player.BingoPlayer;
 import com.bingaso.bingo.team.BingoTeam;
 
@@ -108,13 +111,13 @@ public class BingoGuiItemFactory {
     }
 
     /**
-     * Creates a green stained glass pane ItemStack to represent a completed bingo item.
-     * @param bingoItem The bingo item that has been completed
-     * @param bingoTeamThatCompleted The bingo team that completed the item
+     * Creates a green stained glass pane ItemStack to represent a completed bingo quest.
+     * @param bingoQuest The bingo quest that has been completed
+     * @param bingoTeamThatCompleted The bingo team that completed the quest
      * @param bingoTeamFromWatcher The bingo team from the player watching
      * @return GuiItem representing the completed state with green styling
      */
-    public static BingoGuiItem createCompletedGuiItem(BingoItem bingoItem, BingoTeam bingoTeamThatCompleted, BingoTeam bingoTeamFromWatcher) {
+    public static BingoGuiItem createCompletedGuiItem(BingoQuest bingoQuest, BingoTeam bingoTeamThatCompleted, BingoTeam bingoTeamFromWatcher) {
         // style depending on team ownership
         Material material = Material.GREEN_STAINED_GLASS_PANE;
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
@@ -126,12 +129,18 @@ public class BingoGuiItemFactory {
         // lore
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Completed by: " + bingoTeamThatCompleted.getName(), namedTextColor));
-        Long completionMilliseconds = bingoItem.getCompletionMilliseconds(bingoTeamThatCompleted);
-        if (completionMilliseconds != null) {
-            long totalSeconds = completionMilliseconds / 1000;
-            int millisRemain = (int) (completionMilliseconds % 1000);
-            LocalTime time = LocalTime.ofSecondOfDay(totalSeconds);
-            String formattedTime = time.format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "." + String.format("%03d", millisRemain);
+        
+        // Get completion instant instead of milliseconds since we don't have that method
+        Instant completionInstant = null;
+        if (bingoQuest instanceof BingoQuestItem) {
+            completionInstant = ((BingoQuestItem) bingoQuest).getCompletionInstant(bingoTeamThatCompleted);
+        }
+        // Add similar handling for other quest types when they get completion instant methods
+        
+        if (completionInstant != null) {
+            // Convert instant to formatted time string
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(completionInstant, ZoneId.systemDefault());
+            String formattedTime = localDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
             lore.add(Component.text("Completed at: " + formattedTime, NamedTextColor.GOLD));
         }
 
@@ -139,7 +148,14 @@ public class BingoGuiItemFactory {
         BingoGuiItem itemStack = new BingoGuiItem(material, "bingo_card_completed_gui_item");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
-        itemMeta.displayName(Component.text("Completed: " + bingoItem.getMaterial().toString(), namedTextColor));
+        // Display name based on quest type
+        String questName = "Unknown Quest";
+        if (bingoQuest instanceof BingoQuestItem) {
+            BingoQuestItem questItem = (BingoQuestItem) bingoQuest;
+            questName = questItem.getMaterial().toString();
+        }
+        
+        itemMeta.displayName(Component.text("Completed: " + questName, namedTextColor));
         itemMeta.lore(lore);
         itemMeta.addEnchant(Enchantment.PROTECTION, 1, true);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);

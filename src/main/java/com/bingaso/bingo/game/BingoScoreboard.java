@@ -1,7 +1,10 @@
 package com.bingaso.bingo.game;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.game.BingoGameManager.GameState;
 import com.bingaso.bingo.team.BingoTeam;
+
+import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.time.Duration;
 import java.util.Comparator;
@@ -15,7 +18,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 
 /**
  * Manages the in-game scoreboard display for Bingo matches.
@@ -133,7 +135,7 @@ public class BingoScoreboard {
         List<BingoTeam> sortedTeams = gameManager.getTeams();
         sortedTeams.sort(
             Comparator.comparingInt((BingoTeam team) ->
-                team.getFoundItems().size()
+                team.getCompletedItems().size()
             ).reversed()
         );
 
@@ -144,7 +146,7 @@ public class BingoScoreboard {
                 NamedTextColor.WHITE
             ).append(
                 Component.text(
-                    team.getFoundItems().size(),
+                    team.getCompletedItems().size(),
                     NamedTextColor.YELLOW
                 )
             );

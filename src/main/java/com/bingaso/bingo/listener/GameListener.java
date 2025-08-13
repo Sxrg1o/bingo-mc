@@ -2,7 +2,7 @@ package com.bingaso.bingo.listener;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.game.BingoGameManager;
-import com.bingaso.bingo.game.GameState;
+import com.bingaso.bingo.game.BingoGameManager.GameState;
 import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.player.BingoPlayer;
 

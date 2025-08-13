@@ -1,8 +1,7 @@
-package com.bingaso.bingo.game;
+package com.bingaso.bingo.card;
 
-import com.bingaso.bingo.model.BingoCard;
-import com.bingaso.bingo.model.BingoItem;
-import com.bingaso.bingo.model.DifficultyLevel;
+import com.bingaso.bingo.card.quest.BingoQuest;
+import com.bingaso.bingo.card.quest.BingoQuestItem;
 import com.bingaso.bingo.utils.ItemRepository;
 
 import java.util.ArrayList;
@@ -125,14 +124,44 @@ public class CardGenerator {
             }
         }
 
-        List<BingoItem> finalItems = new ArrayList<>();
+        List<BingoQuest> finalItems = new ArrayList<>();
         List<Material> materialsToPlace = new ArrayList<>(selectedMaterials);
         Collections.shuffle(materialsToPlace);
 
         for (int i = 0; i < 25; i++) {
-            finalItems.add(new BingoItem(materialsToPlace.get(i)));
+            finalItems.add(new BingoQuestItem(materialsToPlace.get(i)));
         }
 
         return new BingoCard(finalItems);
+    }
+
+    public static enum DifficultyLevel {
+        /**
+         * Easiest difficulty level.
+         * Predominantly includes simple items that are quick to obtain,
+         * with a high weight for score-1 and score-2 items.
+         */
+        EASY,
+
+        /**
+         * Balanced difficulty level.
+         * Includes a mix of simple and moderately challenging items,
+         * with highest weight for score-2 and score-3 items.
+         */
+        MEDIUM,
+
+        /**
+         * Challenging difficulty level.
+         * Favors harder-to-obtain items with some easier ones mixed in,
+         * with highest weight for score-3 and score-4 items.
+         */
+        HARD,
+
+        /**
+         * Most difficult level.
+         * Primarily includes challenging and rare items,
+         * with highest weight for score-3, score-4, and score-5 items.
+         */
+        EXTREME,
     }
 }
