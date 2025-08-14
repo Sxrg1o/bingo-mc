@@ -1,8 +1,12 @@
 package com.bingaso.bingo.player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import net.kyori.adventure.text.Component;
 
 /**
  * Represents a player in the Bingo game with team management capabilities.
@@ -16,6 +20,7 @@ public class BingoPlayer {
 
     private final UUID uuid;
     private final String name;
+    private final List<Component> inbox = new ArrayList<>();
 
     /**
      * Constructs a new BingoPlayer from an online Player.
@@ -88,5 +93,30 @@ public class BingoPlayer {
      */
     public Player getOnlinePlayer() {
         return Bukkit.getPlayer(uuid);
+    }
+
+    /**
+     * Gets the player's inbox messages.
+     *
+     * @return A list of messages in the player's inbox
+     * @since 1.0
+     */
+    public List<Component> getInbox() {
+        return List.copyOf(inbox);
+    }
+
+    /**
+     * Sends a message if the player is online. Otherwise, saves it in the inbox.
+     * 
+     * @param message The message to add to the inbox
+     * @since 1.0
+     */
+    public void sendMessage(Component message) {
+        Player player = getOnlinePlayer();
+        if (player != null) {
+            player.sendMessage(message);
+        } else {
+            inbox.add(message);
+        }
     }
 }

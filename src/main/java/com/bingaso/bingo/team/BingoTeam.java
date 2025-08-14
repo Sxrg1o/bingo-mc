@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import com.bingaso.bingo.card.quest.BingoQuest;
 import com.bingaso.bingo.player.BingoPlayer;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
@@ -215,13 +216,14 @@ public class BingoTeam {
     }
 
     /**
-     * Sends a message to all online members of the team.
+     * Sends a message to the online members of the team and saves the message
+     * in the inbox of the offline players.
      *
-     * @param message The message to send to all online team members
+     * @param message The message to send.
      * @since 1.0
      */
-    public void broadcastMessage(String message) {
-        for (Player player : getOnlinePlayers()) {
+    public void broadcastMessage(Component message) {
+        for (BingoPlayer player : players) {
             player.sendMessage(message);
         }
     }

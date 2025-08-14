@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import net.kyori.adventure.text.Component;
 
 /**
  * Manages BingoPlayer instances, providing functionality to create, retrieve,
@@ -29,13 +32,9 @@ public class BingoPlayerManager {
      * 
      * @param player The Bukkit Player instance to create a BingoPlayer for
      * @return The BingoPlayer instance associated with the player (either newly created or existing)
-     * @throws IllegalArgumentException if player is null
      * @since 1.0
      */
-    public BingoPlayer createBingoPlayer(Player player) {
-        if (player == null) {
-            throw new IllegalArgumentException("Player cannot be null");
-        }
+    public BingoPlayer createBingoPlayer(@NotNull Player player) {
         BingoPlayer existingBingoPlayer = uuidBingoPlayerMap.get(player.getUniqueId());
         if(existingBingoPlayer != null) {
             return existingBingoPlayer;
@@ -50,13 +49,9 @@ public class BingoPlayerManager {
      * 
      * @param player The Player instance to look up
      * @return The BingoPlayer instance, or null if not found
-     * @throws IllegalArgumentException if player is null
      * @since 1.0
      */
-    public BingoPlayer getBingoPlayer(Player player) {
-        if (player == null) {
-            throw new IllegalArgumentException("Player cannot be null");
-        }
+    public BingoPlayer getBingoPlayer(@NotNull Player player) {
         return uuidBingoPlayerMap.get(player.getUniqueId());
     }
 
@@ -64,13 +59,20 @@ public class BingoPlayerManager {
      * Removes a BingoPlayer instance from the manager.
      * 
      * @param player The Player whose BingoPlayer instance should be removed
-     * @throws IllegalArgumentException if player is null
      * @since 1.0
      */
-    public void removeBingoPlayer(Player player) {
-        if (player == null) {
-            throw new IllegalArgumentException("Player cannot be null");
-        }
+    public void removeBingoPlayer(@NotNull Player player) {
         uuidBingoPlayerMap.remove(player.getUniqueId());
+    }
+
+    /**
+     * Broadcasts a message to all Online Players and stores it in the inbox of
+     * offline players.
+     * @param message The message to broadcast
+     */
+    public void broadcastMessage(@NotNull Component message) {
+        for (BingoPlayer bingoPlayer : uuidBingoPlayerMap.values()) {
+            bingoPlayer.sendMessage(message);
+        }
     }
 }
