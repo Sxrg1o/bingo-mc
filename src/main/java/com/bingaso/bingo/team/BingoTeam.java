@@ -1,26 +1,22 @@
 package com.bingaso.bingo.team;
 
+import com.bingaso.bingo.player.BingoPlayer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import com.bingaso.bingo.player.BingoPlayer;
-
-import net.kyori.adventure.text.format.NamedTextColor;
-
 /**
  * Represents a team of players in the Bingo game.
- * 
+ *
  * This class manages a group of players, their found items, team color,
  * and provides functionality for team communication and item tracking.
  * Teams are automatically assigned colors from a predefined set when created.
- * 
+ *
  * @since 1.0
  */
 public class BingoTeam {
@@ -32,16 +28,15 @@ public class BingoTeam {
 
     /**
      * Constructs a new Team with a given name.
-     * 
+     *
      * The team is automatically assigned a color from the available team colors
      * in a round-robin fashion.
-     * 
+     *
      * @param name The name of the team
      * @since 1.0
      */
-    BingoTeam(String name) {
-        this.color = TEAM_COLORS.get(nextColorIdx);
-        nextColorIdx = (nextColorIdx + 1) % TEAM_COLORS.size();
+    BingoTeam(String name, NamedTextColor color) {
+        this.color = color;
         this.name = name;
     }
 
@@ -57,7 +52,7 @@ public class BingoTeam {
 
     /**
      * Changes the team's name.
-     * 
+     *
      * @param newName The new name of the team
      * @since 1.0
      */
@@ -115,7 +110,7 @@ public class BingoTeam {
 
     /**
      * Gets the color assigned to this team.
-     * 
+     *
      * Team colors are automatically assigned when the team is created
      * and are used for visual identification in the game.
      *
@@ -139,7 +134,7 @@ public class BingoTeam {
 
     /**
      * Adds a found item to the team's collection.
-     * 
+     *
      * This method tracks which bingo items the team has successfully found.
      * Duplicate items are automatically handled by the underlying Set implementation.
      *
@@ -152,7 +147,7 @@ public class BingoTeam {
 
     /**
      * Gets the set of items that this team has found.
-     * 
+     *
      * This returns the actual Set, allowing external code to check
      * which items have been found by the team.
      *
@@ -165,7 +160,7 @@ public class BingoTeam {
 
     /**
      * Clears all found items from the team's collection.
-     * 
+     *
      * This method is typically used when starting a new game
      * or resetting the team's progress.
      *
@@ -203,12 +198,4 @@ public class BingoTeam {
             player.sendMessage(message);
         }
     }
-
-    private static int nextColorIdx = 0;
-    private static final List<NamedTextColor> TEAM_COLORS = Arrays.asList(
-        NamedTextColor.BLUE,
-        NamedTextColor.GREEN,
-        NamedTextColor.RED,
-        NamedTextColor.YELLOW
-    );
 }

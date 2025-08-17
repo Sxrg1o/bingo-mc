@@ -2,7 +2,6 @@ package com.bingaso.bingo.game;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.team.BingoTeam;
-
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
@@ -141,7 +140,7 @@ public class BingoScoreboard {
         for (BingoTeam team : sortedTeams) {
             Component teamLine = Component.text(
                 team.getName() + ": ",
-                NamedTextColor.WHITE
+                team.getColor()
             ).append(
                 Component.text(
                     team.getFoundItems().size(),

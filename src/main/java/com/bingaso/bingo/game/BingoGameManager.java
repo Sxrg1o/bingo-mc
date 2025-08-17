@@ -1,6 +1,7 @@
 package com.bingaso.bingo.game;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.model.BingoCard;
 import com.bingaso.bingo.model.BingoItem;
 import com.bingaso.bingo.model.DifficultyLevel;
 import com.bingaso.bingo.model.GameMode;
@@ -10,16 +11,21 @@ import com.bingaso.bingo.player.BingoPlayerManager;
 import com.bingaso.bingo.team.BingoTeam;
 import com.bingaso.bingo.team.BingoTeamManager;
 import com.bingaso.bingo.team.BingoTeamManager.MaxPlayersException;
+import com.bingaso.bingo.team.BingoTeamManager.MaxTeamsException;
 import com.bingaso.bingo.team.BingoTeamManager.TeamNameAlreadyExistsException;
+import com.bingaso.bingo.team.TeamDisplayManager;
 import com.bingaso.bingo.utils.Broadcaster;
 import com.bingaso.bingo.utils.ItemRepository;
-import com.bingaso.bingo.model.BingoCard;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -29,6 +35,7 @@ import org.bukkit.scheduler.BukkitTask;
  * item discovery, win conditions, and coordination between game components.
  */
 public class BingoGameManager {
+
     private ItemRepository itemRepository = new ItemRepository();
 
     private GameState currentState = GameState.LOBBY;
@@ -36,12 +43,18 @@ public class BingoGameManager {
     private BingoCard sharedBingoCard;
     private Instant startInstant;
 
-    private final CardGenerator cardGenerator = new CardGenerator(itemRepository);
+    private final CardGenerator cardGenerator = new CardGenerator(
+        itemRepository
+    );
     private final Broadcaster broadcaster = new Broadcaster();
     private final BingoScoreboard scoreboard = new BingoScoreboard(this);
+    private TeamDisplayManager displayManager = new TeamDisplayManager();
 
-    private final BingoTeamManager bingoTeamManager  = new BingoTeamManager();
-    private final BingoPlayerManager bingoPlayerManager = new BingoPlayerManager();
+    private final BingoTeamManager bingoTeamManager = new BingoTeamManager(
+        displayManager
+    );
+    private final BingoPlayerManager bingoPlayerManager =
+        new BingoPlayerManager();
     private final List<BingoTeam> winnerTeams = new ArrayList<>();
     private BukkitTask matchEndTask = null;
 
@@ -149,7 +162,7 @@ public class BingoGameManager {
                 );
         }
 
-        // TODO: Spreadplayers, kit? idk
+        spreadAndPrepareTeams();
         broadcaster.announceStart();
         this.scoreboard.start();
     }
@@ -208,7 +221,7 @@ public class BingoGameManager {
         if (bingoItem == null) return;
 
         BingoTeam team = bingoTeamManager.getPlayerTeam(player);
-        if(team == null) return;
+        if (team == null) return;
 
         if (bingoItem.isCompletedBy(team)) return;
 
@@ -345,6 +358,55 @@ public class BingoGameManager {
         endMatch(potentialWinners);
     }
 
+    private void spreadAndPrepareTeams() {
+        List<Player> playersToSpread = getOnlinePlayersInMatch();
+        if (playersToSpread.isEmpty()) return;
+
+        World world = Bukkit.getWorld("world");
+        if (world == null) {
+            broadcaster.announce(
+                Component.text(
+                    "§cError: Could not find the main world to teleport players.",
+                    NamedTextColor.RED
+                )
+            );
+            return;
+        }
+
+        String targetPlayerNames = playersToSpread
+            .stream()
+            .map(Player::getName)
+            .collect(Collectors.joining(" "));
+
+        String command = String.format(
+            "spreadplayers 0 0 500.0 1000.0 true %s",
+            targetPlayerNames
+        );
+
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+
+        broadcaster.announce(
+            Component.text(
+                "Teleporting teams to their initial positions...",
+                NamedTextColor.AQUA
+            )
+        );
+
+        for (Player player : playersToSpread) {
+            player.setRespawnLocation(player.getLocation(), true);
+
+            player.getInventory().clear();
+            player.setGameMode(org.bukkit.GameMode.SURVIVAL);
+            player.setHealth(20.0);
+            player.setFoodLevel(20);
+            player.setSaturation(5.0f);
+            player.setExp(0);
+            player.setLevel(0);
+
+            // TODO: Kit
+        }
+    }
+
     /**
      * Gets the shared Bingo card used in the current match.
      *
@@ -365,10 +427,10 @@ public class BingoGameManager {
 
     public void removeBingoPlayer(Player player) {
         // Only able to remove players in lobby state
-        if(currentState != GameState.LOBBY) return;
+        if (currentState != GameState.LOBBY) return;
 
         BingoPlayer bingoPlayer = bingoPlayerManager.getBingoPlayer(player);
-        if(bingoPlayer == null) return;
+        if (bingoPlayer == null) return;
 
         bingoPlayerManager.removeBingoPlayer(player);
         bingoTeamManager.removePlayerFromTeam(bingoPlayer);
@@ -376,14 +438,15 @@ public class BingoGameManager {
 
     public BingoPlayer addPlayer(Player player) {
         // Only able to add players in lobby state
-        if(currentState != GameState.LOBBY) return null;
+        if (currentState != GameState.LOBBY) return null;
 
         return bingoPlayerManager.createBingoPlayer(player);
     }
 
-    public void addPlayerToTeam(Player player, BingoTeam bingoTeam) throws MaxPlayersException {
+    public void addPlayerToTeam(Player player, BingoTeam bingoTeam)
+        throws MaxPlayersException {
         // Only able to change teams during lobby state
-        if(currentState != GameState.LOBBY) return;
+        if (currentState != GameState.LOBBY) return;
 
         BingoPlayer bingoPlayer = bingoPlayerManager.getBingoPlayer(player);
         bingoTeamManager.addPlayerToTeam(bingoPlayer, bingoTeam);
@@ -393,9 +456,10 @@ public class BingoGameManager {
         return bingoPlayerManager.getBingoPlayer(player);
     }
 
-    public BingoTeam createBingoTeam(String name) throws TeamNameAlreadyExistsException {
+    public BingoTeam createBingoTeam(String name)
+        throws TeamNameAlreadyExistsException, MaxTeamsException {
         // Only able to create teams during lobby state
-        if(currentState != GameState.LOBBY) return null;
+        if (currentState != GameState.LOBBY) return null;
 
         BingoTeam bingoTeam = bingoTeamManager.createBingoTeam(name);
         return bingoTeam;
@@ -403,7 +467,7 @@ public class BingoGameManager {
 
     public BingoTeam getPlayerTeam(Player player) {
         BingoPlayer bingoPlayer = bingoPlayerManager.getBingoPlayer(player);
-        if(bingoPlayer == null) return null;
+        if (bingoPlayer == null) return null;
         return bingoTeamManager.getPlayerTeam(bingoPlayer);
     }
 
