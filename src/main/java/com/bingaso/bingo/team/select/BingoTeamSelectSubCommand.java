@@ -1,13 +1,13 @@
-package com.bingaso.bingo.command.subcommand;
+package com.bingaso.bingo.team.select;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
-import com.bingaso.bingo.game.BingoGameManager;
-import com.bingaso.bingo.gui.BingoTeamGui;
-import com.bingaso.bingo.gui.BingoTeamGui.BingoTeamGuiContext;
+import com.bingaso.bingo.command.BingoSubCommand;
+import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.BingoMatch.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeam;
-import com.bingaso.bingo.team.BingoTeamManager.MaxPlayersException;
-import com.bingaso.bingo.team.BingoTeamManager.TeamNameAlreadyExistsException;
+import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
+import com.bingaso.bingo.player.BingoPlayer;
+import com.bingaso.bingo.team.select.BingoTeamSelectGui.BingoTeamGuiContext;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * Command executor for team-related commands.
  * Handles: /bingoteam create, /bingoteam join <teamId>, /bingoteam leave, /bingoteam list
  */
-public class BingoTeamSubCommand implements BingoSubCommand {
+public class BingoTeamSelectSubCommand implements BingoSubCommand {
     
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
@@ -78,7 +78,7 @@ public class BingoTeamSubCommand implements BingoSubCommand {
     }
     
     private boolean handleSelectTeam(Player player) {
-        BingoTeamGui.getInstance().openForPlayer(
+        BingoTeamSelectGui.getInstance().openForPlayer(
             player,
             new BingoTeamGuiContext()
         );
@@ -86,11 +86,11 @@ public class BingoTeamSubCommand implements BingoSubCommand {
     }
 
     private boolean handleCreateTeam(Player player, String teamName) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
         try {
             BingoTeam bingoTeam = gameManager.createBingoTeam(teamName);
-            gameManager.addPlayerToTeam(player, bingoTeam);
+            gameManager.addPlayerToBingoTeam(player, bingoTeam);
             player.sendMessage(Component.text("Team created successfully! Team Name: " + bingoTeam.getName(), NamedTextColor.GREEN));
         } catch (MaxPlayersException e) {
             player.sendMessage(Component.text("Error: " + e.getMessage(), NamedTextColor.RED));
@@ -98,13 +98,14 @@ public class BingoTeamSubCommand implements BingoSubCommand {
             player.sendMessage(Component.text("A team with this name already exists. Please choose a different name.", NamedTextColor.RED));
         }
 
-        BingoTeamGui.getInstance().updateInventories();
+        BingoTeamSelectGui.getInstance().updateInventories();
         return true;
     }
     
     private boolean handleJoinTeam(Player player, String teamName) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
-        BingoTeam bingoTeam = gameManager.getBingoTeam(teamName);
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        BingoTeam bingoTeam
+            = gameManager.getBingoTeamRepository().findByName(teamName);
 
         if(bingoTeam == null) {
             player.sendMessage(Component.text("Team not found. Please check the team name.", NamedTextColor.RED));
@@ -112,7 +113,7 @@ public class BingoTeamSubCommand implements BingoSubCommand {
         }
 
         try {
-            gameManager.addPlayerToTeam(player, bingoTeam);
+            gameManager.addPlayerToBingoTeam(player, bingoTeam);
             player.sendMessage(Component.text("Successfully joined team " + bingoTeam.getName(), NamedTextColor.GREEN));
         } catch (MaxPlayersException e) {
             player.sendMessage(Component.text("Team is full!", NamedTextColor.RED));
@@ -120,27 +121,30 @@ public class BingoTeamSubCommand implements BingoSubCommand {
             player.sendMessage(Component.text("An error occurred while joining the team.", NamedTextColor.RED));
         }
 
-        BingoTeamGui.getInstance().updateInventories();
+        BingoTeamSelectGui.getInstance().updateInventories();
         return true;
     }
     
     private boolean handleLeaveTeam(Player player) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
-        BingoTeam oldTeam = gameManager.getPlayerTeam(player);
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        BingoPlayer bingoPlayer
+            = gameManager.getBingoPlayerRepository().findByUUID(player.getUniqueId());
+        BingoTeam oldTeam
+            = gameManager.getBingoTeamRepository().findTeamByPlayer(bingoPlayer);
         if(oldTeam == null) {
             player.sendMessage(Component.text("You are not in a team.", NamedTextColor.RED));
             return true;
         }
-        gameManager.removeBingoPlayer(player);
+        gameManager.removePlayerFromBingoTeam(player);
         player.sendMessage(Component.text("Successfully left team " + oldTeam.getName(), NamedTextColor.GREEN));
 
-        BingoTeamGui.getInstance().updateInventories();
+        BingoTeamSelectGui.getInstance().updateInventories();
         return true;
     }
     
     private boolean handleListTeams(Player player) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
-        List<BingoTeam> teams = gameManager.getTeams();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        List<BingoTeam> teams = gameManager.getBingoTeamRepository().findAll();
         if (teams.isEmpty()) {
             player.sendMessage(Component.text("No teams available.", NamedTextColor.YELLOW));
             return true;
@@ -148,15 +152,22 @@ public class BingoTeamSubCommand implements BingoSubCommand {
         
         player.sendMessage(Component.text("Available Teams:", NamedTextColor.GOLD));
         for (BingoTeam team : teams) {
-            String status = team.getSize() >= gameManager.getMaxTeamSize() ? "Full" : "Open";
-            player.sendMessage(Component.text(team.getName() + " - " + team.getSize() + "/" + gameManager.getMaxTeamSize() + " (" + status + ")", NamedTextColor.AQUA));
+            String status = team.getSize() >= gameManager.getMatchSettings().getMaxTeamSize() ? "Full" : "Open";
+            player.sendMessage(Component.text(team.getName() + " - " + team.getSize() + "/" + gameManager.getMatchSettings().getMaxTeamSize() + " (" + status + ")", NamedTextColor.AQUA));
         }
         return true;
     }
     
     private boolean handleTeamInfo(Player player) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
-        BingoTeam bingoTeam = gameManager.getPlayerTeam(player);
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        BingoPlayer bingoPlayer
+            = gameManager.getBingoPlayerRepository().findByUUID(player.getUniqueId());
+        if(bingoPlayer == null) {
+            player.sendMessage(Component.text("You are not playing bingo...",NamedTextColor.RED));
+            return true;
+        }
+        BingoTeam bingoTeam
+            = gameManager.getBingoTeamRepository().findTeamByPlayer(bingoPlayer);
         if (bingoTeam == null) {
             player.sendMessage(Component.text("You are not in a team.",NamedTextColor.RED));
             return true;
@@ -164,7 +175,7 @@ public class BingoTeamSubCommand implements BingoSubCommand {
 
         player.sendMessage(Component.text("=== Your Team Info ===", NamedTextColor.GREEN));
         player.sendMessage(Component.text("Team Name: " + bingoTeam.getName(), NamedTextColor.GREEN));
-        player.sendMessage(Component.text("Team Size: " + bingoTeam.getSize() + "/" + gameManager.getMaxTeamSize(), NamedTextColor.GREEN));
+        player.sendMessage(Component.text("Team Size: " + bingoTeam.getSize() + "/" + gameManager.getMatchSettings().getMaxTeamSize(), NamedTextColor.GREEN));
         player.sendMessage(Component.text("Team Members:", NamedTextColor.GREEN));
 
         bingoTeam.getPlayers().forEach(teammate -> {
@@ -191,10 +202,10 @@ public class BingoTeamSubCommand implements BingoSubCommand {
         if (args.length == 1) {
             return Arrays.asList("create", "join", "leave", "list", "info", "select");
         }
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
         
         if (args.length == 2 && args[0].equalsIgnoreCase("join")) {
-            List<String> teamNames = gameManager.getTeams().stream()
+            List<String> teamNames = gameManager.getBingoTeamRepository().findAll().stream()
                 .map(team -> team.getName())
                 .collect(Collectors.toList());
             return teamNames;

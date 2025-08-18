@@ -1,12 +1,12 @@
 package com.bingaso.bingo;
 
+import com.bingaso.bingo.card.BingoCardGuiListener;
 import com.bingaso.bingo.command.BingoCommand;
-import com.bingaso.bingo.game.BingoGameManager;
-import com.bingaso.bingo.listener.BingoCardGuiListener;
-import com.bingaso.bingo.listener.BingoPlayerManagerListener;
-import com.bingaso.bingo.listener.BingoTeamGuiListener;
-import com.bingaso.bingo.listener.BingoConfigGuiListener;
-import com.bingaso.bingo.listener.GameListener;
+import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.BingoMatchListener;
+import com.bingaso.bingo.match.BingoMatchSettingsGuiListener;
+import com.bingaso.bingo.team.select.BingoTeamSelectGuiListener;
+
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BingoPlugin extends JavaPlugin {
@@ -17,32 +17,31 @@ public final class BingoPlugin extends JavaPlugin {
         return INSTANCE;
     }
 
-    private BingoGameManager gameManager;
+    private BingoMatch bingoMatch;
 
     @Override
     public void onEnable() {
         getLogger().info("Bingo plugin enabled!");
 
-        // Register event listeners
-        getServer()
-            .getPluginManager()
-            .registerEvents(new BingoPlayerManagerListener(), this);
+        // Register gui listeners
         getServer()
             .getPluginManager()
             .registerEvents(new BingoCardGuiListener(), this);
         getServer()
             .getPluginManager()
-            .registerEvents(new BingoTeamGuiListener(), this);
+            .registerEvents(new BingoTeamSelectGuiListener(), this);
         getServer()
             .getPluginManager()
-            .registerEvents(new BingoConfigGuiListener(), this);
-        getServer().getPluginManager().registerEvents(new GameListener(), this);
+            .registerEvents(new BingoMatchSettingsGuiListener(), this);
+
+        // Register match listener
+        getServer().getPluginManager().registerEvents(new BingoMatchListener(), this);
 
         // Register bingo command
         getCommand("bingo").setExecutor(new BingoCommand());
         getCommand("bingo").setTabCompleter(new BingoCommand());
 
-        this.gameManager = new BingoGameManager();
+        bingoMatch = new BingoMatch();
     }
 
     @Override
@@ -50,7 +49,7 @@ public final class BingoPlugin extends JavaPlugin {
         getLogger().info("Bingo plugin disabled!");
     }
 
-    public BingoGameManager getGameManager() {
-        return gameManager;
+    public BingoMatch getBingoMatch() {
+        return bingoMatch;
     }
 }

@@ -1,4 +1,4 @@
-package com.bingaso.bingo.listener;
+package com.bingaso.bingo.team.select;
 
 import java.util.UUID;
 
@@ -11,12 +11,11 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.game.BingoGameManager;
 import com.bingaso.bingo.gui.BingoGuiItem;
-import com.bingaso.bingo.gui.BingoTeamGui;
+import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.BingoMatch.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeam;
-import com.bingaso.bingo.team.BingoTeamManager.MaxPlayersException;
-import com.bingaso.bingo.team.BingoTeamManager.TeamNameAlreadyExistsException;
+import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -25,7 +24,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
  * Listener for handling interactions with the Teams GUI.
  * Manages team creation and joining through inventory click events.
  */
-public class BingoTeamGuiListener implements Listener {
+public class BingoTeamSelectGuiListener implements Listener {
 
     /**
      * Handles inventory close events for the Teams GUI.
@@ -36,8 +35,8 @@ public class BingoTeamGuiListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
-        if (BingoTeamGui.getInstance().isOpenBy(player)) {
-            BingoTeamGui.getInstance().removeOpenPlayer(player);
+        if (BingoTeamSelectGui.getInstance().isOpenBy(player)) {
+            BingoTeamSelectGui.getInstance().removeOpenPlayer(player);
         }
     }
 
@@ -56,8 +55,8 @@ public class BingoTeamGuiListener implements Listener {
         }
 
         Player player = (Player) event.getWhoClicked();
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
-        if (!BingoTeamGui.getInstance().isOpenBy(player)) {
+        BingoMatch bingoMatch = BingoPlugin.getInstance().getBingoMatch();
+        if (!BingoTeamSelectGui.getInstance().isOpenBy(player)) {
             return;
         }
 
@@ -68,7 +67,7 @@ public class BingoTeamGuiListener implements Listener {
             String randomTeamName = "Team-" + UUID.randomUUID().toString().substring(0, 8);
             BingoTeam newTeam;
             try {
-                newTeam = gameManager.createBingoTeam(randomTeamName);
+                newTeam = bingoMatch.createBingoTeam(randomTeamName);
             } catch (TeamNameAlreadyExistsException e) {
                 player.sendMessage(Component.text(
                     "Haha random collision, try again.",
@@ -81,7 +80,7 @@ public class BingoTeamGuiListener implements Listener {
                 NamedTextColor.GREEN
             ));
             try {
-                gameManager.addPlayerToTeam(player, newTeam);
+                bingoMatch.addPlayerToBingoTeam(player, newTeam);
                 player.sendMessage(Component.text(
                     "Added you to the new team.",
                     NamedTextColor.GREEN
@@ -92,14 +91,15 @@ public class BingoTeamGuiListener implements Listener {
                     NamedTextColor.RED
                 ));
             }
-            BingoTeamGui.getInstance().updateInventories();
+            BingoTeamSelectGui.getInstance().updateInventories();
         }
 
         // Check second gui item
         if(BingoGuiItem.isGuiItem(clickedItem, "TeamItemStack")) {
             String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
             if(teamName == null) return;
-            BingoTeam team = gameManager.getBingoTeam(teamName);
+            BingoTeam team
+                = bingoMatch.getBingoTeamRepository().findByName(teamName);
             if(team == null) {
                 player.sendMessage(Component.text(
                     "Team not found, couldn't join.",
@@ -109,12 +109,12 @@ public class BingoTeamGuiListener implements Listener {
             } 
 
             try {
-                gameManager.addPlayerToTeam(player, team);
+                bingoMatch.addPlayerToBingoTeam(player, team);
                 player.sendMessage(Component.text(
                     "You have joined the team \"" + team.getName() + "\".",
                     NamedTextColor.GREEN
                 ));
-                BingoTeamGui.getInstance().updateInventories();
+                BingoTeamSelectGui.getInstance().updateInventories();
             } catch (MaxPlayersException e) {
                 player.sendMessage(Component.text(
                     "Couldn't join the team, it is full.",

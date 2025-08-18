@@ -1,8 +1,8 @@
 package com.bingaso.bingo.card;
 
-import com.bingaso.bingo.card.quest.BingoQuest;
-import com.bingaso.bingo.card.quest.BingoQuestItem;
-import com.bingaso.bingo.utils.ItemRepository;
+import com.bingaso.bingo.quest.BingoQuest;
+import com.bingaso.bingo.quest.BingoQuestItem;
+import com.bingaso.bingo.quest.BingoQuestRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,9 +19,10 @@ import org.bukkit.Material;
  * This class handles the weighted random selection of items based on
  * difficulty scores to create balanced Bingo cards for gameplay.
  */
-public class CardGenerator {
+public class BingoCardGenerator {
 
-    private final ItemRepository itemRepository;
+    private final BingoQuestRepository itemRepository;
+    private final DifficultyLevel difficultyLevel;
     private final Random random = new Random();
     private final Map<
         DifficultyLevel,
@@ -33,9 +34,15 @@ public class CardGenerator {
      * Initializes the difficulty weight mappings for item selection.
      *
      * @param itemRepository The repository containing all available items
+     * @param difficultyLevel The difficulty level that determines item selection
+     * weights.
      */
-    public CardGenerator(ItemRepository itemRepository) {
+    public BingoCardGenerator(
+        BingoQuestRepository itemRepository,
+        DifficultyLevel difficultyLevel
+    ) {
         this.itemRepository = itemRepository;
+        this.difficultyLevel = difficultyLevel;
         initializeWeights();
     }
 
@@ -88,18 +95,17 @@ public class CardGenerator {
      * Uses weighted random selection to choose items according to the difficulty weights.
      * The selected materials are then shuffled and arranged into a Bingo card.
      *
-     * @param difficulty The difficulty level that determines item selection weights
      * @return A new BingoCard containing 25 randomly selected items
      */
-    public BingoCard generateCard(DifficultyLevel difficulty) {
-        List<ItemRepository.ItemData> sourceItems =
+    public BingoCard generateCard() {
+        List<BingoQuestRepository.ItemData> sourceItems =
             itemRepository.getAllItems();
         Set<Material> selectedMaterials = new HashSet<>();
-        Map<Integer, Integer> weights = difficultyWeights.get(difficulty);
+        Map<Integer, Integer> weights = difficultyWeights.get(difficultyLevel);
 
         while (selectedMaterials.size() < 25) {
             int totalWeight = 0;
-            for (ItemRepository.ItemData item : sourceItems) {
+            for (BingoQuestRepository.ItemData item : sourceItems) {
                 totalWeight += weights.getOrDefault(item.score, 0);
             }
 
@@ -109,8 +115,8 @@ public class CardGenerator {
 
             int randomNumber = random.nextInt(totalWeight);
 
-            ItemRepository.ItemData chosenItem = null;
-            for (ItemRepository.ItemData item : sourceItems) {
+            BingoQuestRepository.ItemData chosenItem = null;
+            for (BingoQuestRepository.ItemData item : sourceItems) {
                 int itemWeight = weights.getOrDefault(item.score, 0);
                 if (randomNumber < itemWeight) {
                     chosenItem = item;

@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Material;
 
-import com.bingaso.bingo.card.quest.BingoQuest;
-import com.bingaso.bingo.card.quest.BingoQuestItem;
+import com.bingaso.bingo.quest.BingoQuest;
+import com.bingaso.bingo.quest.BingoQuestItem;
 import com.bingaso.bingo.team.BingoTeam;
 
 /**
@@ -27,7 +27,7 @@ public class BingoCard {
      * @param size The size of the card (number of items per row or column)
      * @since 1.0
      */
-    BingoCard(int size) {
+    protected BingoCard(int size) {
         this.size = size;
         this.items = new BingoQuest[size * size];
     }
@@ -37,7 +37,7 @@ public class BingoCard {
      *
      * @since 1.0
      */
-    BingoCard() {
+    protected BingoCard() {
         this(5);
     }
 
@@ -47,7 +47,7 @@ public class BingoCard {
      * @param questList The list of BingoQuests to populate the card with
      * @since 1.0
      */
-    BingoCard(List<BingoQuest> questList) {
+    protected BingoCard(List<BingoQuest> questList) {
         this.size = (int) Math.sqrt(questList.size());
         this.items = new BingoQuest[size * size];
         this.itemCount = Math.min(questList.size(), size * size);
@@ -64,7 +64,7 @@ public class BingoCard {
      * @return True if the quest was added successfully, false if the card is full
      * @since 1.0
      */
-    boolean addItem(BingoQuest quest) {
+    protected boolean addItem(BingoQuest quest) {
         if (itemCount >= items.length) {
             return false;
         }
@@ -135,7 +135,7 @@ public class BingoCard {
      */
     public boolean isRowCompletedByTeam(int row, BingoTeam bingoTeam) {
         for (int col = 0; col < size; col++) {
-            if (!items[row * size + col].isCompletedBy(bingoTeam)) {
+            if (!bingoTeam.hasCompletedQuest(items[row * size + col])) {
                 return false;
             }
         }
@@ -168,7 +168,7 @@ public class BingoCard {
      */
     public boolean isColumnCompletedByTeam(int col, BingoTeam bingoTeam) {
         for (int row = 0; row < size; row++) {
-            if (!items[row * size + col].isCompletedBy(bingoTeam)) {
+            if (!bingoTeam.hasCompletedQuest(items[row * size + col])) {
                 return false;
             }
         }
@@ -199,7 +199,7 @@ public class BingoCard {
      */
     public boolean isMainDiagonalCompletedByTeam(BingoTeam bingoTeam) {
         for (int i = 0; i < size; i++) {
-            if (!items[i * size + i].isCompletedBy(bingoTeam)) {
+            if (!bingoTeam.hasCompletedQuest(items[i * size + i])) {
                 return false;
             }
         }
@@ -216,7 +216,7 @@ public class BingoCard {
      */
     public boolean isAntiDiagonalCompletedByTeam(BingoTeam bingoTeam) {
         for (int i = 0; i < size; i++) {
-            if (!items[i * size + (size - 1 - i)].isCompletedBy(bingoTeam)) {
+            if (!bingoTeam.hasCompletedQuest(items[i * size + (size - 1 - i)])) {
                 return false;
             }
         }

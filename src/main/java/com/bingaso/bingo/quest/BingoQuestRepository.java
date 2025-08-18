@@ -1,4 +1,4 @@
-package com.bingaso.bingo.utils;
+package com.bingaso.bingo.quest;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.google.gson.Gson;
@@ -16,7 +16,7 @@ import java.util.List;
  * This class is responsible for loading item definitions from a JSON resource file
  * and providing access to these items for card generation and other game functions.
  */
-public class ItemRepository {
+public class BingoQuestRepository {
 
     private final List<ItemData> allItems;
 
@@ -36,7 +36,7 @@ public class ItemRepository {
      * Creates a new ItemRepository instance.
      * Loads all available items from the scores.json resource file during initialization.
      */
-    public ItemRepository() {
+    public BingoQuestRepository() {
         this.allItems = loadItems();
     }
 

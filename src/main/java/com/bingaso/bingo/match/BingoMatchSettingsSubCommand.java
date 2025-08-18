@@ -1,11 +1,8 @@
-package com.bingaso.bingo.command.subcommand;
+package com.bingaso.bingo.match;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
-import com.bingaso.bingo.game.BingoGameManager.GameState;
-import com.bingaso.bingo.game.MatchSettings;
-import com.bingaso.bingo.gui.BingoConfigGui;
-import com.bingaso.bingo.gui.BingoConfigGui.ConfigGuiContext;
+import com.bingaso.bingo.command.BingoSubCommand;
+import com.bingaso.bingo.match.BingoMatchSettingsGui.ConfigGuiContext;
 
 import java.util.List;
 
@@ -19,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * This command opens the configuration GUI that allows server operators
  * to modify game settings while in the lobby state.
  */
-public class BingoConfigSubCommand implements BingoSubCommand {
+public class BingoMatchSettingsSubCommand implements BingoSubCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
@@ -38,8 +35,8 @@ public class BingoConfigSubCommand implements BingoSubCommand {
         }
 
         if (
-            BingoPlugin.getInstance().getGameManager().getCurrentState() !=
-            GameState.LOBBY
+            BingoPlugin.getInstance().getBingoMatch().getState() !=
+            BingoMatch.State.LOBBY
         ) {
             player.sendMessage(
                 "§cMatch settings can only be changed while in the lobby."
@@ -47,11 +44,11 @@ public class BingoConfigSubCommand implements BingoSubCommand {
             return true;
         }
         
-        MatchSettings settings = BingoPlugin.getInstance()
-            .getGameManager()
-            .getCurrentMatchSettings();
+        BingoMatchSettings settings = BingoPlugin.getInstance()
+            .getBingoMatch()
+            .getMatchSettings();
 
-        BingoConfigGui.getInstance().openForPlayer(
+        BingoMatchSettingsGui.getInstance().openForPlayer(
             player,
             new ConfigGuiContext(settings)
         );

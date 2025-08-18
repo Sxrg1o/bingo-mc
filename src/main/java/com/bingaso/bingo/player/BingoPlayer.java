@@ -1,12 +1,9 @@
 package com.bingaso.bingo.player;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a player in the Bingo game with team management capabilities.
@@ -17,25 +14,16 @@ import net.kyori.adventure.text.Component;
  * @since 1.0
  */
 public class BingoPlayer {
-
     private final UUID uuid;
     private final String name;
-    private final List<Component> inbox = new ArrayList<>();
 
     /**
-     * Constructs a new BingoPlayer from an online Player.
-     * 
-     * The constructor captures the player's UUID and name at the time of creation,
-     * allowing the BingoPlayer to persist this information even if the player goes offline.
+     * Constructs a new {@link BingoPlayer} from a {@link Player}.
      *
-     * @param player The online Player to create a BingoPlayer for
-     * @throws IllegalArgumentException if player is null
+     * @param player The {@link Player} to create a BingoPlayer for.
      * @since 1.0
      */
-    BingoPlayer(Player player) {
-        if (player == null) {
-            throw new IllegalArgumentException("Player cannot be null");
-        }
+    public BingoPlayer(@NotNull Player player) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
     }
@@ -55,12 +43,8 @@ public class BingoPlayer {
 
     /**
      * Gets the name of this player.
-     * 
-     * Note: This returns the name that was captured when the BingoPlayer
-     * was created and may not reflect the current name if the player has
-     * changed their username since then.
      *
-     * @return The player's name at the time of BingoPlayer creation
+     * @return The player's display name.
      * @since 1.0
      */
     public String getName() {
@@ -93,30 +77,5 @@ public class BingoPlayer {
      */
     public Player getOnlinePlayer() {
         return Bukkit.getPlayer(uuid);
-    }
-
-    /**
-     * Gets the player's inbox messages.
-     *
-     * @return A list of messages in the player's inbox
-     * @since 1.0
-     */
-    public List<Component> getInbox() {
-        return List.copyOf(inbox);
-    }
-
-    /**
-     * Sends a message if the player is online. Otherwise, saves it in the inbox.
-     * 
-     * @param message The message to add to the inbox
-     * @since 1.0
-     */
-    public void sendMessage(Component message) {
-        Player player = getOnlinePlayer();
-        if (player != null) {
-            player.sendMessage(message);
-        } else {
-            inbox.add(message);
-        }
     }
 }

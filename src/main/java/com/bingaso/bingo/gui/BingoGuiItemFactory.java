@@ -15,12 +15,12 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.card.CardGenerator.DifficultyLevel;
-import com.bingaso.bingo.card.quest.BingoQuest;
-import com.bingaso.bingo.card.quest.BingoQuestItem;
-import com.bingaso.bingo.game.BingoGameManager;
-import com.bingaso.bingo.game.MatchSettings.GameMode;
-import com.bingaso.bingo.game.MatchSettings.TeamMode;
+import com.bingaso.bingo.card.BingoCardGenerator.DifficultyLevel;
+import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.BingoMatchSettings.GameMode;
+import com.bingaso.bingo.match.BingoMatchSettings.TeamMode;
+import com.bingaso.bingo.quest.BingoQuest;
+import com.bingaso.bingo.quest.BingoQuestItem;
 import com.bingaso.bingo.player.BingoPlayer;
 import com.bingaso.bingo.team.BingoTeam;
 
@@ -76,7 +76,7 @@ public class BingoGuiItemFactory {
      * @return ItemStack representing the previous team navigation arrow
      */
     public static BingoGuiItem createPreviousTeamGuiItem(BingoTeam team) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
         // item itself
         BingoGuiItem itemStack = new BingoGuiItem(Material.ARROW, "bingo_card_previous_team_gui_item");
@@ -86,7 +86,7 @@ public class BingoGuiItemFactory {
         itemMeta.addEnchant(Enchantment.PROTECTION, 1, true);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemStack.setItemMeta(itemMeta);
-        itemStack.setCustomString("team", gameManager.getPreviousTeam(team).getName());
+        itemStack.setCustomString("team", gameManager.getBingoTeamRepository().getPreviousTeam(team).getName());
         return itemStack;
     }
 
@@ -96,7 +96,7 @@ public class BingoGuiItemFactory {
      * @return ItemStack representing the next team navigation arrow
      */
     public static BingoGuiItem createNextTeamGuiItem(BingoTeam team) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
         // item itself
         BingoGuiItem itemStack = new BingoGuiItem(Material.ARROW, "bingo_card_next_team_gui_item");
@@ -106,7 +106,7 @@ public class BingoGuiItemFactory {
         itemMeta.addEnchant(Enchantment.PROTECTION, 1, true);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemStack.setItemMeta(itemMeta);
-        itemStack.setCustomString("team", gameManager.getNextTeam(team).getName());
+        itemStack.setCustomString("team", gameManager.getBingoTeamRepository().getNextTeam(team).getName());
         return itemStack;
     }
 
@@ -130,12 +130,8 @@ public class BingoGuiItemFactory {
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Completed by: " + bingoTeamThatCompleted.getName(), namedTextColor));
         
-        // Get completion instant instead of milliseconds since we don't have that method
-        Instant completionInstant = null;
-        if (bingoQuest instanceof BingoQuestItem) {
-            completionInstant = ((BingoQuestItem) bingoQuest).getCompletionInstant(bingoTeamThatCompleted);
-        }
-        // Add similar handling for other quest types when they get completion instant methods
+        // Get completion instant
+        Instant completionInstant = bingoTeamThatCompleted.getCompletionInstant(bingoQuest);
         
         if (completionInstant != null) {
             // Convert instant to formatted time string
@@ -188,19 +184,19 @@ public class BingoGuiItemFactory {
      * @return GuiItem representing the team with appropriate styling and lore
      */
     public static BingoGuiItem createJoinTeamGuiItem(BingoTeam team) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
         // Variables for the item
         Material material = Material.GREEN_WOOL;
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
         String displayNameText = (
             "Team \"" + team.getName() + "\"" +
-            "(" + team.getSize() + "/" + gameManager.getMaxTeamSize() + ")"
+            "(" + team.getSize() + "/" + gameManager.getMatchSettings().getMaxTeamSize() + ")"
         );
         String loreFirstLine = "Click to join the Team!";
 
         // style depending on team size
-        if(team.getSize() >= gameManager.getMaxTeamSize()) {
+        if(team.getSize() >= gameManager.getMatchSettings().getMaxTeamSize()) {
             material = Material.RED_WOOL;
             loreFirstLine = "Team full!";
             namedTextColor = NamedTextColor.RED;

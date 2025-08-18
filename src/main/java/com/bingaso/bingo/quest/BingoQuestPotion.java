@@ -1,4 +1,4 @@
-package com.bingaso.bingo.card.quest;
+package com.bingaso.bingo.quest;
 
 import org.bukkit.Material;
 import org.bukkit.potion.PotionEffectType;
@@ -27,6 +27,7 @@ public class BingoQuestPotion extends BingoQuest {
      * @since 1.0
      */
     public BingoQuestPotion(Material material, PotionEffectType potionEffect) {
+        super(material.toString());
         this.material = material;
         this.potionEffect = potionEffect;
     }

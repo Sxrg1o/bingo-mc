@@ -58,7 +58,7 @@ public abstract class BingoGui {
      * Refreshes the GUI for all players who currently have it open.
      */
     public void updateInventories() {
-        HashMap<Player, GuiContext> copyOpenPlayers = new HashMap<>(this.openPlayers);
+        HashMap<Player, GuiContext> copyOpenPlayers = new HashMap<>(openPlayers);
         for (Entry<Player, GuiContext> entry : copyOpenPlayers.entrySet()) {
             Player player = entry.getKey();
             GuiContext context = entry.getValue();

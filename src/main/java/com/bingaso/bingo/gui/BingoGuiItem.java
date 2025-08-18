@@ -34,13 +34,13 @@ public class BingoGuiItem extends ItemStack{
      * @throws IllegalArgumentException if itemStack is null or has no metadata
      */
     public void setCustomString(String key, String value) {
-        ItemMeta itemMeta = this.getItemMeta();
+        ItemMeta itemMeta = getItemMeta();
         if (itemMeta == null) {
             throw new IllegalArgumentException("ItemStack must have metadata to set custom data");
         }
         NamespacedKey namespacedKey = new NamespacedKey(BingoPlugin.getInstance(), key);
         itemMeta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
-        this.setItemMeta(itemMeta);
+        setItemMeta(itemMeta);
     }
 
     /**

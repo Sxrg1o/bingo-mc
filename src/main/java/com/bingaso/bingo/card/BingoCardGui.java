@@ -1,11 +1,13 @@
-package com.bingaso.bingo.gui;
+package com.bingaso.bingo.card;
 
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
-import com.bingaso.bingo.card.BingoCard;
-import com.bingaso.bingo.card.quest.BingoQuest;
-import com.bingaso.bingo.card.quest.BingoQuestItem;
+import com.bingaso.bingo.quest.BingoQuest;
+import com.bingaso.bingo.quest.BingoQuestItem;
+import com.bingaso.bingo.gui.BingoGui;
+import com.bingaso.bingo.gui.BingoGuiItem;
+import com.bingaso.bingo.gui.BingoGuiItemFactory;
 import com.bingaso.bingo.team.BingoTeam;
 
 import net.kyori.adventure.text.Component;
@@ -96,7 +98,7 @@ public class BingoCardGui extends BingoGui {
                 bingoItemStack = new BingoGuiItem(org.bukkit.Material.PAPER, "BingoItemStack");
             }
             
-            if(bingoQuest.isCompletedBy(bingoTeamToShow)) {
+            if(bingoTeamToShow.hasCompletedQuest(bingoQuest)) {
                 bingoItemStack = BingoGuiItemFactory.createCompletedGuiItem(bingoQuest, bingoTeamToShow, bingoTeamFromWatcher);
             }
             inventory.setItem(2 + k*9 + j, bingoItemStack); // Place in the center 5x5 grid

@@ -1,4 +1,4 @@
-package com.bingaso.bingo.card.quest;
+package com.bingaso.bingo.quest;
 
 /**
  * Represents an advancement quest on a Bingo card that players need to achieve during a game.
@@ -20,6 +20,7 @@ public class BingoQuestAdvancement extends BingoQuest {
      * @since 1.0
      */
     public BingoQuestAdvancement(String achievementKey) {
+        super(achievementKey);
         this.achievementKey = achievementKey;
     }
 

@@ -1,13 +1,11 @@
-package com.bingaso.bingo.listener;
+package com.bingaso.bingo.match;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.card.CardGenerator.DifficultyLevel;
-import com.bingaso.bingo.game.MatchSettings.TeamMode;
-import com.bingaso.bingo.game.MatchSettings.GameMode;
-import com.bingaso.bingo.game.MatchSettings;
-import com.bingaso.bingo.gui.BingoConfigGui;
-import com.bingaso.bingo.gui.BingoConfigGui.ConfigGuiContext;
+import com.bingaso.bingo.card.BingoCardGenerator.DifficultyLevel;
 import com.bingaso.bingo.gui.BingoGuiItem;
+import com.bingaso.bingo.match.BingoMatchSettings.GameMode;
+import com.bingaso.bingo.match.BingoMatchSettings.TeamMode;
+import com.bingaso.bingo.match.BingoMatchSettingsGui.ConfigGuiContext;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
  * Listener that handles interactions with the Bingo configuration GUI.
  * Processes click events on configuration items to update game settings.
  */
-public class BingoConfigGuiListener implements Listener {
+public class BingoMatchSettingsGuiListener implements Listener {
 
     /**
      * Handles inventory click events in the configuration GUI.
@@ -43,9 +41,9 @@ public class BingoConfigGuiListener implements Listener {
         String customId = BingoGuiItem.getCustomString(clickedItem, "custom_id");
         if (customId == null) return;
 
-        MatchSettings settings = BingoPlugin.getInstance()
-            .getGameManager()
-            .getCurrentMatchSettings();
+        BingoMatchSettings settings = BingoPlugin.getInstance()
+            .getBingoMatch()
+            .getMatchSettings();
 
         switch (customId) {
             case "config_gamemode":
@@ -85,6 +83,6 @@ public class BingoConfigGuiListener implements Listener {
                 break;
         }
 
-        BingoConfigGui.getInstance().openForPlayer(player, new ConfigGuiContext(settings));
+        BingoMatchSettingsGui.getInstance().openForPlayer(player, new ConfigGuiContext(settings));
     }
 }

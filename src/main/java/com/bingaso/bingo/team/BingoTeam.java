@@ -1,56 +1,66 @@
 package com.bingaso.bingo.team;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import com.bingaso.bingo.card.quest.BingoQuest;
+import com.bingaso.bingo.quest.BingoQuest;
 import com.bingaso.bingo.player.BingoPlayer;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 
 /**
  * Represents a team of players in the Bingo game.
  * 
  * This class manages a group of players, their completed items, team color,
  * and provides functionality for team communication and item tracking.
- * Teams are automatically assigned colors from a predefined set when created.
  * 
  * @since 1.0
  */
-public class BingoTeam {
+public class BingoTeam implements Serializable {
 
-    private final List<BingoPlayer> players = new ArrayList<>();
     private String name;
+    private TextColor color;
+    private final List<BingoPlayer> players = new ArrayList<>();
     private final HashMap<BingoQuest, Instant> completedItems = new HashMap<>();
-    private final NamedTextColor color;
 
     /**
-     * Constructs a new Team with a given name.
+     * Constructs a new Team with a given name and given color.
      * 
-     * The team is automatically assigned a color from the available team colors
-     * in a round-robin fashion.
-     * 
-     * @param name The name of the team
+     * @param name The name of the team.
+     * @param color The color of the team.
      * @since 1.0
      */
-    BingoTeam(String name) {
-        this.color = TEAM_COLORS.get(nextColorIdx);
-        nextColorIdx = (nextColorIdx + 1) % TEAM_COLORS.size();
+    public BingoTeam(@NotNull String name, @NotNull TextColor color) {
         this.name = name;
+        this.color = color;
     }
 
     /**
-     * Gets the name of the team.
-     *
-     * @return The team's name
+     * @return The team's {@link TextColor}.
+     * @since 1.0
+     */
+    public TextColor getColor() {
+        return color;
+    }
+
+    /**
+     * @param color New team's {@link TextColor}.
+     * @since 1.0
+     */
+    protected void setColor(@NotNull TextColor color) {
+        this.color = color;
+    }
+
+    /**
+     * @return The team's name.
      * @since 1.0
      */
     public String getName() {
@@ -58,150 +68,23 @@ public class BingoTeam {
     }
 
     /**
-     * Changes the team's name.
-     * 
-     * @param newName The new name of the team
+     * @param newName The new name of the team.
      * @since 1.0
      */
-    void setName(String newName) {
+    protected void setName(@NotNull String newName) {
         this.name = newName;
     }
 
     /**
-     * Adds a player to the team.
-     * Does nothing if the player is already on the team.
-     *
-     * @param bingoPlayer The BingoPlayer to add to the team
-     * @return true if the player was added, false if they were already on the team
-     * @since 1.0
-     */
-    boolean addPlayer(BingoPlayer bingoPlayer) {
-        if (players.contains(bingoPlayer)) {
-            return false;
-        }
-        return players.add(bingoPlayer);
-    }
-
-    /**
-     * Removes a player from the team.
-     *
-     * @param bingoPlayer The bingo player to remove
-     * @return true if the player was on the team and was removed, false otherwise
-     * @since 1.0
-     */
-    boolean removePlayer(BingoPlayer bingoPlayer) {
-        boolean b = players.remove(bingoPlayer);
-        return b;
-    }
-
-    /**
-     * Checks if a player is a member of this team.
-     *
-     * @param bingoPlayer The bingo player to check
-     * @return true if the player is on this team, false otherwise
-     * @since 1.0
-     */
-    public boolean hasPlayer(BingoPlayer bingoPlayer) {
-        return players.contains(bingoPlayer);
-    }
-
-    /**
-     * Gets the number of players on the team.
-     *
-     * @return The size of the team
-     * @since 1.0
-     */
-    public int getSize() {
-        return players.size();
-    }
-
-    /**
-     * Gets the color assigned to this team.
-     * 
-     * Team colors are automatically assigned when the team is created
-     * and are used for visual identification in the game.
-     *
-     * @return The team's assigned color
-     * @since 1.0
-     */
-    public NamedTextColor getColor() {
-        return color;
-    }
-
-    /**
-     * Gets an unmodifiable list of all players on this team.
-     * This prevents external code from modifying the team's player list directly.
-     *
-     * @return An unmodifiable list of BingoPlayer objects
+     * @return A {@link BingoPlayer} unmodifiable list of the team.
      * @since 1.0
      */
     public List<BingoPlayer> getPlayers() {
         return Collections.unmodifiableList(players);
     }
 
-    /**
-     * Adds a bingo quest to the team's completed collection.
-     * 
-     * This method tracks which bingo quests the team has successfully completed.
-     * Duplicate quests are automatically handled by the underlying Map implementation.
-     *
-     * @param bingoQuest The BingoQuest that was completed by the team
-     * @param instant The Instant in which the team completed the quest
-     * @since 1.0
-     */
-    void addCompletedItem(BingoQuest bingoQuest, Instant instant) {
-        completedItems.put(bingoQuest, instant);
-    }
-
-    /**
-     * Gets the set of quests that this team has completed.
-     * 
-     * This returns the actual Set, allowing external code to check
-     * which quests have been completed by the team.
-     *
-     * @return A Set containing all BingoQuests completed by this team
-     * @since 1.0
-     */
-    public Set<BingoQuest> getCompletedItems() {
-        return Set.copyOf(completedItems.keySet());
-    }
-
-    /**
-     * Gets completion instant
-     * @param bingoQuest The BingoQuest to check
-     * @return The Instant when the quest was completed, or null if not completed
-     */
-    public Instant getCompletionInstant(BingoQuest bingoQuest) {
-        return completedItems.get(bingoQuest);
-    }
-
-    /**
-     * Checks if the team has completed a BingoQuest
-     * 
-     * @param bingoQuest The BingoQuest to check
-     * @return true if the team has completed the quest, false otherwise
-     * @since 1.0
-     */
-    public boolean hasCompletedItem(BingoQuest bingoQuest) {
-        return completedItems.containsKey(bingoQuest);
-    }
-
-    /**
-     * Clears all completed items from the team's collection.
-     * 
-     * This method is typically used when starting a new game
-     * or resetting the team's progress.
-     *
-     * @since 1.0
-     */
-    void clearCompletedItems() {
-        completedItems.clear();
-    }
-
-    /**
-     * Gets a list of all team members who are currently online.
-     *
-     * @return A list of online {@link Player} objects
+    /** 
+     * @return An online {@link Player} list of the team.
      * @since 1.0
      */
     public List<Player> getOnlinePlayers() {
@@ -216,23 +99,104 @@ public class BingoTeam {
     }
 
     /**
-     * Sends a message to the online members of the team and saves the message
-     * in the inbox of the offline players.
-     *
-     * @param message The message to send.
+     * @return The size of the team.
      * @since 1.0
      */
-    public void broadcastMessage(Component message) {
-        for (BingoPlayer player : players) {
-            player.sendMessage(message);
-        }
+    public int getSize() {
+        return players.size();
     }
 
-    private static int nextColorIdx = 0;
-    private static final List<NamedTextColor> TEAM_COLORS = Arrays.asList(
-        NamedTextColor.BLUE,
-        NamedTextColor.GREEN,
-        NamedTextColor.RED,
-        NamedTextColor.YELLOW
-    );
+    /**
+     * @return True if the team has no players, false otherwise.
+     * @since 1.0
+     */
+    public boolean isEmpty() {
+        return players.isEmpty();
+    }
+
+    /**
+     * @param bingoPlayer The {@link BingoPlayer} to check.
+     * @return True if the player is on this team, false otherwise.
+     * @since 1.0
+     */
+    public boolean hasPlayer(@NotNull BingoPlayer bingoPlayer) {
+        return players.contains(bingoPlayer);
+    }
+
+    /**
+     * @param bingoPlayer The {@link BingoPlayer} to add to the team.
+     * @return True if the player was added, false if they were already on the team.
+     * @since 1.0
+     */
+    protected boolean addPlayer(@NotNull BingoPlayer bingoPlayer) {
+        if (players.contains(bingoPlayer)) {
+            return false;
+        }
+        return players.add(bingoPlayer);
+    }
+
+    /**
+     * @param bingoPlayer The {@link BingoPlayer} to remove.
+     * @return True if the player was on the team and was removed, false otherwise.
+     * @since 1.0
+     */
+    protected boolean removePlayer(@NotNull BingoPlayer bingoPlayer) {
+        boolean b = players.remove(bingoPlayer);
+        return b;
+    }
+
+    /**
+     * @return The unmodifiable Map of {@link BingoQuest}s with the
+     * {@link Instant}s in which they were completed.
+     */
+    public Map<BingoQuest, Instant> getCompletedQuests() {
+        return Collections.unmodifiableMap(completedItems);
+    }
+
+    /**
+     * @param bingoQuest The {@link BingoQuest} to add.
+     * @param instant The {@link Instant} in which the team completed the
+     * {@link BingoQuest}
+     * @since 1.0
+     */
+    protected void addCompletedQuest(
+        @NotNull BingoQuest bingoQuest,
+        @NotNull Instant instant) {
+        completedItems.put(bingoQuest, instant);
+    }
+
+    /**
+     * @param bingoQuest The {@link BingoQuest} to remove.
+     */
+    protected void removeCompletedQuest(@NotNull BingoQuest bingoQuest) {
+        completedItems.remove(bingoQuest);
+    }
+
+    /**
+     * @param bingoQuest The {@link BingoQuest} to check.
+     * @return True if the {@link BingoQuest} has been completed by the team,
+     * false otherwise.
+     */
+    public boolean hasCompletedQuest(@NotNull BingoQuest bingoQuest) {
+        return completedItems.containsKey(bingoQuest);
+    }
+
+    /**
+     * @param bingoQuest The {@link BingoQuest} to get the {@link Instant} of
+     * completion.
+     * @return The {@link Instant} in which the team completed the
+     * {@link BingoQuest}
+     */
+    public Instant getCompletionInstant(@NotNull BingoQuest bingoQuest) {
+        return completedItems.get(bingoQuest);
+    }
+
+    /**
+     * Clears all completed {@link BingoQuest} from the team's collection.
+     * 
+     * @since 1.0
+     */
+    protected void clearCompletedQuests() {
+        completedItems.clear();
+    }
 }

@@ -1,10 +1,9 @@
-package com.bingaso.bingo.command.subcommand;
+package com.bingaso.bingo.card;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.command.BingoCommand.BingoSubCommand;
-import com.bingaso.bingo.game.BingoGameManager;
-import com.bingaso.bingo.gui.BingoCardGui;
-import com.bingaso.bingo.gui.BingoCardGui.BingoCardGuiContext;
+import com.bingaso.bingo.card.BingoCardGui.BingoCardGuiContext;
+import com.bingaso.bingo.command.BingoSubCommand;
+import com.bingaso.bingo.match.BingoMatch;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -36,13 +35,13 @@ public class BingoCardSubCommand implements BingoSubCommand {
             return true;
         }
 
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
         BingoCardGui.getInstance().openForPlayer(
             player,
             new BingoCardGuiContext(
-                gameManager.getPlayerTeam(player),
-                gameManager.getPlayerTeam(player),
-                BingoPlugin.getInstance().getGameManager().getSharedBingoCard()
+                gameManager.getBingoTeamFromPlayer(player),
+                gameManager.getBingoTeamFromPlayer(player),
+                BingoPlugin.getInstance().getBingoMatch().getBingoCard()
             )
         );
         return true;

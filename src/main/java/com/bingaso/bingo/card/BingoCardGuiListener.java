@@ -1,4 +1,4 @@
-package com.bingaso.bingo.listener;
+package com.bingaso.bingo.card;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,10 +9,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.game.BingoGameManager;
-import com.bingaso.bingo.gui.BingoCardGui;
-import com.bingaso.bingo.gui.BingoCardGui.BingoCardGuiContext;
+import com.bingaso.bingo.card.BingoCardGui.BingoCardGuiContext;
 import com.bingaso.bingo.gui.BingoGuiItem;
+import com.bingaso.bingo.match.BingoMatch;
 
 /**
  * Listener for handling interactions with the Bingo Card GUI.
@@ -42,7 +41,7 @@ public class BingoCardGuiListener implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;
@@ -66,9 +65,9 @@ public class BingoCardGuiListener implements Listener {
             BingoCardGui.getInstance().openForPlayer(
                 player,
                 new BingoCardGuiContext(
-                    gameManager.getBingoTeam(teamName),
-                    gameManager.getPlayerTeam(player),
-                    BingoPlugin.getInstance().getGameManager().getSharedBingoCard())
+                    gameManager.getBingoTeamRepository().findByName(teamName),
+                    gameManager.getBingoTeamFromPlayer(player),
+                    BingoPlugin.getInstance().getBingoMatch().getBingoCard())
             );
             return;
         }

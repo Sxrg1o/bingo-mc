@@ -13,29 +13,24 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.bingaso.bingo.command.subcommand.BingoCardSubCommand;
-import com.bingaso.bingo.command.subcommand.BingoConfigSubCommand;
-import com.bingaso.bingo.command.subcommand.BingoStartSubCommand;
-import com.bingaso.bingo.command.subcommand.BingoTeamSubCommand;
+import com.bingaso.bingo.card.BingoCardSubCommand;
+import com.bingaso.bingo.match.BingoMatchSettingsSubCommand;
+import com.bingaso.bingo.match.BingoMatchStartSubCommand;
+import com.bingaso.bingo.team.select.BingoTeamSelectSubCommand;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 public class BingoCommand implements CommandExecutor, TabCompleter {
     
-    public static interface BingoSubCommand {
-        boolean execute(@NotNull CommandSender sender, @NotNull String[] args);
-        @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args);
-    }
-    
     private final Map<String, BingoSubCommand> subCommands = new HashMap<>();
     
     public BingoCommand() {
         // Register subcommands
-        subCommands.put("team", new BingoTeamSubCommand());
+        subCommands.put("team", new BingoTeamSelectSubCommand());
         subCommands.put("card", new BingoCardSubCommand());
-        subCommands.put("start", new BingoStartSubCommand());
-        subCommands.put("config", new BingoConfigSubCommand());
+        subCommands.put("start", new BingoMatchStartSubCommand());
+        subCommands.put("config", new BingoMatchSettingsSubCommand());
     }
 
     @Override

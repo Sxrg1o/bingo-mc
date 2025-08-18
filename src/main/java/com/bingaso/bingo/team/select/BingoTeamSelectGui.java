@@ -1,10 +1,12 @@
-package com.bingaso.bingo.gui;
+package com.bingaso.bingo.team.select;
 
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.game.BingoGameManager;
+import com.bingaso.bingo.gui.BingoGui;
+import com.bingaso.bingo.gui.BingoGuiItemFactory;
+import com.bingaso.bingo.match.BingoMatch;
 import com.bingaso.bingo.team.BingoTeam;
 
 import net.kyori.adventure.text.Component;
@@ -15,17 +17,17 @@ import net.kyori.adventure.text.format.TextDecoration;
  * GUI for displaying and managing teams in the Bingo game.
  * Provides interface for creating new teams and joining existing ones.
  */
-public class BingoTeamGui extends BingoGui {
+public class BingoTeamSelectGui extends BingoGui {
 
     /** Singleton instance */
-    public static final BingoTeamGui INSTANCE = new BingoTeamGui();
-    private BingoTeamGui() {}
+    public static final BingoTeamSelectGui INSTANCE = new BingoTeamSelectGui();
+    private BingoTeamSelectGui() {}
     
     /**
      * Gets the singleton instance of TeamsGui.
      * @return The singleton TeamsGui instance
      */
-    public static BingoTeamGui getInstance() {
+    public static BingoTeamSelectGui getInstance() {
         return INSTANCE;
     }
 
@@ -49,9 +51,9 @@ public class BingoTeamGui extends BingoGui {
             Component.text("Choose your team", NamedTextColor.GOLD, TextDecoration.BOLD)
         );
 
-        BingoGameManager gameManager = BingoPlugin.getInstance().getGameManager();
+        BingoMatch gameMatch = BingoPlugin.getInstance().getBingoMatch();
         // Adds a new wool for each team
-        for(BingoTeam t: gameManager.getTeams()) {
+        for(BingoTeam t: gameMatch.getBingoTeamRepository().findAll()) {
             inventory.addItem(BingoGuiItemFactory.createJoinTeamGuiItem(t));
         }
 

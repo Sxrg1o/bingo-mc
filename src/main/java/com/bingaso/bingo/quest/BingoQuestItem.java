@@ -1,4 +1,4 @@
-package com.bingaso.bingo.card.quest;
+package com.bingaso.bingo.quest;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,6 +30,7 @@ public class BingoQuestItem extends BingoQuest {
      * @since 1.0
      */
     public BingoQuestItem(Material material) {
+        super(material.toString());
         this.material = material;
         this.enchantments = new HashMap<>();
         this.isEnchanted = false;
@@ -43,6 +44,7 @@ public class BingoQuestItem extends BingoQuest {
      * @since 1.0
      */
     public BingoQuestItem(Material material, Map<Enchantment, Integer> enchantments) {
+        super(material.toString());
         this.material = material;
         this.enchantments = new HashMap<>(enchantments);
         this.isEnchanted = !enchantments.isEmpty();
