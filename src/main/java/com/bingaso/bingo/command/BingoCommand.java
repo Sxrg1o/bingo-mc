@@ -30,7 +30,7 @@ public class BingoCommand implements CommandExecutor, TabCompleter {
         subCommands.put("team", new BingoTeamSubCommand());
         subCommands.put("card", new BingoCardSubCommand());
         subCommands.put("start", new BingoMatchStartSubCommand());
-        subCommands.put("config", new BingoMatchSettingsSubCommand());
+        subCommands.put("settings", new BingoMatchSettingsSubCommand());
     }
 
     @Override
@@ -75,7 +75,7 @@ public class BingoCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("/bingo team - Team management.", NamedTextColor.GREEN));
         sender.sendMessage(Component.text("/bingo card - Shows the bingo card.", NamedTextColor.GREEN));
         sender.sendMessage(Component.text("/bingo start - Starts the Bingo Game.", NamedTextColor.GREEN));
-        sender.sendMessage(Component.text("/bingo config - Opens the configuration.", NamedTextColor.GREEN));
+        sender.sendMessage(Component.text("/bingo settings - Opens the configuration.", NamedTextColor.GREEN));
     }
     
 }

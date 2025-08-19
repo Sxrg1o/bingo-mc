@@ -44,18 +44,6 @@ public class BingoGuiItem extends ItemStack{
     }
 
     /**
-     * Checks if an ItemStack is a GuiItem with the specified custom identifier.
-     * 
-     * @param itemStack the ItemStack to check
-     * @param customId the custom identifier to match against
-     * @return true if the ItemStack is a GuiItem with the matching customId, false otherwise
-     */
-    public static boolean isGuiItem(ItemStack itemStack, String customId) {
-        String value = getCustomString(itemStack, "custom_id");
-        return value != null && value.equals(customId);
-    }
-
-    /**
      * Checks if an ItemStack is a GuiItem.
      * 
      * @param itemStack the ItemStack to check

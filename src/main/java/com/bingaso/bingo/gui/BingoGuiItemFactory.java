@@ -7,7 +7,9 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 
@@ -329,6 +331,27 @@ public class BingoGuiItemFactory {
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.lore(lore);
         itemMeta.displayName(Component.text("Game Mode", NamedTextColor.AQUA));
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static @NotNull ItemStack createTeamSelectionItem() {
+        BingoGuiItem itemStack = new BingoGuiItem(Material.COMPASS, "bingo_lobby_team_selection_item");
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        itemMeta.displayName(Component.text("Team Selection", NamedTextColor.AQUA));
+        itemMeta.addEnchant(Enchantment.PROTECTION, 1, true);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+    public static @NotNull ItemStack createBingoCardItem() {
+        BingoGuiItem itemStack = new BingoGuiItem(Material.PAPER, "bingo_match_bingo_card_item");
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        itemMeta.displayName(Component.text("Bingo Card", NamedTextColor.AQUA));
+        itemMeta.addEnchant(Enchantment.PROTECTION, 1, true);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemStack.setItemMeta(itemMeta);
         return itemStack;
     }

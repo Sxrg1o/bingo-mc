@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -121,6 +122,32 @@ public class JoinTeamHandler implements BingoSubCommand {
             return gameManager.getBingoTeamRepository().findAll().stream()
                 .map(team -> team.getName())
                 .collect(Collectors.toList());
+        }
+
+        if (args.length > 2) {
+            // Check if we're completing after --asPlayer
+            for (int i = 1; i < args.length - 1; i++) {
+                if ("--asPlayer".equals(args[i]) && i + 1 == args.length - 1) {
+                    return Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .collect(java.util.stream.Collectors.toList());
+                }
+            }
+            
+            // Suggest --asPlayer flag if not already present
+            boolean hasAsPlayerFlag = false;
+            for (String arg : args) {
+                if ("--asPlayer".equals(arg)) {
+                    hasAsPlayerFlag = true;
+                    break;
+                }
+            }
+            
+            if (!hasAsPlayerFlag) {
+                List<String> completions = new ArrayList<>();
+                completions.add("--asPlayer");
+                return completions;
+            }
         }
         return null;
     }

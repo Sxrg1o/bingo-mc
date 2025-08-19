@@ -69,74 +69,80 @@ public class BingoTeamSelectGuiListener implements Listener {
             ));
             return;
         }
+        String custom_id = BingoGuiItem.getCustomString(clickedItem, "custom_id");
+        if(custom_id == null) return;
 
-        // Check first gui item
-        if(BingoGuiItem.isGuiItem(clickedItem, "bingo_team_new_team_gui_item")) {
-            BingoTextCaptureGui bingoTextCaptureGui = new BingoTextCaptureGui(player);
-            bingoTextCaptureGui.open(player, "Team name");
-            try {
-                bingoTextCaptureGui.getResultFuture().thenAccept(newTeamName -> {
-                    BingoTeam newTeam;
-                    try {
-                        newTeam = bingoMatch.createBingoTeam(newTeamName);
-                    } catch (TeamNameAlreadyExistsException e) {
+        switch (custom_id) {
+            case "bingo_team_new_team_gui_item":
+                BingoTextCaptureGui bingoTextCaptureGui = new BingoTextCaptureGui(player);
+                bingoTextCaptureGui.open(player, "Team name");
+                try {
+                    bingoTextCaptureGui.getResultFuture().thenAccept(newTeamName -> {
+                        BingoTeam newTeam;
+                        try {
+                            newTeam = bingoMatch.createBingoTeam(newTeamName);
+                        } catch (TeamNameAlreadyExistsException e) {
+                            player.sendMessage(Component.text(
+                                e.getMessage(),
+                                NamedTextColor.RED
+                            ));
+                            return;
+                        }
                         player.sendMessage(Component.text(
-                            e.getMessage(),
-                            NamedTextColor.RED
-                        ));
-                        return;
-                    }
-                    player.sendMessage(Component.text(
-                        "Succesfully created new team with name \"" + newTeam.getName() + "\".",
-                        NamedTextColor.GREEN
-                    ));
-                    try {
-                        bingoMatch.addPlayerToBingoTeam(player, newTeam);
-                        player.sendMessage(Component.text(
-                            "Added you to the new team.",
+                            "Succesfully created new team with name \"" + newTeam.getName() + "\".",
                             NamedTextColor.GREEN
                         ));
-                    } catch (MaxPlayersException e) {
-                        player.sendMessage(Component.text(
-                            "Couldn't add you to the new team.",
-                            NamedTextColor.RED
-                        ));
-                    }
+                        try {
+                            bingoMatch.addPlayerToBingoTeam(player, newTeam);
+                            player.sendMessage(Component.text(
+                                "Added you to the new team.",
+                                NamedTextColor.GREEN
+                            ));
+                        } catch (MaxPlayersException e) {
+                            player.sendMessage(Component.text(
+                                "Couldn't add you to the new team.",
+                                NamedTextColor.RED
+                            ));
+                        }
+                        player.closeInventory();
+                        BingoTeamSelectGui.getInstance().updateInventories();
+                    });
+                } catch (Exception e) {
+                    player.sendMessage(Component.text("Couldn't capture team name", NamedTextColor.RED));
+                    return;
+                }
+                break;
+
+            case "bingo_team_join_team_gui_item":
+                String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
+                if(teamName == null) return;
+                BingoTeam team
+                    = bingoMatch.getBingoTeamRepository().findByName(teamName);
+                if(team == null) {
+                    player.sendMessage(Component.text(
+                        "Team not found, couldn't join.",
+                        NamedTextColor.RED
+                    ));
+                    return;
+                } 
+
+                try {
+                    bingoMatch.addPlayerToBingoTeam(player, team);
+                    player.sendMessage(Component.text(
+                        "You have joined the team \"" + team.getName() + "\".",
+                        NamedTextColor.GREEN
+                    ));
                     BingoTeamSelectGui.getInstance().updateInventories();
-                });
-            } catch (Exception e) {
-                player.sendMessage(Component.text("Couldn't capture team name", NamedTextColor.RED));
-                return;
-            }
-        }
+                } catch (MaxPlayersException e) {
+                    player.sendMessage(Component.text(
+                        "Couldn't join the team, it is full.",
+                        NamedTextColor.RED
+                    ));
+                }
+                break;
 
-        // Check second gui item
-        if(BingoGuiItem.isGuiItem(clickedItem, "bingo_team_join_team_gui_item")) {
-            String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
-            if(teamName == null) return;
-            BingoTeam team
-                = bingoMatch.getBingoTeamRepository().findByName(teamName);
-            if(team == null) {
-                player.sendMessage(Component.text(
-                    "Team not found, couldn't join.",
-                    NamedTextColor.RED
-                ));
-                return;
-            } 
-
-            try {
-                bingoMatch.addPlayerToBingoTeam(player, team);
-                player.sendMessage(Component.text(
-                    "You have joined the team \"" + team.getName() + "\".",
-                    NamedTextColor.GREEN
-                ));
-                BingoTeamSelectGui.getInstance().updateInventories();
-            } catch (MaxPlayersException e) {
-                player.sendMessage(Component.text(
-                    "Couldn't join the team, it is full.",
-                    NamedTextColor.RED
-                ));
-            }
+            default:
+                break;
         }
     }
 }

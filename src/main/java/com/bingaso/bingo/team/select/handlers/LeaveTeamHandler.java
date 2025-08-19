@@ -24,11 +24,6 @@ public class LeaveTeamHandler implements BingoSubCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        if (args.length < 1) {
-            sendHelpMessage(sender);
-            return true;
-        }
-
         Player targetPlayer = null;
 
         // Handle Flags
@@ -109,6 +104,29 @@ public class LeaveTeamHandler implements BingoSubCommand {
     
     @Override
     public @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args) {
+        // Check if we're completing after --asPlayer
+        for (int i = 1; i < args.length - 1; i++) {
+            if ("--asPlayer".equals(args[i]) && i + 1 == args.length - 1) {
+                return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .collect(java.util.stream.Collectors.toList());
+            }
+        }
+        
+        // Suggest --asPlayer flag if not already present
+        boolean hasAsPlayerFlag = false;
+        for (String arg : args) {
+            if ("--asPlayer".equals(arg)) {
+                hasAsPlayerFlag = true;
+                break;
+            }
+        }
+        
+        if (!hasAsPlayerFlag) {
+            List<String> completions = new ArrayList<>();
+            completions.add("--asPlayer");
+            return completions;
+        }
         return new ArrayList<>();
     }
 }

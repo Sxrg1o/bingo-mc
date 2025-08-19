@@ -46,7 +46,7 @@ public class BingoMatchSettingsGuiListener implements Listener {
             .getMatchSettings();
 
         switch (customId) {
-            case "config_gamemode":
+            case "bingo_config_gamemode_gui_item":
                 GameMode[] gameModes = GameMode.values();
                 GameMode nextGameMode = gameModes[(settings
                         .getGameMode()
@@ -55,7 +55,7 @@ public class BingoMatchSettingsGuiListener implements Listener {
                 gameModes.length];
                 settings.setGameMode(nextGameMode);
                 break;
-            case "config_teammode":
+            case "bingo_config_team_mode_gui_item":
                 TeamMode[] teamModes = TeamMode.values();
                 TeamMode nextTeamMode = teamModes[(settings
                         .getTeamMode()
@@ -64,7 +64,7 @@ public class BingoMatchSettingsGuiListener implements Listener {
                 teamModes.length];
                 settings.setTeamMode(nextTeamMode);
                 break;
-            case "config_difficulty":
+            case "bingo_config_difficulty_gui_item":
                 DifficultyLevel[] difficulties = DifficultyLevel.values();
                 DifficultyLevel nextDifficulty = difficulties[(settings
                         .getDifficultyLevel()
@@ -73,7 +73,7 @@ public class BingoMatchSettingsGuiListener implements Listener {
                 difficulties.length];
                 settings.setDifficultyLevel(nextDifficulty);
                 break;
-            case "config_duration":
+            case "bingo_config_duration_gui_item":
                 int currentDuration = settings.getGameDuration();
                 if (event.isLeftClick()) {
                     settings.setGameDuration(currentDuration + 5);

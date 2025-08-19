@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -14,6 +15,7 @@ import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.card.BingoCard;
 import com.bingaso.bingo.card.BingoCardGenerator;
 import com.bingaso.bingo.card.BingoCardGui;
+import com.bingaso.bingo.gui.BingoGuiItemFactory;
 import com.bingaso.bingo.player.BingoPlayerRepositoryInMemory;
 import com.bingaso.bingo.player.BingoPlayerRepositoryReadOnly;
 import com.bingaso.bingo.player.BingoPlayerRepository.PlayerAlreadyExistsException;
@@ -216,6 +218,16 @@ public class BingoMatch {
         globalScoreboard = new BingoMatchScoreboard(this);
         if (endGameTask != null) {
             endGameTask.cancel();
+        }
+
+        // Set all playets to survival
+        for(BingoPlayer bingoPlayer: bingoPlayerRepository.findAll()) {
+            Player player = bingoPlayer.getOnlinePlayer();
+            if(player != null) {
+                player.setGameMode(GameMode.SURVIVAL);
+                player.getInventory().clear();
+                player.getInventory().addItem(BingoGuiItemFactory.createBingoCardItem());
+            }
         }
 
         // Team management

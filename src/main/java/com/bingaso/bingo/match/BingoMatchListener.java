@@ -1,21 +1,32 @@
 package com.bingaso.bingo.match;
 
 import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.card.BingoCardGui;
+import com.bingaso.bingo.card.BingoCardGui.BingoCardGuiContext;
 import com.bingaso.bingo.gui.BingoGuiItem;
+import com.bingaso.bingo.gui.BingoGuiItemFactory;
 import com.bingaso.bingo.player.BingoPlayer;
+import com.bingaso.bingo.team.BingoTeam;
+import com.bingaso.bingo.team.select.BingoTeamSelectGui;
+import com.bingaso.bingo.team.select.BingoTeamSelectGui.BingoTeamSelectGuiContext;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -125,7 +136,7 @@ public class BingoMatchListener implements Listener {
 
     // TODO: Inventory click but with drag
 
-
+    // Lobby Listeners
     
     /**
      * Handles player join events by creating a BingoPlayer instance.
@@ -135,15 +146,22 @@ public class BingoMatchListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        // Only add players in survival into the bingo game
-        if(player.getGameMode() != GameMode.SURVIVAL) return;
+        // Only add players in survival or adventure into the bingo game
+        if(player.getGameMode() != GameMode.SURVIVAL && player.getGameMode() != GameMode.ADVENTURE) return;
 
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
         // Only add players if the bingo game is in lobby state
-        if(gameManager.getState() != BingoMatch.State.LOBBY) return;
+        if(gameManager.getState() != BingoMatch.State.LOBBY) {
+            player.setGameMode(GameMode.SURVIVAL);
+            return;
+        }
+
         // Add bingo player
         gameManager.addPlayer(player);
+        player.setGameMode(GameMode.ADVENTURE);
+        // Give them the team selection item
+        player.getInventory().addItem(BingoGuiItemFactory.createTeamSelectionItem());
     }
     
     /**
@@ -154,13 +172,14 @@ public class BingoMatchListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        // Only remove players in survival into the bingo game
-        if(player.getGameMode() != GameMode.SURVIVAL) return;
+        // Only remove players in adventure or survival from the bingo game
+        if(player.getGameMode() != GameMode.ADVENTURE && player.getGameMode() != GameMode.SURVIVAL) return;
 
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
         // Only remove players if the bingo game is in lobby state
         if(gameManager.getState() != BingoMatch.State.LOBBY) return;
+
         // Remove bingo player
         gameManager.removePlayer(player);
     }
@@ -179,14 +198,89 @@ public class BingoMatchListener implements Listener {
 
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
-        if (newGameMode == GameMode.SURVIVAL) {
-            // Add player back to the game if they return to survival
+        if (newGameMode == GameMode.SURVIVAL || newGameMode == GameMode.ADVENTURE) {
+            // Add player back to the game if they return to survival or adventure
             if (gameManager.getState() == BingoMatch.State.LOBBY) {
                 gameManager.addPlayer(player);
             }
         } else {
-            // Remove player from the game if they leave survival
+            // Remove player from the game if they leave survival or adventure
             gameManager.removePlayer(player);
         }
+    }
+
+    @EventHandler
+    public void onPlayerInteractEvent(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            String custom_id = BingoGuiItem.getCustomString(player.getInventory().getItemInMainHand(), "custom_id");
+            if(custom_id == null) return;
+            // Handle right-click actions
+            switch (custom_id) {
+                case "bingo_match_bingo_card_item":
+                    // Open the bingo card GUI
+
+                    BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+                    BingoTeam bingoTeamFromPlayer = gameManager.getBingoTeamFromPlayer(player);
+                    BingoTeam bingoTeamToShow = bingoTeamFromPlayer;
+                    BingoCardGui.getInstance().openForPlayer(player, new BingoCardGuiContext(bingoTeamFromPlayer, bingoTeamToShow, gameManager.getBingoCard()));
+                    break;
+                case "bingo_lobby_team_selection_item":
+                    // Open the team selection GUI
+                    BingoTeamSelectGui.getInstance().openForPlayer(player, new BingoTeamSelectGuiContext());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+
+        if (
+            BingoPlugin.getInstance().getBingoMatch().getState() !=
+            BingoMatch.State.LOBBY
+        ) return;
+
+        event.setCancelled(true); // Prevent damage during the lobby state
+    }
+
+    @EventHandler
+    public void onPlayerHunger(FoodLevelChangeEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+
+        if (
+            BingoPlugin.getInstance().getBingoMatch().getState() !=
+            BingoMatch.State.LOBBY
+        ) return;
+
+        event.setCancelled(true); // Prevent hunger during the lobby state
+    }
+
+    @EventHandler
+    public void onPlayerDropEvent(PlayerDropItemEvent event) {
+        if (
+            BingoPlugin.getInstance().getBingoMatch().getState() !=
+            BingoMatch.State.LOBBY
+        ) {
+            String custom_id = BingoGuiItem.getCustomString(event.getItemDrop().getItemStack(), "custom_id");
+            if(custom_id == null) return;
+            
+            // cannot drop the bingo card
+            switch (custom_id) {
+                case "bingo_match_bingo_card_item":
+                    event.setCancelled(true);
+                    break;
+                default:
+                    break;
+            }
+            return;
+        }
+
+        event.setCancelled(true); // Prevent item drops during the lobby state
+
     }
 }

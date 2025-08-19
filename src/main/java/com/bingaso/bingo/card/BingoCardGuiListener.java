@@ -54,11 +54,12 @@ public class BingoCardGuiListener implements Listener {
 
         event.setCancelled(true);
 
+        String custom_id = BingoGuiItem.getCustomString(clickedItem, "custom_id");
+        if(custom_id == null) return;
+
         // Check if the clicked item is the next or previous team arrow
-        if(
-            BingoGuiItem.isGuiItem(clickedItem, "bingo_card_next_team_gui_item") ||
-            BingoGuiItem.isGuiItem(clickedItem, "bingo_card_previous_team_gui_item")
-        ) {
+        if(custom_id == "bingo_card_next_team_gui_item"
+            || custom_id == "bingo_card_previous_team_gui_item") {
             String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
             if(teamName == null) return;
 

@@ -116,7 +116,7 @@ public class CreateTeamHandler implements BingoSubCommand {
     
     @Override
     public @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args) {
-        if (args.length >= 2) {
+        if (args.length > 2) {
             // Check if we're completing after --asPlayer
             for (int i = 1; i < args.length - 1; i++) {
                 if ("--asPlayer".equals(args[i]) && i + 1 == args.length - 1) {
