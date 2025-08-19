@@ -90,4 +90,14 @@ public class BingoPlayerRepositoryInMemory implements BingoPlayerRepository {
     public boolean existsByUUID(UUID uuid) {
         return uuidPlayers.containsKey(uuid);
     }
+
+    /**
+     * Clears all {@link BingoPlayer}s mapppings.
+     * 
+     * @since 1.0
+     */
+    @Override
+    public void clear() {
+        uuidPlayers.clear();
+    }
 }

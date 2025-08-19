@@ -47,6 +47,7 @@ public abstract class BingoGlobalScoreboard {
     }
 
     protected void updateScoreboardForAllPlayers() {
+        updateScoreboard();
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getScoreboard()
                 == Bukkit.getScoreboardManager().getMainScoreboard()) {

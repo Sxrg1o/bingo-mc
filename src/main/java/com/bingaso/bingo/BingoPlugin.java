@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BingoPlugin extends JavaPlugin {
 
-    private static BingoPlugin INSTANCE = new BingoPlugin();
+    private static BingoPlugin INSTANCE;
 
     public static BingoPlugin getInstance() {
         return INSTANCE;
@@ -21,6 +21,7 @@ public final class BingoPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        INSTANCE = this;
         getLogger().info("Bingo plugin enabled!");
 
         // Register gui listeners

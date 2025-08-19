@@ -40,4 +40,11 @@ public interface BingoPlayerRepository extends BingoPlayerRepositoryReadOnly {
      * @since 1.0
      */
     public boolean remove(@NotNull BingoPlayer bingoPlayer);
+    
+    /**
+     * Clears the repository.
+     * 
+     * @since 1.0
+     */
+    public void clear();
 }

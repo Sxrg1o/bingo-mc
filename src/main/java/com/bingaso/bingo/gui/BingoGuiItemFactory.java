@@ -9,10 +9,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.time.LocalDateTime;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.card.BingoCardGenerator.DifficultyLevel;
@@ -117,11 +114,15 @@ public class BingoGuiItemFactory {
      * @param bingoTeamFromWatcher The bingo team from the player watching
      * @return GuiItem representing the completed state with green styling
      */
-    public static BingoGuiItem createCompletedGuiItem(BingoQuest bingoQuest, BingoTeam bingoTeamThatCompleted, BingoTeam bingoTeamFromWatcher) {
+    public static BingoGuiItem createCompletedGuiItem(
+        BingoQuest bingoQuest,
+        BingoTeam bingoTeamThatCompleted,
+        BingoTeam bingoTeamFromWatcher
+    ) {
         // style depending on team ownership
         Material material = Material.GREEN_STAINED_GLASS_PANE;
         NamedTextColor namedTextColor = NamedTextColor.GREEN;
-        if(!bingoTeamThatCompleted.equals(bingoTeamFromWatcher)) {
+        if(bingoTeamFromWatcher == null || !bingoTeamThatCompleted.equals(bingoTeamFromWatcher)) {
             namedTextColor = NamedTextColor.RED;
             material = Material.RED_STAINED_GLASS_PANE;
         }
@@ -132,11 +133,17 @@ public class BingoGuiItemFactory {
         
         // Get completion instant
         Instant completionInstant = bingoTeamThatCompleted.getCompletionInstant(bingoQuest);
+
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        long milliseconds = gameManager.getMatchDurationMilliseconds(completionInstant);
         
         if (completionInstant != null) {
-            // Convert instant to formatted time string
-            LocalDateTime localDateTime = LocalDateTime.ofInstant(completionInstant, ZoneId.systemDefault());
-            String formattedTime = localDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+            long totalSeconds = milliseconds / 1000;
+            long hours = totalSeconds / 3600;
+            long minutes = (totalSeconds % 3600) / 60;
+            long seconds = totalSeconds % 60;
+            long millis = milliseconds % 1000;
+            String formattedTime = String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
             lore.add(Component.text("Completed at: " + formattedTime, NamedTextColor.GOLD));
         }
 

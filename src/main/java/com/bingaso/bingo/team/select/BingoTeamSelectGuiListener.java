@@ -1,7 +1,5 @@
 package com.bingaso.bingo.team.select;
 
-import java.util.UUID;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.gui.BingoGuiItem;
+import com.bingaso.bingo.gui.BingoTextCaptureGui;
 import com.bingaso.bingo.match.BingoMatch;
 import com.bingaso.bingo.match.BingoMatch.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeam;
@@ -62,40 +61,57 @@ public class BingoTeamSelectGuiListener implements Listener {
 
         event.setCancelled(true);
 
+        // Check game is on lobby state
+        if(bingoMatch.getState() != BingoMatch.State.LOBBY) {
+            player.sendMessage(Component.text(
+                "You cannot create or join teams right now.",
+                NamedTextColor.RED
+            ));
+            return;
+        }
+
         // Check first gui item
-        if(BingoGuiItem.isGuiItem(clickedItem, "NewTeamItemStack")) {
-            String randomTeamName = "Team-" + UUID.randomUUID().toString().substring(0, 8);
-            BingoTeam newTeam;
+        if(BingoGuiItem.isGuiItem(clickedItem, "bingo_team_new_team_gui_item")) {
+            BingoTextCaptureGui bingoTextCaptureGui = new BingoTextCaptureGui(player);
+            bingoTextCaptureGui.open(player, "Team name");
             try {
-                newTeam = bingoMatch.createBingoTeam(randomTeamName);
-            } catch (TeamNameAlreadyExistsException e) {
-                player.sendMessage(Component.text(
-                    "Haha random collision, try again.",
-                    NamedTextColor.RED
-                ));
+                bingoTextCaptureGui.getResultFuture().thenAccept(newTeamName -> {
+                    BingoTeam newTeam;
+                    try {
+                        newTeam = bingoMatch.createBingoTeam(newTeamName);
+                    } catch (TeamNameAlreadyExistsException e) {
+                        player.sendMessage(Component.text(
+                            e.getMessage(),
+                            NamedTextColor.RED
+                        ));
+                        return;
+                    }
+                    player.sendMessage(Component.text(
+                        "Succesfully created new team with name \"" + newTeam.getName() + "\".",
+                        NamedTextColor.GREEN
+                    ));
+                    try {
+                        bingoMatch.addPlayerToBingoTeam(player, newTeam);
+                        player.sendMessage(Component.text(
+                            "Added you to the new team.",
+                            NamedTextColor.GREEN
+                        ));
+                    } catch (MaxPlayersException e) {
+                        player.sendMessage(Component.text(
+                            "Couldn't add you to the new team.",
+                            NamedTextColor.RED
+                        ));
+                    }
+                    BingoTeamSelectGui.getInstance().updateInventories();
+                });
+            } catch (Exception e) {
+                player.sendMessage(Component.text("Couldn't capture team name", NamedTextColor.RED));
                 return;
             }
-            player.sendMessage(Component.text(
-                "Succesfully created new team with name \"" + newTeam.getName() + "\".",
-                NamedTextColor.GREEN
-            ));
-            try {
-                bingoMatch.addPlayerToBingoTeam(player, newTeam);
-                player.sendMessage(Component.text(
-                    "Added you to the new team.",
-                    NamedTextColor.GREEN
-                ));
-            } catch (MaxPlayersException e) {
-                player.sendMessage(Component.text(
-                    "Couldn't add you to the new team.",
-                    NamedTextColor.RED
-                ));
-            }
-            BingoTeamSelectGui.getInstance().updateInventories();
         }
 
         // Check second gui item
-        if(BingoGuiItem.isGuiItem(clickedItem, "TeamItemStack")) {
+        if(BingoGuiItem.isGuiItem(clickedItem, "bingo_team_join_team_gui_item")) {
             String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
             if(teamName == null) return;
             BingoTeam team

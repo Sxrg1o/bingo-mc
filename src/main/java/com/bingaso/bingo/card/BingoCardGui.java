@@ -97,17 +97,19 @@ public class BingoCardGui extends BingoGui {
                 // For other quest types, use a default material (placeholder)
                 bingoItemStack = new BingoGuiItem(org.bukkit.Material.PAPER, "BingoItemStack");
             }
-            
-            if(bingoTeamToShow.hasCompletedQuest(bingoQuest)) {
+
+            if(bingoTeamToShow != null && bingoTeamToShow.hasCompletedQuest(bingoQuest)) {
                 bingoItemStack = BingoGuiItemFactory.createCompletedGuiItem(bingoQuest, bingoTeamToShow, bingoTeamFromWatcher);
             }
             inventory.setItem(2 + k*9 + j, bingoItemStack); // Place in the center 5x5 grid
             i++;
         }
         // Add arrows for navigating teams
-        inventory.setItem(45, BingoGuiItemFactory.createPreviousTeamGuiItem(bingoTeamToShow));
-        inventory.setItem(49, BingoGuiItemFactory.createTeamGuiItem(bingoTeamToShow, bingoTeamFromWatcher));
-        inventory.setItem(53, BingoGuiItemFactory.createNextTeamGuiItem(bingoTeamToShow));
+        if(bingoTeamToShow != null) {
+            inventory.setItem(45, BingoGuiItemFactory.createPreviousTeamGuiItem(bingoTeamToShow));
+            inventory.setItem(49, BingoGuiItemFactory.createTeamGuiItem(bingoTeamToShow, bingoTeamFromWatcher));
+            inventory.setItem(53, BingoGuiItemFactory.createNextTeamGuiItem(bingoTeamToShow));
+        }
         return inventory;
     }
 }

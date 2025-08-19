@@ -56,8 +56,8 @@ public class BingoCardGuiListener implements Listener {
 
         // Check if the clicked item is the next or previous team arrow
         if(
-            BingoGuiItem.isGuiItem(clickedItem, "NextTeamItemStack") ||
-            BingoGuiItem.isGuiItem(clickedItem, "PreviousTeamItemStack")
+            BingoGuiItem.isGuiItem(clickedItem, "bingo_card_next_team_gui_item") ||
+            BingoGuiItem.isGuiItem(clickedItem, "bingo_card_previous_team_gui_item")
         ) {
             String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
             if(teamName == null) return;

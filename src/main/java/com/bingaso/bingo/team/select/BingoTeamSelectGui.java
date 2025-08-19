@@ -32,8 +32,8 @@ public class BingoTeamSelectGui extends BingoGui {
     }
 
     /** Context necessary to open this inventory */
-    public static class BingoTeamGuiContext extends GuiContext {
-        public BingoTeamGuiContext() {}
+    public static class BingoTeamSelectGuiContext extends GuiContext {
+        public BingoTeamSelectGuiContext() {}
     }
 
     /**
@@ -48,7 +48,7 @@ public class BingoTeamSelectGui extends BingoGui {
         Inventory inventory = Bukkit.createInventory(
             null,
             27,
-            Component.text("Choose your team", NamedTextColor.GOLD, TextDecoration.BOLD)
+            Component.text("Team Selection", NamedTextColor.GOLD, TextDecoration.BOLD)
         );
 
         BingoMatch gameMatch = BingoPlugin.getInstance().getBingoMatch();

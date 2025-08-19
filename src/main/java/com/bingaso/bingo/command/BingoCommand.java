@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import com.bingaso.bingo.card.BingoCardSubCommand;
 import com.bingaso.bingo.match.BingoMatchSettingsSubCommand;
 import com.bingaso.bingo.match.BingoMatchStartSubCommand;
-import com.bingaso.bingo.team.select.BingoTeamSelectSubCommand;
+import com.bingaso.bingo.team.select.BingoTeamSubCommand;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -27,7 +27,7 @@ public class BingoCommand implements CommandExecutor, TabCompleter {
     
     public BingoCommand() {
         // Register subcommands
-        subCommands.put("team", new BingoTeamSelectSubCommand());
+        subCommands.put("team", new BingoTeamSubCommand());
         subCommands.put("card", new BingoCardSubCommand());
         subCommands.put("start", new BingoMatchStartSubCommand());
         subCommands.put("config", new BingoMatchSettingsSubCommand());

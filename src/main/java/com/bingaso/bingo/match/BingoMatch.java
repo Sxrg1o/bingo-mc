@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.card.BingoCard;
 import com.bingaso.bingo.card.BingoCardGenerator;
+import com.bingaso.bingo.card.BingoCardGui;
 import com.bingaso.bingo.player.BingoPlayerRepositoryInMemory;
 import com.bingaso.bingo.player.BingoPlayerRepositoryReadOnly;
 import com.bingaso.bingo.player.BingoPlayerRepository.PlayerAlreadyExistsException;
@@ -112,8 +113,6 @@ public class BingoMatch {
     }
 
     public boolean removePlayer(Player player) {
-        if(state != State.LOBBY) return false;
-
         BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(
             player.getUniqueId());
         if(bingoPlayer == null) return false;
@@ -128,8 +127,6 @@ public class BingoMatch {
     }
 
     public boolean addPlayer(Player player) {
-        if(state != State.LOBBY) return false;
-
         BingoPlayer bingoPlayer = new BingoPlayer(player);
         try {
             bingoPlayerRepository.save(bingoPlayer);
@@ -149,19 +146,18 @@ public class BingoMatch {
         Player player,
         BingoTeam bingoTeam
     ) throws MaxPlayersException {
-        if(state != State.LOBBY) return false;
-
         if(bingoTeam.getSize() >= matchSettings.getMaxTeamSize()) {
             throw new MaxPlayersException(matchSettings.getMaxTeamSize());
         }
         BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(player.getUniqueId());
+        if(bingoTeamRepository.findTeamByPlayer(bingoPlayer) != null) {
+            removePlayerFromBingoTeam(player);
+        }
         bingoTeamRepository.assignPlayerToTeam(bingoPlayer, bingoTeam);
         return true;
     }
 
     public boolean removePlayerFromBingoTeam(Player player) {
-        if(state != State.LOBBY) return false;
-
         BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(
             player.getUniqueId());
         if(bingoPlayer == null) return false;
@@ -176,9 +172,6 @@ public class BingoMatch {
 
     public BingoTeam createBingoTeam(String name)
         throws TeamNameAlreadyExistsException {
-        // Only able to create teams during lobby state
-        if(state != State.LOBBY) return null;
-
         BingoTeamColorGenerator colorGenerator = new BingoTeamColorGenerator(bingoTeamRepository);
         TextColor textColor = colorGenerator.generateRandomColor();
         BingoTeam bingoTeam = new BingoTeam(name, textColor);
@@ -219,7 +212,7 @@ public class BingoMatch {
     public void start() {
         // Restart state
         winnerTeams.clear();
-        globalScoreboard.stop();
+        //globalScoreboard.stop();
         globalScoreboard = new BingoMatchScoreboard(this);
         if (endGameTask != null) {
             endGameTask.cancel();
@@ -289,6 +282,7 @@ public class BingoMatch {
             questService.clearAllQuests(team);
         }
         bingoTeamRepository.clear();
+        bingoPlayerRepository.clear();
         winnerTeams.clear();
     }
 
@@ -313,6 +307,13 @@ public class BingoMatch {
             return 0;
         }
         return instant.getEpochSecond() - startInstant.getEpochSecond();
+    }
+
+    public long getMatchDurationMilliseconds(@NotNull Instant instant) {
+        if (startInstant == null) {
+            return 0;
+        }
+        return instant.toEpochMilli() - startInstant.toEpochMilli();
     }
 
     public BingoGlobalScoreboard getGlobalScoreboard() {
@@ -357,8 +358,8 @@ public class BingoMatch {
 
         TeamQuestService questService = new TeamQuestService(bingoTeamRepository);
         if (
-            matchSettings.getGameMode() == BingoMatchSettings.GameMode.LOCKED &&
-            questService.isQuestCompletedByAnyTeam(bingoQuest)
+            !(matchSettings.getGameMode() == BingoMatchSettings.GameMode.LOCKED &&
+            questService.isQuestCompletedByAnyTeam(bingoQuest))
         ) {
             // Mark the quest as completed by the team
             try {
@@ -370,6 +371,7 @@ public class BingoMatch {
         }
 
         broadcaster.announceItemFound(team, item);
+        BingoCardGui.getInstance().updateInventories();
         checkWinConditions(team);
     }
     
