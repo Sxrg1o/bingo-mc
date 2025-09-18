@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import com.bingaso.bingo.card.BingoCardSubCommand;
 import com.bingaso.bingo.match.BingoMatchSettingsSubCommand;
 import com.bingaso.bingo.match.BingoMatchStartSubCommand;
-import com.bingaso.bingo.team.select.BingoTeamSubCommand;
+import com.bingaso.bingo.team.command.BingoTeamSubCommand;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

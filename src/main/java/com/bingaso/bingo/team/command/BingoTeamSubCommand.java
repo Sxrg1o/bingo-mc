@@ -1,7 +1,6 @@
-package com.bingaso.bingo.team.select;
+package com.bingaso.bingo.team.command;
 
 import com.bingaso.bingo.command.BingoSubCommand;
-import com.bingaso.bingo.team.select.handlers.*;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -24,20 +23,20 @@ import java.util.Map;
 public class BingoTeamSubCommand implements BingoSubCommand {
     
     private final Map<String, BingoSubCommand> handlers;
-    private final CreateTeamHandler createHandler;
-    private final JoinTeamHandler joinHandler;
-    private final LeaveTeamHandler leaveHandler;
-    private final ListTeamsHandler listHandler;
-    private final TeamInfoHandler infoHandler;
-    private final SelectTeamHandler selectHandler;
+    private final BinogTeamCreateHandler createHandler;
+    private final BingoTeamJoinHandler joinHandler;
+    private final BingoTeamLeaveHandler leaveHandler;
+    private final BingoTeamListHandler listHandler;
+    private final BingoTeamInfoHandler infoHandler;
+    private final BingoTeamSelectHandler selectHandler;
     
     public BingoTeamSubCommand() {
-        this.createHandler = new CreateTeamHandler();
-        this.joinHandler = new JoinTeamHandler();
-        this.leaveHandler = new LeaveTeamHandler();
-        this.listHandler = new ListTeamsHandler();
-        this.infoHandler = new TeamInfoHandler();
-        this.selectHandler = new SelectTeamHandler();
+        this.createHandler = new BinogTeamCreateHandler();
+        this.joinHandler = new BingoTeamJoinHandler();
+        this.leaveHandler = new BingoTeamLeaveHandler();
+        this.listHandler = new BingoTeamListHandler();
+        this.infoHandler = new BingoTeamInfoHandler();
+        this.selectHandler = new BingoTeamSelectHandler();
         
         this.handlers = new HashMap<>();
         handlers.put("create", createHandler);

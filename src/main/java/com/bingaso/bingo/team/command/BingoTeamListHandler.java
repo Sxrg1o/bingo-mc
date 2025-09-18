@@ -1,4 +1,4 @@
-package com.bingaso.bingo.team.select.handlers;
+package com.bingaso.bingo.team.command;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.command.BingoSubCommand;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListTeamsHandler implements BingoSubCommand {
+public class BingoTeamListHandler implements BingoSubCommand {
     
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {

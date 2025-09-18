@@ -1,7 +1,7 @@
-package com.bingaso.bingo.team.select.handlers;
+package com.bingaso.bingo.team.command;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.command.BingoSubCommand;
+import com.bingaso.bingo.command.BingoHandler;
 import com.bingaso.bingo.match.BingoMatch;
 import com.bingaso.bingo.player.BingoPlayer;
 import com.bingaso.bingo.team.BingoTeam;
@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TeamInfoHandler implements BingoSubCommand {
-    
+public class BingoTeamInfoHandler extends BingoHandler {
+
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
@@ -53,12 +53,13 @@ public class TeamInfoHandler implements BingoSubCommand {
         return true;
     }
     
-    public void sendHelpMessage(Player player) {
-        player.sendMessage(Component.text("/bingo team info - Show your team information", NamedTextColor.GREEN));
-    }
-    
     @Override
     public @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public void sendHelpMessage(@NotNull CommandSender sender) {
+        sender.sendMessage(Component.text("/bingo team info - Show your team information", NamedTextColor.GREEN));
     }
 }

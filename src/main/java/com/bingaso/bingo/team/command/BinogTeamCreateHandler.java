@@ -1,10 +1,11 @@
-package com.bingaso.bingo.team.select.handlers;
+package com.bingaso.bingo.team.command;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.command.BingoSubCommand;
 import com.bingaso.bingo.match.BingoMatch;
 import com.bingaso.bingo.match.BingoMatch.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeam;
+import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
 import com.bingaso.bingo.team.select.BingoTeamSelectGui;
 
 import net.kyori.adventure.text.Component;
@@ -19,9 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class JoinTeamHandler implements BingoSubCommand {
+public class BinogTeamCreateHandler implements BingoSubCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
@@ -32,6 +32,11 @@ public class JoinTeamHandler implements BingoSubCommand {
 
         String teamName = args[0];
         Player targetPlayer = null;
+
+        if(teamName.length() < 3 || teamName.length() > 14) {
+            sender.sendMessage(Component.text("Team name must be between 3 and 14 characters.", NamedTextColor.RED));
+            return true;
+        }
 
         // Handle Flags
         for (int i = 1; i < args.length - 1; i+=2) {
@@ -72,31 +77,25 @@ public class JoinTeamHandler implements BingoSubCommand {
             // Only allow team creation in lobby state for non-ops
             if(gameManager.getState() != BingoMatch.State.LOBBY) {
                 sender.sendMessage(Component.text(
-                    "You cannot join teams right now.",
+                    "You cannot create teams right now.",
                     NamedTextColor.RED
                 ));
                 return true;
             }
         }
 
-        BingoTeam bingoTeam = gameManager.getBingoTeamRepository().findByName(teamName);
-        if(bingoTeam == null) {
-            sender.sendMessage(Component.text("Team not found. Please check the team name.", NamedTextColor.RED));
-            return true;
-        }
-
         try {
+            BingoTeam bingoTeam = gameManager.createBingoTeam(teamName);
             gameManager.addPlayerToBingoTeam(targetPlayer, bingoTeam);
+            sender.sendMessage(Component.text("Team created successfully! Team Name: " + bingoTeam.getName(), NamedTextColor.GREEN));
             // Notify target player if different from sender
             if (!sender.equals(targetPlayer)) {
                 targetPlayer.sendMessage(Component.text("You have been added to team: " + bingoTeam.getName(), NamedTextColor.GREEN));
-            } else {
-                sender.sendMessage(Component.text("Successfully joined team " + bingoTeam.getName(), NamedTextColor.GREEN));
             }
         } catch (MaxPlayersException e) {
-            sender.sendMessage(Component.text("Team is full!", NamedTextColor.RED));
-        } catch (Exception e) {
-            sender.sendMessage(Component.text("An error occurred while joining the team.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Error: " + e.getMessage(), NamedTextColor.RED));
+        } catch (TeamNameAlreadyExistsException e) {
+            sender.sendMessage(Component.text("A team with this name already exists. Please choose a different name.", NamedTextColor.RED));
         }
 
         BingoTeamSelectGui.getInstance().updateInventories();
@@ -105,9 +104,9 @@ public class JoinTeamHandler implements BingoSubCommand {
     
     public void sendHelpMessage(CommandSender sender) {
         if(isOpOrConsole(sender)) {
-            sender.sendMessage(Component.text("/bingo team join <teamName> [--asPlayer <playerName>] - Join an existing team", NamedTextColor.GREEN));
+            sender.sendMessage(Component.text("/bingo team create <teamName> [--asPlayer <playerName>] - Create a new team", NamedTextColor.GREEN));
         } else {
-            sender.sendMessage(Component.text("/bingo team join <teamName> - Join an existing team", NamedTextColor.GREEN));
+            sender.sendMessage(Component.text("/bingo team create <teamName> - Create a new team", NamedTextColor.GREEN));
         }
     }
 
@@ -117,13 +116,6 @@ public class JoinTeamHandler implements BingoSubCommand {
     
     @Override
     public @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args) {
-        if (args.length == 2) {
-            BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
-            return gameManager.getBingoTeamRepository().findAll().stream()
-                .map(team -> team.getName())
-                .collect(Collectors.toList());
-        }
-
         if (args.length > 2) {
             // Check if we're completing after --asPlayer
             for (int i = 1; i < args.length - 1; i++) {
@@ -149,6 +141,7 @@ public class JoinTeamHandler implements BingoSubCommand {
                 return completions;
             }
         }
-        return null;
+        
+        return new ArrayList<>();
     }
 }

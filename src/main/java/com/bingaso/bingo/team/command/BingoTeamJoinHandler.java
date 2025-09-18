@@ -1,9 +1,9 @@
-package com.bingaso.bingo.team.select.handlers;
+package com.bingaso.bingo.team.command;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.command.BingoSubCommand;
 import com.bingaso.bingo.match.BingoMatch;
-import com.bingaso.bingo.player.BingoPlayer;
+import com.bingaso.bingo.match.BingoMatch.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeam;
 import com.bingaso.bingo.team.select.BingoTeamSelectGui;
 
@@ -19,11 +19,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class LeaveTeamHandler implements BingoSubCommand {
+public class BingoTeamJoinHandler implements BingoSubCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
+        if (args.length < 1) {
+            sendHelpMessage(sender);
+            return true;
+        }
+
+        String teamName = args[0];
         Player targetPlayer = null;
 
         // Handle Flags
@@ -72,18 +79,24 @@ public class LeaveTeamHandler implements BingoSubCommand {
             }
         }
 
-        BingoPlayer bingoPlayer = gameManager.getBingoPlayerRepository().findByUUID(targetPlayer.getUniqueId());
-        BingoTeam oldTeam = gameManager.getBingoTeamRepository().findTeamByPlayer(bingoPlayer);
-        if(oldTeam == null) {
-            sender.sendMessage(Component.text("You are not in a team.", NamedTextColor.RED));
+        BingoTeam bingoTeam = gameManager.getBingoTeamRepository().findByName(teamName);
+        if(bingoTeam == null) {
+            sender.sendMessage(Component.text("Team not found. Please check the team name.", NamedTextColor.RED));
             return true;
         }
-        gameManager.removePlayerFromBingoTeam(targetPlayer);
-        // Notify target player if different from sender
-        if (!sender.equals(targetPlayer)) {
-            targetPlayer.sendMessage(Component.text("You have been removed from team: " + oldTeam.getName(), NamedTextColor.GREEN));
-        } else {
-            sender.sendMessage(Component.text("Successfully left team " + oldTeam.getName(), NamedTextColor.GREEN));
+
+        try {
+            gameManager.addPlayerToBingoTeam(targetPlayer, bingoTeam);
+            // Notify target player if different from sender
+            if (!sender.equals(targetPlayer)) {
+                targetPlayer.sendMessage(Component.text("You have been added to team: " + bingoTeam.getName(), NamedTextColor.GREEN));
+            } else {
+                sender.sendMessage(Component.text("Successfully joined team " + bingoTeam.getName(), NamedTextColor.GREEN));
+            }
+        } catch (MaxPlayersException e) {
+            sender.sendMessage(Component.text("Team is full!", NamedTextColor.RED));
+        } catch (Exception e) {
+            sender.sendMessage(Component.text("An error occurred while joining the team.", NamedTextColor.RED));
         }
 
         BingoTeamSelectGui.getInstance().updateInventories();
@@ -92,9 +105,9 @@ public class LeaveTeamHandler implements BingoSubCommand {
     
     public void sendHelpMessage(CommandSender sender) {
         if(isOpOrConsole(sender)) {
-            sender.sendMessage(Component.text("/bingo team leave [--asPlayer <playerName>] - Leave an existing team", NamedTextColor.GREEN));
+            sender.sendMessage(Component.text("/bingo team join <teamName> [--asPlayer <playerName>] - Join an existing team", NamedTextColor.GREEN));
         } else {
-            sender.sendMessage(Component.text("/bingo team leave - Leave your current team", NamedTextColor.GREEN));
+            sender.sendMessage(Component.text("/bingo team join <teamName> - Join an existing team", NamedTextColor.GREEN));
         }
     }
 
@@ -104,29 +117,38 @@ public class LeaveTeamHandler implements BingoSubCommand {
     
     @Override
     public @Nullable List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String[] args) {
-        // Check if we're completing after --asPlayer
-        for (int i = 1; i < args.length - 1; i++) {
-            if ("--asPlayer".equals(args[i]) && i + 1 == args.length - 1) {
-                return Bukkit.getOnlinePlayers().stream()
-                    .map(Player::getName)
-                    .collect(java.util.stream.Collectors.toList());
+        if (args.length == 2) {
+            BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+            return gameManager.getBingoTeamRepository().findAll().stream()
+                .map(team -> team.getName())
+                .collect(Collectors.toList());
+        }
+
+        if (args.length > 2) {
+            // Check if we're completing after --asPlayer
+            for (int i = 1; i < args.length - 1; i++) {
+                if ("--asPlayer".equals(args[i]) && i + 1 == args.length - 1) {
+                    return Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .collect(java.util.stream.Collectors.toList());
+                }
+            }
+            
+            // Suggest --asPlayer flag if not already present
+            boolean hasAsPlayerFlag = false;
+            for (String arg : args) {
+                if ("--asPlayer".equals(arg)) {
+                    hasAsPlayerFlag = true;
+                    break;
+                }
+            }
+            
+            if (!hasAsPlayerFlag) {
+                List<String> completions = new ArrayList<>();
+                completions.add("--asPlayer");
+                return completions;
             }
         }
-        
-        // Suggest --asPlayer flag if not already present
-        boolean hasAsPlayerFlag = false;
-        for (String arg : args) {
-            if ("--asPlayer".equals(arg)) {
-                hasAsPlayerFlag = true;
-                break;
-            }
-        }
-        
-        if (!hasAsPlayerFlag) {
-            List<String> completions = new ArrayList<>();
-            completions.add("--asPlayer");
-            return completions;
-        }
-        return new ArrayList<>();
+        return null;
     }
 }

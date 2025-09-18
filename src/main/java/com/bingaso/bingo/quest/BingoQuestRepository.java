@@ -2,9 +2,9 @@ package com.bingaso.bingo.quest;
 
 import com.bingaso.bingo.BingoPlugin;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -41,43 +41,97 @@ public class BingoQuestRepository {
     }
 
     /**
-     * Loads item data from the scores.json resource file.
-     * Parses the JSON file into a list of ItemData objects using Gson.
+     * Loads item data from the plugin data folder or falls back to the scores.json resource file.
+     * First attempts to load from data/scores.json, then falls back to the resource file.
      *
-     * @return A list of loaded items, or an empty list if the resource cannot be found
+     * @return A list of loaded items, or an empty list if no data can be found
      */
     private List<ItemData> loadItems() {
-        InputStream stream = BingoPlugin.getInstance().getResource(
-            "scores.json"
-        );
+        File dataFolder = BingoPlugin.getInstance().getDataFolder();
+        File scoresFile = new File(dataFolder, "scores.json");
+        
+        // Try to load from plugin data folder first
+        if (scoresFile.exists()) {
+            try (FileReader reader = new FileReader(scoresFile, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                Type listType = new TypeToken<ArrayList<ItemData>>() {}.getType();
+                List<ItemData> loadedItems = gson.fromJson(reader, listType);
+                
+                BingoPlugin.getInstance()
+                    .getLogger()
+                    .info("Loaded " + loadedItems.size() + " items from plugin data folder successfully.");
+                
+                return loadedItems;
+            } catch (IOException e) {
+                BingoPlugin.getInstance()
+                    .getLogger()
+                    .warning("Failed to load scores.json from data folder: " + e.getMessage());
+            }
+        }
+        
+        // Fall back to resource file
+        InputStream stream = BingoPlugin.getInstance().getResource("scores.json");
 
         if (stream == null) {
             BingoPlugin.getInstance()
                 .getLogger()
-                .severe("scores.json not found.");
+                .severe("scores.json not found in resources.");
             return Collections.emptyList();
         }
 
         Gson gson = new Gson();
-
         Type listType = new TypeToken<ArrayList<ItemData>>() {}.getType();
-
-        InputStreamReader reader = new InputStreamReader(
-            stream,
-            StandardCharsets.UTF_8
-        );
-
+        InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         List<ItemData> loadedItems = gson.fromJson(reader, listType);
 
         BingoPlugin.getInstance()
             .getLogger()
-            .info(
-                "Loaded " +
-                loadedItems.size() +
-                " items from scores.json successfully."
-            );
+            .info("Loaded " + loadedItems.size() + " items from resources successfully.");
 
         return loadedItems;
+    }
+
+    /**
+     * Saves the current items to a JSON file in the plugin's data folder.
+     * Creates the data folder if it doesn't exist.
+     *
+     * @param items The list of items to save
+     * @return true if the save was successful, false otherwise
+     */
+    public boolean saveItems(List<ItemData> items) {
+        File dataFolder = BingoPlugin.getInstance().getDataFolder();
+        
+        // Create data folder if it doesn't exist
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
+        }
+        
+        File scoresFile = new File(dataFolder, "scores.json");
+        
+        try (FileWriter writer = new FileWriter(scoresFile, StandardCharsets.UTF_8)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(items, writer);
+            
+            BingoPlugin.getInstance()
+                .getLogger()
+                .info("Saved " + items.size() + " items to scores.json successfully.");
+            
+            return true;
+        } catch (IOException e) {
+            BingoPlugin.getInstance()
+                .getLogger()
+                .severe("Failed to save scores.json: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Saves the current items from the repository to the plugin's data folder.
+     *
+     * @return true if the save was successful, false otherwise
+     */
+    public boolean saveItems() {
+        return saveItems(this.allItems);
     }
 
     /**
