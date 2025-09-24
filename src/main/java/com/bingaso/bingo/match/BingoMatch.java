@@ -1,51 +1,51 @@
 package com.bingaso.bingo.match;
 
+import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.card.BingoCard;
+import com.bingaso.bingo.card.BingoCardGenerator;
+import com.bingaso.bingo.card.BingoCardGui;
+import com.bingaso.bingo.gui.BingoGuiItemFactory;
+import com.bingaso.bingo.player.BingoPlayer;
+import com.bingaso.bingo.player.BingoPlayerRepository;
+import com.bingaso.bingo.player.BingoPlayerRepository.PlayerAlreadyExistsException;
+import com.bingaso.bingo.player.BingoPlayerRepositoryInMemory;
+import com.bingaso.bingo.player.BingoPlayerRepositoryReadOnly;
+import com.bingaso.bingo.quest.BingoQuest;
+import com.bingaso.bingo.scoreboard.BingoGlobalScoreboard;
+import com.bingaso.bingo.team.BingoTeam;
+import com.bingaso.bingo.team.BingoTeamColorGenerator;
+import com.bingaso.bingo.team.BingoTeamRepository;
+import com.bingaso.bingo.team.BingoTeamRepository.ColorAlreadyExistsException;
+import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
+import com.bingaso.bingo.team.BingoTeamRepositoryInMemory;
+import com.bingaso.bingo.team.BingoTeamRepositoryReadOnly;
+import com.bingaso.bingo.team.TeamQuestService;
+import com.bingaso.bingo.team.TeamQuestService.QuestAlreadyCompletedException;
+import com.bingaso.bingo.utils.Broadcaster;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
-import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.card.BingoCard;
-import com.bingaso.bingo.card.BingoCardGenerator;
-import com.bingaso.bingo.card.BingoCardGui;
-import com.bingaso.bingo.gui.BingoGuiItemFactory;
-import com.bingaso.bingo.player.BingoPlayerRepositoryInMemory;
-import com.bingaso.bingo.player.BingoPlayerRepositoryReadOnly;
-import com.bingaso.bingo.player.BingoPlayerRepository.PlayerAlreadyExistsException;
-import com.bingaso.bingo.quest.BingoQuest;
-import com.bingaso.bingo.player.BingoPlayer;
-import com.bingaso.bingo.player.BingoPlayerRepository;
-import com.bingaso.bingo.scoreboard.BingoGlobalScoreboard;
-import com.bingaso.bingo.team.BingoTeam;
-import com.bingaso.bingo.team.BingoTeamColorGenerator;
-import com.bingaso.bingo.team.BingoTeamRepositoryInMemory;
-import com.bingaso.bingo.team.BingoTeamRepositoryReadOnly;
-import com.bingaso.bingo.team.TeamQuestService;
-import com.bingaso.bingo.team.TeamQuestService.QuestAlreadyCompletedException;
-import com.bingaso.bingo.team.BingoTeamRepository;
-import com.bingaso.bingo.team.BingoTeamRepository.ColorAlreadyExistsException;
-import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
-import com.bingaso.bingo.utils.Broadcaster;
-
-import net.kyori.adventure.text.format.TextColor;
-
 public class BingoMatch {
+
     /**
      * Thrown when an attempt is made to add a player to a team that is already full.
-     * 
+     *
      * @since 1.0
      */
     public static class MaxPlayersException extends Exception {
+
         /**
          * Constructs a new MaxPlayersException with a default message.
-         * 
+         *
          * @param maxTeamSize The maximum size of the team.
          */
         public MaxPlayersException(int maxTeamSize) {
@@ -81,8 +81,10 @@ public class BingoMatch {
     private final Broadcaster broadcaster = new Broadcaster();
 
     /* Players and Teams in this match */
-    private final BingoTeamRepository bingoTeamRepository  = new BingoTeamRepositoryInMemory();
-    private final BingoPlayerRepository bingoPlayerRepository = new BingoPlayerRepositoryInMemory();
+    private final BingoTeamRepository bingoTeamRepository =
+        new BingoTeamRepositoryInMemory();
+    private final BingoPlayerRepository bingoPlayerRepository =
+        new BingoPlayerRepositoryInMemory();
 
     /* Settings of the match */
     private final BingoMatchSettings matchSettings = new BingoMatchSettings();
@@ -105,7 +107,7 @@ public class BingoMatch {
         generateNewBingoCard();
     }
 
-    // Team and Player Repository 
+    // Team and Player Repository
     public BingoTeamRepositoryReadOnly getBingoTeamRepository() {
         return bingoTeamRepository;
     }
@@ -116,13 +118,16 @@ public class BingoMatch {
 
     public boolean removePlayer(Player player) {
         BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(
-            player.getUniqueId());
-        if(bingoPlayer == null) return false;
+            player.getUniqueId()
+        );
+        if (bingoPlayer == null) return false;
 
         bingoPlayerRepository.remove(bingoPlayer);
-        BingoTeam bingoTeam = bingoTeamRepository.removePlayerFromTeam(bingoPlayer);
+        BingoTeam bingoTeam = bingoTeamRepository.removePlayerFromTeam(
+            bingoPlayer
+        );
 
-        if(bingoTeam != null && bingoTeam.getSize() == 0) {
+        if (bingoTeam != null && bingoTeam.getSize() == 0) {
             bingoTeamRepository.remove(bingoTeam);
         }
         return true;
@@ -139,45 +144,54 @@ public class BingoMatch {
     }
 
     public BingoTeam getBingoTeamFromPlayer(Player player) {
-        BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(player.getUniqueId());
-        if(bingoPlayer == null) return null;
+        BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(
+            player.getUniqueId()
+        );
+        if (bingoPlayer == null) return null;
         return bingoTeamRepository.findTeamByPlayer(bingoPlayer);
     }
 
-    public boolean addPlayerToBingoTeam(
-        Player player,
-        BingoTeam bingoTeam
-    ) throws MaxPlayersException {
-        if(bingoTeam.getSize() >= matchSettings.getMaxTeamSize()) {
+    public boolean addPlayerToBingoTeam(Player player, BingoTeam bingoTeam)
+        throws MaxPlayersException {
+        if (bingoTeam.getSize() >= matchSettings.getMaxTeamSize()) {
             throw new MaxPlayersException(matchSettings.getMaxTeamSize());
         }
-        BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(player.getUniqueId());
-        if(bingoTeamRepository.findTeamByPlayer(bingoPlayer) != null) {
+        BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(
+            player.getUniqueId()
+        );
+        if (bingoTeamRepository.findTeamByPlayer(bingoPlayer) != null) {
             removePlayerFromBingoTeam(player);
         }
         bingoTeamRepository.assignPlayerToTeam(bingoPlayer, bingoTeam);
+        updatePlayerTabName(player);
         return true;
     }
 
     public boolean removePlayerFromBingoTeam(Player player) {
         BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(
-            player.getUniqueId());
-        if(bingoPlayer == null) return false;
+            player.getUniqueId()
+        );
+        if (bingoPlayer == null) return false;
 
-        BingoTeam bingoTeam = bingoTeamRepository.removePlayerFromTeam(bingoPlayer);
+        BingoTeam bingoTeam = bingoTeamRepository.removePlayerFromTeam(
+            bingoPlayer
+        );
 
-        if(bingoTeam != null && bingoTeam.getSize() == 0) {
+        if (bingoTeam != null && bingoTeam.getSize() == 0) {
             bingoTeamRepository.remove(bingoTeam);
+            updatePlayerTabName(player);
         }
         return true;
     }
 
     public BingoTeam createBingoTeam(String name)
         throws TeamNameAlreadyExistsException {
-        BingoTeamColorGenerator colorGenerator = new BingoTeamColorGenerator(bingoTeamRepository);
+        BingoTeamColorGenerator colorGenerator = new BingoTeamColorGenerator(
+            bingoTeamRepository
+        );
         TextColor textColor = colorGenerator.generateRandomColor();
         BingoTeam bingoTeam = new BingoTeam(name, textColor);
-        
+
         try {
             bingoTeamRepository.save(bingoTeam);
             return bingoTeam;
@@ -221,12 +235,14 @@ public class BingoMatch {
         }
 
         // Set all playets to survival
-        for(BingoPlayer bingoPlayer: bingoPlayerRepository.findAll()) {
+        for (BingoPlayer bingoPlayer : bingoPlayerRepository.findAll()) {
             Player player = bingoPlayer.getOnlinePlayer();
-            if(player != null) {
+            if (player != null) {
                 player.setGameMode(GameMode.SURVIVAL);
                 player.getInventory().clear();
-                player.getInventory().addItem(BingoGuiItemFactory.createBingoCardItem());
+                player
+                    .getInventory()
+                    .addItem(BingoGuiItemFactory.createBingoCardItem());
             }
         }
 
@@ -245,8 +261,7 @@ public class BingoMatch {
         startInstant = Instant.now();
 
         if (matchSettings.getGameMode() == BingoMatchSettings.GameMode.TIMED) {
-            long durationInTicks =
-                matchSettings.getGameDuration() * 60 * 20L;
+            long durationInTicks = matchSettings.getGameDuration() * 60 * 20L;
             endGameTask = BingoPlugin.getInstance()
                 .getServer()
                 .getScheduler()
@@ -289,13 +304,16 @@ public class BingoMatch {
         globalScoreboard.stop();
         state = State.LOBBY;
 
-        TeamQuestService questService = new TeamQuestService(bingoTeamRepository);
+        TeamQuestService questService = new TeamQuestService(
+            bingoTeamRepository
+        );
         for (BingoTeam team : bingoTeamRepository.findAll()) {
             questService.clearAllQuests(team);
         }
         bingoTeamRepository.clear();
         bingoPlayerRepository.clear();
         winnerTeams.clear();
+        updateAllPlayersTabNames();
     }
 
     public Instant getStartInstant() {
@@ -353,7 +371,7 @@ public class BingoMatch {
     /**
      * Handles when a player finds an item during the game.
      * This method checks if the item is part of the bingo card and awards it to the player's team.
-     * 
+     *
      * @param player The player who found the item
      * @param item The material type of the found item
      */
@@ -364,14 +382,17 @@ public class BingoMatch {
         if (bingoQuest == null) return;
 
         BingoTeam team = bingoTeamRepository.findTeamByPlayer(player);
-        if(team == null) return;
+        if (team == null) return;
 
         if (team.hasCompletedQuest(bingoQuest)) return;
 
-        TeamQuestService questService = new TeamQuestService(bingoTeamRepository);
+        TeamQuestService questService = new TeamQuestService(
+            bingoTeamRepository
+        );
         if (
-            !(matchSettings.getGameMode() == BingoMatchSettings.GameMode.LOCKED &&
-            questService.isQuestCompletedByAnyTeam(bingoQuest))
+            !(matchSettings.getGameMode() ==
+                    BingoMatchSettings.GameMode.LOCKED &&
+                questService.isQuestCompletedByAnyTeam(bingoQuest))
         ) {
             // Mark the quest as completed by the team
             try {
@@ -386,7 +407,7 @@ public class BingoMatch {
         BingoCardGui.getInstance().updateInventories();
         checkWinConditions(team);
     }
-    
+
     /**
      * Checks if the specified team has met win conditions based on the current game mode.
      * Different modes have different win conditions:
@@ -412,9 +433,11 @@ public class BingoMatch {
                 }
                 break;
             case STANDARD:
-                if(bingoCard.isAnyRowCompletedByTeam(team) ||
+                if (
+                    bingoCard.isAnyRowCompletedByTeam(team) ||
                     bingoCard.isAnyColumnCompletedByTeam(team) ||
-                    bingoCard.isAnyDiagonalCompletedByTeam(team)) {
+                    bingoCard.isAnyDiagonalCompletedByTeam(team)
+                ) {
                     end(Collections.singletonList(team));
                     break;
                 }
@@ -453,5 +476,45 @@ public class BingoMatch {
         }
 
         end(potentialWinners);
+    }
+
+    /**
+     * Updates the tab name (player list display name) for a specific player.
+     * If the player is part of a Bingo team, their name will be colored according to their team's color.
+     * Otherwise, their default name will be used.
+     *
+     * @param player The player whose tab name should be updated
+     */
+    public void updatePlayerTabName(Player player) {
+        BingoPlayer bingoPlayer = bingoPlayerRepository.findByUUID(
+            player.getUniqueId()
+        );
+        if (bingoPlayer == null) {
+            player.playerListName(Component.text(player.getName()));
+            return;
+        }
+
+        BingoTeam team = bingoTeamRepository.findTeamByPlayer(bingoPlayer);
+
+        if (team != null) {
+            Component newDisplayName = Component.text(
+                player.getName(),
+                team.getColor()
+            );
+            player.playerListName(newDisplayName);
+        } else {
+            player.playerListName(Component.text(player.getName()));
+        }
+    }
+
+    /**
+     * Updates tab names (player list display names) for all players registered in the Bingo game.
+     * This method iterates through all players in the repository and updates their
+     * tab names according to their team membership.
+     */
+    public void updateAllPlayersTabNames() {
+        for (BingoPlayer p : bingoPlayerRepository.findAll()) {
+            updatePlayerTabName((Player) p);
+        }
     }
 }

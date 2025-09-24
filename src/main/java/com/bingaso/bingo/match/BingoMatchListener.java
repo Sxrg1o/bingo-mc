@@ -157,6 +157,7 @@ public class BingoMatchListener implements Listener {
         ) return;
 
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        gameManager.updatePlayerTabName(player);
 
         // Only add players if the bingo game is in lobby state
         if (gameManager.getState() != BingoMatch.State.LOBBY) {

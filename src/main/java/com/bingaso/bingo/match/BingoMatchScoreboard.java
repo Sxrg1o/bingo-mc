@@ -2,7 +2,6 @@ package com.bingaso.bingo.match;
 
 import com.bingaso.bingo.scoreboard.BingoGlobalScoreboard;
 import com.bingaso.bingo.team.BingoTeam;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.Comparator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -71,11 +69,15 @@ public class BingoMatchScoreboard extends BingoGlobalScoreboard {
         objective.getScore("§eTime: §f" + timeFormatted).setScore(15);
         objective.getScore("§r").setScore(14);
 
-        ArrayList<BingoTeam> sortedTeams = new ArrayList<>(bingoMatch.getBingoTeamRepository().findAll());
+        ArrayList<BingoTeam> sortedTeams = new ArrayList<>(
+            bingoMatch.getBingoTeamRepository().findAll()
+        );
         sortedTeams.sort(
             Comparator.comparingInt((BingoTeam team) ->
                 team.getCompletedQuests().size()
-            ).reversed()
+            )
+                .reversed()
+                .thenComparing(BingoTeam::getName)
         );
 
         int scoreIndex = 13;
