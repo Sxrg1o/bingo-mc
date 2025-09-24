@@ -6,7 +6,6 @@ import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.match.BingoMatchSettings.GameMode;
 import com.bingaso.bingo.match.BingoMatchSettings.TeamMode;
 import com.bingaso.bingo.match.BingoMatchSettingsGui.ConfigGuiContext;
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +37,10 @@ public class BingoMatchSettingsGuiListener implements Listener {
         if (clickedItem == null) return;
 
         Player player = (Player) event.getWhoClicked();
-        String customId = BingoGuiItem.getCustomString(clickedItem, "custom_id");
+        String customId = BingoGuiItem.getCustomString(
+            clickedItem,
+            "custom_id"
+        );
         if (customId == null) return;
 
         BingoMatchSettings settings = BingoPlugin.getInstance()
@@ -78,11 +80,14 @@ public class BingoMatchSettingsGuiListener implements Listener {
                 if (event.isLeftClick()) {
                     settings.setGameDuration(currentDuration + 5);
                 } else if (event.isRightClick()) {
-                    settings.setGameDuration(Math.max(15, currentDuration - 5));
+                    settings.setGameDuration(Math.max(1, currentDuration - 5));
                 }
                 break;
         }
 
-        BingoMatchSettingsGui.getInstance().openForPlayer(player, new ConfigGuiContext(settings));
+        BingoMatchSettingsGui.getInstance().openForPlayer(
+            player,
+            new ConfigGuiContext(settings)
+        );
     }
 }

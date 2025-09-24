@@ -1,4 +1,4 @@
-name: MiBingo
+name: Bingaso
 version: ${project.version}
 main: com.bingaso.bingo.BingoPlugin
 api-version: "1.21.8"
