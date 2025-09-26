@@ -446,6 +446,39 @@ public class BingoGuiItemFactory {
         return itemStack;
     }
 
+    public static BingoGuiItem createEnableRobbersModeGuiItem(
+        boolean robbersMode
+    ) {
+        Material material = robbersMode
+            ? Material.ENDER_EYE
+            : Material.ENDER_PEARL;
+        String status = robbersMode ? "Enabled" : "Disabled";
+        NamedTextColor statusColor = robbersMode
+            ? NamedTextColor.GREEN
+            : NamedTextColor.RED;
+
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("Click to toggle.", NamedTextColor.GRAY));
+        lore.add(
+            Component.text("Current: ", NamedTextColor.GRAY).append(
+                Component.text(status, statusColor)
+            )
+        );
+
+        BingoGuiItem itemStack = new BingoGuiItem(
+            material,
+            "bingo_config_robbers_mode_gui_item"
+        );
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        itemMeta.displayName(
+            Component.text("Robbers mode", NamedTextColor.DARK_RED)
+        );
+        itemMeta.lore(lore);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
     public static BingoGuiItem createIsTimedGuiItem(boolean isTimed) {
         Material material = isTimed ? Material.LIME_DYE : Material.GRAY_DYE;
         String status = isTimed ? "Enabled" : "Disabled";

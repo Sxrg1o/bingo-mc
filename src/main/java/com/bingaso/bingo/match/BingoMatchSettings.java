@@ -24,6 +24,8 @@ public class BingoMatchSettings {
     private int maxTeamSize = 5;
     /* If the match is timed */
     private boolean isTimed = true;
+    /* Enable robbers mode */
+    private boolean robbersMode = false;
 
     /**
      * Creates a new MatchSettings instance with default values.
@@ -47,7 +49,8 @@ public class BingoMatchSettings {
         int gameDuration,
         BingoQuestRepository itemRepository,
         int maxTeamSize,
-        boolean isTimed
+        boolean isTimed,
+        boolean robbersMode
     ) {
         this.gameMode = gameMode;
         this.teamMode = teamMode;
@@ -56,6 +59,7 @@ public class BingoMatchSettings {
         this.itemRepository = itemRepository;
         this.maxTeamSize = maxTeamSize;
         this.isTimed = isTimed;
+        this.robbersMode = robbersMode;
     }
 
     /**
@@ -136,6 +140,14 @@ public class BingoMatchSettings {
 
     public boolean matchIsTimed() {
         return isTimed;
+    }
+
+    protected void setRobbersMode(boolean robbersMode) {
+        this.robbersMode = robbersMode;
+    }
+
+    public boolean isRobbersModeEnabled() {
+        return robbersMode;
     }
 
     public BingoQuestRepository getItemRepository() {

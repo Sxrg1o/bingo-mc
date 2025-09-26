@@ -23,10 +23,13 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -115,30 +118,77 @@ public class BingoMatchListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         ItemStack clickedItem = event.getCurrentItem();
-
-        if (
-            BingoGuiItem.getCustomString(clickedItem, "custom_id") != null
-        ) return;
-
-        if (
-            BingoPlugin.getInstance().getBingoMatch().getState() !=
-            BingoMatch.State.IN_PROGRESS
-        ) return;
-
         Player player = (Player) event.getWhoClicked();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
-        if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-            if (
-                event.getClickedInventory() != null &&
-                event.getClickedInventory().getType() != InventoryType.PLAYER
+        if (BingoGuiItem.getCustomString(clickedItem, "custom_id") != null) {
+            return;
+        }
+
+        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+
+        if (
+            event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY &&
+            event.getClickedInventory() != null &&
+            event.getClickedInventory().getType() != InventoryType.PLAYER &&
+            clickedItem != null
+        ) {
+            processGetItem(player, clickedItem.getType());
+        }
+
+        if (
+            event.getClickedInventory() != null &&
+            event.getClickedInventory().getType() == InventoryType.PLAYER &&
+            clickedItem != null
+        ) {
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+                gameManager
+                    .getRobbersModeService()
+                    .handleItemLoss(player, clickedItem.getType());
+            } else if (
+                event.getCursor() != null &&
+                event.getCursor().getType() != Material.AIR &&
+                event.getRawSlot() >= player.getInventory().getSize()
             ) {
-                Material material = clickedItem.getType();
-                processGetItem(player, material);
+                gameManager
+                    .getRobbersModeService()
+                    .handleItemLoss(player, event.getCursor().getType());
             }
         }
     }
 
-    // TODO: Inventory click but with drag
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        BingoPlugin.getInstance()
+            .getBingoMatch()
+            .getRobbersModeService()
+            .scheduleInventoryCheck((Player) event.getPlayer());
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        ItemStack draggedItem = event.getOldCursor();
+
+        if (
+            draggedItem == null || draggedItem.getType() == Material.AIR
+        ) return;
+
+        boolean movedOutOfPlayerInventory = false;
+        for (Integer slot : event.getRawSlots()) {
+            if (slot >= player.getInventory().getSize()) {
+                movedOutOfPlayerInventory = true;
+                break;
+            }
+        }
+
+        if (movedOutOfPlayerInventory) {
+            BingoPlugin.getInstance()
+                .getBingoMatch()
+                .getRobbersModeService()
+                .handleItemLoss(player, draggedItem.getType());
+        }
+    }
 
     // Lobby Listeners
 
@@ -226,45 +276,63 @@ public class BingoMatchListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerInteractEvent(PlayerInteractEvent event) {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+
         if (
             event.getAction() == Action.RIGHT_CLICK_AIR ||
             event.getAction() == Action.RIGHT_CLICK_BLOCK
         ) {
-            String custom_id = BingoGuiItem.getCustomString(
-                player.getInventory().getItemInMainHand(),
+            ItemStack itemInHand = player.getInventory().getItemInMainHand();
+            String customId = BingoGuiItem.getCustomString(
+                itemInHand,
                 "custom_id"
             );
-            if (custom_id == null) return;
-            // Handle right-click actions
-            switch (custom_id) {
-                case "bingo_match_bingo_card_item":
-                    // Open the bingo card GUI
+            if (customId != null) {
+                switch (customId) {
+                    case "bingo_match_bingo_card_item":
+                        BingoTeam bingoTeamFromPlayer =
+                            gameManager.getBingoTeamFromPlayer(player);
+                        BingoTeam bingoTeamToShow = bingoTeamFromPlayer;
+                        BingoCardGui.getInstance().openForPlayer(
+                            player,
+                            new BingoCardGuiContext(
+                                bingoTeamFromPlayer,
+                                bingoTeamToShow,
+                                gameManager.getBingoCard()
+                            )
+                        );
+                        event.setCancelled(true);
+                        return;
+                    case "bingo_lobby_team_selection_item":
+                        BingoTeamSelectGui.getInstance().openForPlayer(
+                            player,
+                            new BingoTeamSelectGuiContext()
+                        );
+                        event.setCancelled(true);
+                        return;
+                }
+            }
+        }
 
-                    BingoMatch gameManager =
-                        BingoPlugin.getInstance().getBingoMatch();
-                    BingoTeam bingoTeamFromPlayer =
-                        gameManager.getBingoTeamFromPlayer(player);
-                    BingoTeam bingoTeamToShow = bingoTeamFromPlayer;
-                    BingoCardGui.getInstance().openForPlayer(
-                        player,
-                        new BingoCardGuiContext(
-                            bingoTeamFromPlayer,
-                            bingoTeamToShow,
-                            gameManager.getBingoCard()
-                        )
-                    );
-                    break;
-                case "bingo_lobby_team_selection_item":
-                    // Open the team selection GUI
-                    BingoTeamSelectGui.getInstance().openForPlayer(
-                        player,
-                        new BingoTeamSelectGuiContext()
-                    );
-                    break;
-                default:
-                    break;
+        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+
+        if (
+            event.getAction() == Action.RIGHT_CLICK_BLOCK &&
+            event.getItem() != null
+        ) {
+            if (event.getItem().getType().isBlock()) {
+                gameManager
+                    .getRobbersModeService()
+                    .handleItemLoss(player, event.getItem().getType());
+            } else if (
+                event.getItem().getType() == Material.WATER_BUCKET ||
+                event.getItem().getType() == Material.LAVA_BUCKET
+            ) {
+                gameManager
+                    .getRobbersModeService()
+                    .handleItemLoss(player, event.getItem().getType());
             }
         }
     }
@@ -295,48 +363,60 @@ public class BingoMatchListener implements Listener {
 
     @EventHandler
     public void onPlayerDropEvent(PlayerDropItemEvent event) {
-        if (
-            BingoPlugin.getInstance().getBingoMatch().getState() !=
-            BingoMatch.State.LOBBY
-        ) {
-            String custom_id = BingoGuiItem.getCustomString(
-                event.getItemDrop().getItemStack(),
-                "custom_id"
-            );
-            if (custom_id == null) return;
-
-            // cannot drop the bingo card
-            switch (custom_id) {
-                case "bingo_match_bingo_card_item":
-                    event.setCancelled(true);
-                    break;
-                default:
-                    break;
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        if (gameManager.getState() == BingoMatch.State.IN_PROGRESS) {
+            gameManager
+                .getRobbersModeService()
+                .handleItemLoss(
+                    event.getPlayer(),
+                    event.getItemDrop().getItemStack().getType()
+                );
+            if (
+                "bingo_match_bingo_card_item".equals(
+                    BingoGuiItem.getCustomString(
+                        event.getItemDrop().getItemStack(),
+                        "custom_id"
+                    )
+                )
+            ) {
+                event.setCancelled(true);
             }
-            return;
+        } else if (gameManager.getState() == BingoMatch.State.LOBBY) {
+            event.setCancelled(true);
         }
-
-        event.setCancelled(true); // Prevent item drops during the lobby state
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (
-            BingoPlugin.getInstance().getBingoMatch().getState() !=
-            BingoMatch.State.IN_PROGRESS
-        ) {
-            return;
-        }
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
 
+        Player player = event.getEntity();
+        for (ItemStack itemStack : event.getDrops()) {
+            gameManager
+                .getRobbersModeService()
+                .handleItemLoss(player, itemStack.getType());
+        }
         event
             .getDrops()
-            .removeIf(item -> {
-                String customId = BingoGuiItem.getCustomString(
-                    item,
-                    "custom_id"
-                );
-                return "bingo_match_bingo_card_item".equals(customId);
-            });
+            .removeIf(item ->
+                "bingo_match_bingo_card_item".equals(
+                    BingoGuiItem.getCustomString(item, "custom_id")
+                )
+            );
+    }
+
+    @EventHandler
+    public void onPlayerConsume(PlayerItemConsumeEvent event) {
+        BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
+        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+
+        Player player = event.getPlayer();
+        ItemStack consumedItem = event.getItem();
+
+        gameManager
+            .getRobbersModeService()
+            .handleItemLoss(player, consumedItem.getType());
     }
 
     @EventHandler

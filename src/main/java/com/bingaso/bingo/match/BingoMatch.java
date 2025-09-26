@@ -6,6 +6,7 @@ import com.bingaso.bingo.card.BingoCardGui;
 import com.bingaso.bingo.gui.BingoGuiItemFactory;
 import com.bingaso.bingo.match.managers.MatchLifecycleManager;
 import com.bingaso.bingo.match.managers.PlayerManager;
+import com.bingaso.bingo.match.managers.RobbersModeService;
 import com.bingaso.bingo.match.managers.TeamManager;
 import com.bingaso.bingo.match.managers.TeamManager.MaxPlayersException;
 import com.bingaso.bingo.match.managers.WinConditionService;
@@ -68,6 +69,8 @@ public class BingoMatch {
     private final MatchLifecycleManager lifecycleManager;
     /** Service for checking win conditions. */
     private WinConditionService winConditionService;
+    /** Service for managing robbers game mode */
+    private final RobbersModeService robbersModeService;
 
     /** Utility for broadcasting messages to players. */
     private final Broadcaster broadcaster = new Broadcaster();
@@ -89,6 +92,7 @@ public class BingoMatch {
         this.playerManager = new PlayerManager();
         this.teamManager = new TeamManager(matchSettings.getMaxTeamSize());
         this.lifecycleManager = new MatchLifecycleManager(matchSettings);
+        this.robbersModeService = new RobbersModeService(this);
         generateNewBingoCard();
     }
 
@@ -387,6 +391,15 @@ public class BingoMatch {
      */
     public BingoPlayerRepository getBingoPlayerRepository() {
         return playerManager.getPlayerRepository();
+    }
+
+    /**
+     * Gets the Robbers GameMode Service
+     *
+     * @return The Robbers mode Service
+     */
+    public RobbersModeService getRobbersModeService() {
+        return robbersModeService;
     }
 
     /**

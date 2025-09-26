@@ -96,12 +96,18 @@ public class BingoMatchSettingsGui extends BingoGui {
         );
         inventory.setItem(
             14,
+            BingoGuiItemFactory.createEnableRobbersModeGuiItem(
+                matchSettings.isRobbersModeEnabled()
+            )
+        );
+        inventory.setItem(
+            15,
             BingoGuiItemFactory.createIsTimedGuiItem(
                 matchSettings.matchIsTimed()
             )
         );
         inventory.setItem(
-            15,
+            16,
             BingoGuiItemFactory.createDurationGuiItem(
                 matchSettings.getGameDuration()
             )

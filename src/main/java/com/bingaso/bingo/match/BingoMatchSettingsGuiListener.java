@@ -78,6 +78,9 @@ public class BingoMatchSettingsGuiListener implements Listener {
                     .getBingoMatch()
                     .generateNewBingoCard();
                 break;
+            case "bingo_config_robbers_mode_gui_item":
+                settings.setRobbersMode(!settings.isRobbersModeEnabled());
+                break;
             case "bingo_config_duration_gui_item":
                 int currentDuration = settings.getGameDuration();
                 if (event.isLeftClick()) {
