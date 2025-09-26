@@ -74,6 +74,9 @@ public class BingoMatchSettingsGuiListener implements Listener {
                     1) %
                 difficulties.length];
                 settings.setDifficultyLevel(nextDifficulty);
+                BingoPlugin.getInstance()
+                    .getBingoMatch()
+                    .generateNewBingoCard();
                 break;
             case "bingo_config_duration_gui_item":
                 int currentDuration = settings.getGameDuration();

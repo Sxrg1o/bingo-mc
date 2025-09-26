@@ -1,5 +1,14 @@
 package com.bingaso.bingo.team.select;
 
+import com.bingaso.bingo.BingoPlugin;
+import com.bingaso.bingo.gui.BingoGuiItem;
+import com.bingaso.bingo.gui.BingoTextCaptureGui;
+import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.managers.TeamManager.MaxPlayersException;
+import com.bingaso.bingo.team.BingoTeam;
+import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,17 +16,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
-
-import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.gui.BingoGuiItem;
-import com.bingaso.bingo.gui.BingoTextCaptureGui;
-import com.bingaso.bingo.match.BingoMatch;
-import com.bingaso.bingo.match.BingoMatch.MaxPlayersException;
-import com.bingaso.bingo.team.BingoTeam;
-import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
-
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
  * Listener for handling interactions with the Teams GUI.
@@ -28,7 +26,7 @@ public class BingoTeamSelectGuiListener implements Listener {
     /**
      * Handles inventory close events for the Teams GUI.
      * Removes the player from the list of players with the GUI open.
-     * 
+     *
      * @param event The inventory close event
      */
     @EventHandler
@@ -42,7 +40,7 @@ public class BingoTeamSelectGuiListener implements Listener {
     /**
      * Handles inventory click events for the Teams GUI.
      * Processes team creation and team joining based on the clicked item.
-     * 
+     *
      * @param event The inventory click event
      */
     @EventHandler
@@ -62,85 +60,123 @@ public class BingoTeamSelectGuiListener implements Listener {
         event.setCancelled(true);
 
         // Check game is on lobby state
-        if(bingoMatch.getState() != BingoMatch.State.LOBBY) {
-            player.sendMessage(Component.text(
-                "You cannot create or join teams right now.",
-                NamedTextColor.RED
-            ));
+        if (bingoMatch.getState() != BingoMatch.State.LOBBY) {
+            player.sendMessage(
+                Component.text(
+                    "You cannot create or join teams right now.",
+                    NamedTextColor.RED
+                )
+            );
             return;
         }
-        String custom_id = BingoGuiItem.getCustomString(clickedItem, "custom_id");
-        if(custom_id == null) return;
+        String custom_id = BingoGuiItem.getCustomString(
+            clickedItem,
+            "custom_id"
+        );
+        if (custom_id == null) return;
 
         switch (custom_id) {
             case "bingo_team_new_team_gui_item":
-                BingoTextCaptureGui bingoTextCaptureGui = new BingoTextCaptureGui(player);
+                BingoTextCaptureGui bingoTextCaptureGui =
+                    new BingoTextCaptureGui(player);
                 bingoTextCaptureGui.open(player, "Team name");
                 try {
-                    bingoTextCaptureGui.getResultFuture().thenAccept(newTeamName -> {
-                        BingoTeam newTeam;
-                        try {
-                            newTeam = bingoMatch.createBingoTeam(newTeamName);
-                        } catch (TeamNameAlreadyExistsException e) {
-                            player.sendMessage(Component.text(
-                                e.getMessage(),
-                                NamedTextColor.RED
-                            ));
-                            return;
-                        }
-                        player.sendMessage(Component.text(
-                            "Succesfully created new team with name \"" + newTeam.getName() + "\".",
-                            NamedTextColor.GREEN
-                        ));
-                        try {
-                            bingoMatch.addPlayerToBingoTeam(player, newTeam);
-                            player.sendMessage(Component.text(
-                                "Added you to the new team.",
-                                NamedTextColor.GREEN
-                            ));
-                        } catch (MaxPlayersException e) {
-                            player.sendMessage(Component.text(
-                                "Couldn't add you to the new team.",
-                                NamedTextColor.RED
-                            ));
-                        }
-                        player.closeInventory();
-                        BingoTeamSelectGui.getInstance().updateInventories();
-                    });
+                    bingoTextCaptureGui
+                        .getResultFuture()
+                        .thenAccept(newTeamName -> {
+                            BingoTeam newTeam;
+                            try {
+                                newTeam = bingoMatch.createBingoTeam(
+                                    newTeamName
+                                );
+                            } catch (TeamNameAlreadyExistsException e) {
+                                player.sendMessage(
+                                    Component.text(
+                                        e.getMessage(),
+                                        NamedTextColor.RED
+                                    )
+                                );
+                                return;
+                            }
+                            player.sendMessage(
+                                Component.text(
+                                    "Succesfully created new team with name \"" +
+                                        newTeam.getName() +
+                                        "\".",
+                                    NamedTextColor.GREEN
+                                )
+                            );
+                            try {
+                                bingoMatch.addPlayerToBingoTeam(
+                                    player,
+                                    newTeam
+                                );
+                                player.sendMessage(
+                                    Component.text(
+                                        "Added you to the new team.",
+                                        NamedTextColor.GREEN
+                                    )
+                                );
+                            } catch (MaxPlayersException e) {
+                                player.sendMessage(
+                                    Component.text(
+                                        "Couldn't add you to the new team.",
+                                        NamedTextColor.RED
+                                    )
+                                );
+                            }
+                            player.closeInventory();
+                            BingoTeamSelectGui.getInstance().updateInventories();
+                        });
                 } catch (Exception e) {
-                    player.sendMessage(Component.text("Couldn't capture team name", NamedTextColor.RED));
+                    player.sendMessage(
+                        Component.text(
+                            "Couldn't capture team name",
+                            NamedTextColor.RED
+                        )
+                    );
                     return;
                 }
                 break;
-
             case "bingo_team_join_team_gui_item":
-                String teamName = BingoGuiItem.getCustomString(clickedItem, "team");
-                if(teamName == null) return;
-                BingoTeam team
-                    = bingoMatch.getBingoTeamRepository().findByName(teamName);
-                if(team == null) {
-                    player.sendMessage(Component.text(
-                        "Team not found, couldn't join.",
-                        NamedTextColor.RED
-                    ));
+                String teamName = BingoGuiItem.getCustomString(
+                    clickedItem,
+                    "team"
+                );
+                if (teamName == null) return;
+                BingoTeam team = bingoMatch
+                    .getBingoTeamRepository()
+                    .findByName(teamName);
+                if (team == null) {
+                    player.sendMessage(
+                        Component.text(
+                            "Team not found, couldn't join.",
+                            NamedTextColor.RED
+                        )
+                    );
                     return;
-                } 
+                }
 
                 try {
                     bingoMatch.addPlayerToBingoTeam(player, team);
-                    player.sendMessage(Component.text(
-                        "You have joined the team \"" + team.getName() + "\".",
-                        NamedTextColor.GREEN
-                    ));
+                    player.sendMessage(
+                        Component.text(
+                            "You have joined the team \"" +
+                                team.getName() +
+                                "\".",
+                            NamedTextColor.GREEN
+                        )
+                    );
                     BingoTeamSelectGui.getInstance().updateInventories();
                 } catch (MaxPlayersException e) {
-                    player.sendMessage(Component.text(
-                        "Couldn't join the team, it is full.",
-                        NamedTextColor.RED
-                    ));
+                    player.sendMessage(
+                        Component.text(
+                            "Couldn't join the team, it is full.",
+                            NamedTextColor.RED
+                        )
+                    );
                 }
                 break;
-
             default:
                 break;
         }
