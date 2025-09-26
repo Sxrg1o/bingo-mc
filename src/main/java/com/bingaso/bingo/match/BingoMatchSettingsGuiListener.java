@@ -86,6 +86,9 @@ public class BingoMatchSettingsGuiListener implements Listener {
                     settings.setGameDuration(Math.max(1, currentDuration - 5));
                 }
                 break;
+            case "bingo_config_is_timed_gui_item":
+                settings.setIsTimed(!settings.matchIsTimed());
+                break;
         }
 
         BingoMatchSettingsGui.getInstance().openForPlayer(

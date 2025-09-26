@@ -90,16 +90,14 @@ public class WinConditionService {
                     return Collections.singletonList(team);
                 }
                 break;
-            case TIMED:
-                break;
         }
         return Collections.emptyList();
     }
 
     /**
-     * Determines winners for a timed game mode.
+     * Determines winners for a timed match.
      * <p>
-     * When time expires in a TIMED game mode, this method:
+     * When time expires in a timed match, this method:
      * <ol>
      *   <li>Finds all teams with the highest number of completed quests</li>
      *   <li>If multiple teams have the same score, they all win (tie)</li>

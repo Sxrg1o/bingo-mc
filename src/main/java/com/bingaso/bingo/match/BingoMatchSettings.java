@@ -22,6 +22,8 @@ public class BingoMatchSettings {
     private BingoQuestRepository itemRepository = new BingoQuestRepository();
     /* The maximum amount of players in a team */
     private int maxTeamSize = 5;
+    /* If the match is timed */
+    private boolean isTimed = true;
 
     /**
      * Creates a new MatchSettings instance with default values.
@@ -44,7 +46,8 @@ public class BingoMatchSettings {
         DifficultyLevel difficultyLevel,
         int gameDuration,
         BingoQuestRepository itemRepository,
-        int maxTeamSize
+        int maxTeamSize,
+        boolean isTimed
     ) {
         this.gameMode = gameMode;
         this.teamMode = teamMode;
@@ -52,6 +55,7 @@ public class BingoMatchSettings {
         this.difficultyLevel = difficultyLevel;
         this.itemRepository = itemRepository;
         this.maxTeamSize = maxTeamSize;
+        this.isTimed = isTimed;
     }
 
     /**
@@ -126,6 +130,14 @@ public class BingoMatchSettings {
         this.difficultyLevel = difficultyLevel;
     }
 
+    protected void setIsTimed(boolean isTimed) {
+        this.isTimed = isTimed;
+    }
+
+    public boolean matchIsTimed() {
+        return isTimed;
+    }
+
     public BingoQuestRepository getItemRepository() {
         return itemRepository;
     }
@@ -139,8 +151,10 @@ public class BingoMatchSettings {
     }
 
     protected int setMaxTeamSize(int maxTeamSize) {
-        if(maxTeamSize < 1) {
-            throw new IllegalArgumentException("Max team size must be at least 1.");
+        if (maxTeamSize < 1) {
+            throw new IllegalArgumentException(
+                "Max team size must be at least 1."
+            );
         }
         this.maxTeamSize = maxTeamSize;
         return this.maxTeamSize;
@@ -163,7 +177,7 @@ public class BingoMatchSettings {
          */
         MANUAL,
     }
-    
+
     /**
      * Represents the different modes to complete a Card.
      * Each mode has unique win conditions and gameplay mechanics.
@@ -182,17 +196,10 @@ public class BingoMatchSettings {
         BLACKOUT,
 
         /**
-         * Time-limited matches.
-         * When time expires, the team with the most items found wins.
-         */
-        TIMED,
-
-        /**
          * First-come-first-served mode.
          * Once an item is found by any team, it's locked and cannot be claimed by others.
          * Teams need to find a certain number of items based on the number of teams.
          */
         LOCKED,
     }
-
 }

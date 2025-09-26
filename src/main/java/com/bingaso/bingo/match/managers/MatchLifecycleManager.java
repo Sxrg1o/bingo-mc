@@ -59,7 +59,7 @@ public class MatchLifecycleManager {
         state = BingoMatch.State.IN_PROGRESS;
         startInstant = Instant.now();
 
-        if (settings.getGameMode() == BingoMatchSettings.GameMode.TIMED) {
+        if (settings.matchIsTimed()) {
             long durationInTicks = settings.getGameDuration() * 60 * 20L;
             endGameTask = BingoPlugin.getInstance()
                 .getServer()
