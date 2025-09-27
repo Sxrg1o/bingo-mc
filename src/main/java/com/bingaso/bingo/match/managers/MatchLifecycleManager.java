@@ -1,7 +1,6 @@
 package com.bingaso.bingo.match.managers;
 
 import com.bingaso.bingo.BingoPlugin;
-import com.bingaso.bingo.match.BingoMatch;
 import com.bingaso.bingo.match.BingoMatchSettings;
 import com.bingaso.bingo.team.BingoTeam;
 import com.bingaso.bingo.utils.Broadcaster;
@@ -20,8 +19,28 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public class MatchLifecycleManager {
 
+    /**
+     * Represents the current state of a Bingo match.
+     *
+     * @since 1.0
+     */
+    public static enum State {
+        /**
+         * Players are in the lobby, waiting for the match to start.
+         */
+        LOBBY,
+        /**
+         * Match is currently active and in progress.
+         */
+        IN_PROGRESS,
+        /**
+         * Match is in the finishing state (completing end-game tasks).
+         */
+        FINISHING,
+    }
+
     /** Current state of the match */
-    private BingoMatch.State state = BingoMatch.State.LOBBY;
+    private State state = State.LOBBY;
     /** Timestamp when the match started */
     private Instant startInstant;
     /** Scheduled task to end the match (for timed matches) */
@@ -56,7 +75,7 @@ public class MatchLifecycleManager {
      * @param onTimedEnd Callback to execute when a timed match ends naturally
      */
     public void start(Runnable onTimedEnd) {
-        state = BingoMatch.State.IN_PROGRESS;
+        state = State.IN_PROGRESS;
         startInstant = Instant.now();
 
         if (settings.matchIsTimed()) {
@@ -89,9 +108,9 @@ public class MatchLifecycleManager {
      * @param winners List of teams that won the match
      */
     public void end(List<BingoTeam> winners) {
-        if (state != BingoMatch.State.IN_PROGRESS) return;
+        if (state != State.IN_PROGRESS) return;
 
-        state = BingoMatch.State.FINISHING;
+        state = State.FINISHING;
         broadcaster.announceWinners(winners);
 
         if (endGameTask != null) {
@@ -99,7 +118,7 @@ public class MatchLifecycleManager {
             endGameTask = null;
         }
 
-        state = BingoMatch.State.LOBBY;
+        state = State.LOBBY;
     }
 
     /**
@@ -107,7 +126,7 @@ public class MatchLifecycleManager {
      *
      * @return The current match state
      */
-    public BingoMatch.State getState() {
+    public State getState() {
         return state;
     }
 

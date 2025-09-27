@@ -3,6 +3,7 @@ package com.bingaso.bingo.team.select.handlers;
 import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.command.BingoSubCommand;
 import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.managers.MatchLifecycleManager.State;
 import com.bingaso.bingo.match.managers.TeamManager.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeam;
 import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
@@ -102,7 +103,7 @@ public class CreateTeamHandler implements BingoSubCommand {
             targetPlayer = (Player) sender;
 
             // Only allow team creation in lobby state for non-ops
-            if (gameManager.getState() != BingoMatch.State.LOBBY) {
+            if (gameManager.getState() != State.LOBBY) {
                 sender.sendMessage(
                     Component.text(
                         "You cannot create teams right now.",

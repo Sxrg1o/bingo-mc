@@ -4,6 +4,7 @@ import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.card.BingoCardGui.BingoCardGuiContext;
 import com.bingaso.bingo.command.BingoSubCommand;
 import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.managers.MatchLifecycleManager.State;
 import com.bingaso.bingo.team.BingoTeam;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +47,7 @@ public class BingoCardSubCommand implements BingoSubCommand {
                 return true;
             }
 
-            if (gameManager.getState() != BingoMatch.State.LOBBY) {
+            if (gameManager.getState() != State.LOBBY) {
                 player.sendMessage(
                     Component.text("You are in a game.", NamedTextColor.RED)
                 );

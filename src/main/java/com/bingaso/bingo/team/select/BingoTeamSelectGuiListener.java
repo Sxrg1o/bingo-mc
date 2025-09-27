@@ -4,6 +4,7 @@ import com.bingaso.bingo.BingoPlugin;
 import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.gui.BingoTextCaptureGui;
 import com.bingaso.bingo.match.BingoMatch;
+import com.bingaso.bingo.match.managers.MatchLifecycleManager.State;
 import com.bingaso.bingo.match.managers.TeamManager.MaxPlayersException;
 import com.bingaso.bingo.team.BingoTeam;
 import com.bingaso.bingo.team.BingoTeamRepository.TeamNameAlreadyExistsException;
@@ -60,7 +61,7 @@ public class BingoTeamSelectGuiListener implements Listener {
         event.setCancelled(true);
 
         // Check game is on lobby state
-        if (bingoMatch.getState() != BingoMatch.State.LOBBY) {
+        if (bingoMatch.getState() != State.LOBBY) {
             player.sendMessage(
                 Component.text(
                     "You cannot create or join teams right now.",

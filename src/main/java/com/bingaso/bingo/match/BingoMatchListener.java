@@ -5,6 +5,7 @@ import com.bingaso.bingo.card.BingoCardGui;
 import com.bingaso.bingo.card.BingoCardGui.BingoCardGuiContext;
 import com.bingaso.bingo.gui.BingoGuiItem;
 import com.bingaso.bingo.gui.BingoGuiItemFactory;
+import com.bingaso.bingo.match.managers.MatchLifecycleManager.State;
 import com.bingaso.bingo.player.BingoPlayer;
 import com.bingaso.bingo.team.BingoTeam;
 import com.bingaso.bingo.team.select.BingoTeamSelectGui;
@@ -52,7 +53,7 @@ public class BingoMatchListener implements Listener {
      */
     private void processGetItem(Player player, Material material) {
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
-        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+        if (gameManager.getState() != State.IN_PROGRESS) return;
 
         BingoPlayer bingoPlayer = gameManager
             .getBingoPlayerRepository()
@@ -125,7 +126,7 @@ public class BingoMatchListener implements Listener {
             return;
         }
 
-        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+        if (gameManager.getState() != State.IN_PROGRESS) return;
 
         if (
             event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY &&
@@ -219,7 +220,7 @@ public class BingoMatchListener implements Listener {
         gameManager.updatePlayerTabName(player);
 
         // Only add players if the bingo game is in lobby state
-        if (gameManager.getState() != BingoMatch.State.LOBBY) {
+        if (gameManager.getState() != State.LOBBY) {
             player.setGameMode(GameMode.SURVIVAL);
             return;
         }
@@ -250,7 +251,7 @@ public class BingoMatchListener implements Listener {
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
         // Only remove players if the bingo game is in lobby state
-        if (gameManager.getState() != BingoMatch.State.LOBBY) return;
+        if (gameManager.getState() != State.LOBBY) return;
 
         // Remove bingo player
         gameManager.removePlayer(player);
@@ -275,7 +276,7 @@ public class BingoMatchListener implements Listener {
             newGameMode == GameMode.ADVENTURE
         ) {
             // Add player back to the game if they return to survival or adventure
-            if (gameManager.getState() == BingoMatch.State.LOBBY) {
+            if (gameManager.getState() == State.LOBBY) {
                 gameManager.addPlayer(player);
             }
         } else {
@@ -325,7 +326,7 @@ public class BingoMatchListener implements Listener {
             }
         }
 
-        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+        if (gameManager.getState() != State.IN_PROGRESS) return;
 
         if (
             event.getAction() == Action.RIGHT_CLICK_BLOCK &&
@@ -351,8 +352,7 @@ public class BingoMatchListener implements Listener {
         if (!(event.getEntity() instanceof Player)) return;
 
         if (
-            BingoPlugin.getInstance().getBingoMatch().getState() !=
-            BingoMatch.State.LOBBY
+            BingoPlugin.getInstance().getBingoMatch().getState() != State.LOBBY
         ) return;
 
         event.setCancelled(true); // Prevent damage during the lobby state
@@ -363,8 +363,7 @@ public class BingoMatchListener implements Listener {
         if (!(event.getEntity() instanceof Player)) return;
 
         if (
-            BingoPlugin.getInstance().getBingoMatch().getState() !=
-            BingoMatch.State.LOBBY
+            BingoPlugin.getInstance().getBingoMatch().getState() != State.LOBBY
         ) return;
 
         event.setCancelled(true); // Prevent hunger during the lobby state
@@ -373,7 +372,7 @@ public class BingoMatchListener implements Listener {
     @EventHandler
     public void onPlayerDropEvent(PlayerDropItemEvent event) {
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
-        if (gameManager.getState() == BingoMatch.State.IN_PROGRESS) {
+        if (gameManager.getState() == State.IN_PROGRESS) {
             gameManager
                 .getRobbersModeService()
                 .handleItemLoss(
@@ -390,7 +389,7 @@ public class BingoMatchListener implements Listener {
             ) {
                 event.setCancelled(true);
             }
-        } else if (gameManager.getState() == BingoMatch.State.LOBBY) {
+        } else if (gameManager.getState() == State.LOBBY) {
             event.setCancelled(true);
         }
     }
@@ -398,7 +397,7 @@ public class BingoMatchListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
-        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+        if (gameManager.getState() != State.IN_PROGRESS) return;
 
         Player player = event.getEntity();
         for (ItemStack itemStack : event.getDrops()) {
@@ -418,7 +417,7 @@ public class BingoMatchListener implements Listener {
     @EventHandler
     public void onPlayerConsume(PlayerItemConsumeEvent event) {
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
-        if (gameManager.getState() != BingoMatch.State.IN_PROGRESS) return;
+        if (gameManager.getState() != State.IN_PROGRESS) return;
 
         Player player = event.getPlayer();
         ItemStack consumedItem = event.getItem();
@@ -433,7 +432,7 @@ public class BingoMatchListener implements Listener {
         Player player = event.getPlayer();
         BingoMatch gameManager = BingoPlugin.getInstance().getBingoMatch();
 
-        if (gameManager.getState() == BingoMatch.State.IN_PROGRESS) {
+        if (gameManager.getState() == State.IN_PROGRESS) {
             player
                 .getInventory()
                 .addItem(BingoGuiItemFactory.createBingoCardItem());

@@ -5,6 +5,7 @@ import com.bingaso.bingo.card.BingoCardGenerator;
 import com.bingaso.bingo.card.BingoCardGui;
 import com.bingaso.bingo.gui.BingoGuiItemFactory;
 import com.bingaso.bingo.match.managers.MatchLifecycleManager;
+import com.bingaso.bingo.match.managers.MatchLifecycleManager.State;
 import com.bingaso.bingo.match.managers.PlayerManager;
 import com.bingaso.bingo.match.managers.RobbersModeService;
 import com.bingaso.bingo.match.managers.TeamManager;
@@ -39,26 +40,6 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0
  */
 public class BingoMatch {
-
-    /**
-     * Represents the current state of a Bingo match.
-     *
-     * @since 1.0
-     */
-    public static enum State {
-        /**
-         * Players are in the lobby, waiting for the match to start.
-         */
-        LOBBY,
-        /**
-         * Match is currently active and in progress.
-         */
-        IN_PROGRESS,
-        /**
-         * Match is in the finishing state (completing end-game tasks).
-         */
-        FINISHING,
-    }
 
     /** Match configuration and settings. */
     private final BingoMatchSettings matchSettings;
