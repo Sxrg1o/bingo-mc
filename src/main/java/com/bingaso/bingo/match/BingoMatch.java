@@ -26,6 +26,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -505,5 +506,35 @@ public class BingoMatch {
                     updatePlayerTabName(onlinePlayer);
                 }
             });
+    }
+
+    /**
+     * Scans a player's inventory to register any new bingo items they possess.
+     * This is useful for cases where item acquisition isn't captured by other events,
+     * such as when closing an inventory.
+     *
+     * @param player The player whose inventory is to be checked.
+     */
+    public void checkInventoryForNewItems(Player player) {
+        if (getState() != State.IN_PROGRESS) {
+            return;
+        }
+
+        BingoPlayer bingoPlayer = getBingoPlayerRepository().findByUUID(
+            player.getUniqueId()
+        );
+        if (bingoPlayer == null) {
+            return;
+        }
+
+        if (getBingoTeamFromPlayer(player) == null) {
+            return;
+        }
+
+        for (ItemStack itemStack : player.getInventory().getContents()) {
+            if (itemStack != null && itemStack.getType() != Material.AIR) {
+                onPlayerFindsItem(bingoPlayer, itemStack.getType());
+            }
+        }
     }
 }

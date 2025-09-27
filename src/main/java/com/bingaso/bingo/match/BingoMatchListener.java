@@ -159,10 +159,19 @@ public class BingoMatchListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
+        Player player = (Player) event.getPlayer();
+        BingoMatch bingoMatch = BingoPlugin.getInstance().getBingoMatch();
+
+        bingoMatch.getRobbersModeService().scheduleInventoryCheck(player);
+
         BingoPlugin.getInstance()
-            .getBingoMatch()
-            .getRobbersModeService()
-            .scheduleInventoryCheck((Player) event.getPlayer());
+            .getServer()
+            .getScheduler()
+            .runTaskLater(
+                BingoPlugin.getInstance(),
+                () -> bingoMatch.checkInventoryForNewItems(player),
+                1L
+            );
     }
 
     @EventHandler
